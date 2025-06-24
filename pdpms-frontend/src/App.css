@@ -1,0 +1,357 @@
+/* Tailwind not yet enabled – uncomment the line below after running `npx tailwindcss init -p` and adding the PostCSS config.
+   @import "tailwindcss"; */
+
+/* Base color + size variables extracted from design asset */
+:root {
+  --light-teal-background: #eff8f9;
+  --light-grey-selected: #dde0e2;
+  --light-grey-lines: #d2d2d2;
+  --light-grey-text: #787878;
+  --primary-teal: #00a8a8;
+
+  --header-navi-height: 4rem;
+  --footer-kinetiq-height: 4rem;
+  --sidebar-icons-width: 4rem;
+  --sidebar-desc-width: 12rem;
+  --sidebar-desc-item-width: 10.7rem;
+  --sidebar-main-menu-container-height: 1.5rem;
+}
+
+
+/* --- Begin full design styles --- */
+
+/* Note: Tailwind still disabled until configured */
+
+/* Resets & utility */
+div {
+  outline: none;
+}
+
+img {
+  user-select: none;
+  -webkit-user-drag: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
+/* Layout shells */
+.shell-container {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  width: 100vw;
+  background-color: var(--light-teal-background);
+  overflow: auto;
+}
+
+/* ---------------- Sidebar ---------------- */
+.sidebar-icons-hamburger-container {
+  height: var(--header-navi-height);
+  width: 100%;
+  background-color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ham-menu-icon {
+  height: 1.5rem;
+  width: 1.5rem;
+  position: relative;
+}
+
+.ham-menu-icon span {
+  height: 0.1rem;
+  width: 100%;
+  background-color: rgb(124, 124, 124);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: 0.3s ease;
+}
+
+.ham-menu-icon span:nth-child(1) {
+  top: 20%;
+}
+
+.ham-menu-icon span:nth-child(3) {
+  top: 80%;
+}
+
+.ham-menu-icon.active span:nth-child(1) {
+  top: 50%;
+  transform: translate(-50%, -55%) rotate(45deg);
+}
+
+.ham-menu-icon.active span:nth-child(2) {
+  opacity: 0;
+}
+
+.ham-menu-icon.active span:nth-child(3) {
+  top: 50%;
+  transform: translate(-50%, -55%) rotate(-45deg);
+}
+
+/* Sidebar containers */
+.sidebar-icons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  height: 100%;
+  width: var(--sidebar-icons-width);
+  min-width: var(--sidebar-icons-width);
+  background-color: white;
+  box-shadow: 0.2rem 0 0.1rem rgba(64, 64, 64, 0.1);
+  z-index: 2;
+}
+
+.sidebar-icons-ham-icon-wrapper {
+  padding: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #dddddd;
+  border-radius: 0.3rem;
+  width: fit-content;
+  height: fit-content;
+  cursor: pointer;
+}
+
+/* ... (the remainder of the CSS the user provided continues here) ... */
+
+
+/* ----------------------------------------------
+   Quick styles for current minimal markup classes
+   ---------------------------------------------- */
+
+.shell {
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  position: relative;
+  width: 240px;
+  background-color: #fff;
+  padding: 1rem 0.75rem;
+  box-shadow: 0.2rem 0 0.1rem rgba(64, 64, 64, 0.1);
+  display: flex;
+  flex-direction: column;
+}
+
+.hamburger {
+  width: 2.2rem;
+  height: 2.2rem;
+  border: 1px solid #d2d2d2;
+  border-radius: 0.35rem;
+  background: white;
+  cursor: pointer;
+  margin: 0 auto 1rem;
+}
+
+.main-nav {
+  margin-top: 3rem; /* shift module list ~4cm down to clear hamburger */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 2.4rem; /* lock height so icons don't jump vertically */
+  padding: 0.6rem 0.8rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #303030;
+  transition: background 0.2s ease;
+}
+
+.nav-item:hover {
+  background: #e0f2f5;
+}
+
+.nav-item.active {
+  background: var(--light-grey-selected);
+  font-weight: 600;
+}
+
+.sub-nav {
+  margin-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.sub-item {
+  padding: 0.45rem 0.6rem;
+  border-radius: 0.25rem;
+  font-size: 0.85rem;
+  color: var(--light-grey-text);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sub-item:hover {
+  background: #f2f2f2;
+}
+
+.sub-item.active {
+  background: var(--light-grey-selected);
+  color: #000;
+}
+
+.logo {
+  height: 7rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.logo img {
+  object-fit: contain;
+  margin: -3rem;
+}
+
+.main-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header-nav {
+  height: var(--header-navi-height);
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1.5rem;
+  box-shadow: 0 0.2rem 0.1rem rgba(162,162,162,0.1);
+  border-bottom: 1px solid #eee;
+}
+
+.module-path {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.95rem;
+  color: var(--light-grey-text);
+}
+
+.module-name {
+  font-weight: 600;
+  color: #000;
+}
+
+.user-badge {
+  width: 2rem;
+  height: 2rem;
+  background: var(--primary-teal);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* hamburger positioned inside header */
+.hamburger {
+  border: 1px solid #d2d2d2;
+  background: white;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.35rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--light-grey-lines);
+  margin: 1rem 0 0;
+}
+
+.logo {
+  margin-top: -3rem;
+}
+
+.logo img {
+  width: 460px;
+  height: 150px;
+}
+
+.sidebar.collapsed .logo img {
+  width: 100px;
+}
+
+/* collapsed sidebar */
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.sidebar-toggle {
+  position: absolute;
+  top: 0.5rem;
+  left: 1.2rem;
+  transition: left 0.2s ease, transform 0.2s ease;
+}
+
+
+
+
+.nav-icon {
+  flex-shrink: 0;
+  font-size: 1.1rem;
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.6rem;
+}
+
+.label.hidden {
+  display: none;
+}
+
+/* keep icon alignment unchanged between states */
+.sidebar.collapsed .nav-item,
+.sidebar.collapsed .sub-item {
+  justify-content: flex-start;
+}
+
+.sub-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.8rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: #404040;
+}
+
+.sub-item:hover {
+  background: #f3f8f9;
+}
+
+/* hide text when collapsed to avoid overflow */
+.sidebar.collapsed .nav-item, .sidebar.collapsed .sub-nav {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: clip;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem;
+  overflow: auto;
+}
+
+/* --- End full design styles --- */
