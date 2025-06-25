@@ -1,6 +1,15 @@
 import React, { useState } from 'react';
 import './App.css';
 import bottomLogo from './images/bottom_p_logo.png';
+import AssetProperty from './modules/AssetProperty/AssetProperty.jsx';
+import Dashboard from './modules/Dashboard/Dashboard.jsx';
+import PublicDocument from './modules/PublicDocument/PublicDocument.jsx';
+import Reports from './modules/Reports/Reports.jsx';
+import Settings from './modules/Settings/Settings.jsx';
+import Documents from './modules/Reports/submodules/Documents.jsx';
+import Properties from './modules/Reports/submodules/Properties.jsx';
+import ActivityLog from './modules/Settings/submodules/ActivityLog.jsx';
+import UserManagement from './modules/Settings/submodules/UserManagement.jsx';
 import { FiHome, FiFileText, FiBook, FiLayers, FiSettings, FiFolder, FiActivity, FiUsers, FiCircle } from 'react-icons/fi';
 
 const iconMap = {
@@ -104,9 +113,28 @@ export default function App() {
         </header>
 
         <main className="content">
-          <h2>{activeModule}</h2>
-          {activeSub && <h3>{activeSub}</h3>}
-          <p>Start implementing {activeSub || activeModule} module content here.</p>
+          {activeSub ? (
+            {
+              'Documents': <Documents />,
+              'Properties': <Properties />,
+              'Activity Log': <ActivityLog />,
+              'User Management': <UserManagement />,
+            }[activeSub] || (
+              <div>
+                <h2>{activeModule}</h2>
+                <h3>{activeSub}</h3>
+                <p>Start implementing {activeSub} module content here.</p>
+              </div>
+            )
+          ) : (
+            {
+              'Dashboard': <Dashboard />,
+              'Public Document': <PublicDocument />,
+              'Asset Property': <AssetProperty />,
+              'Reports': <Reports />,
+              'Settings': <Settings />,
+            }[activeModule] || <p>Select a module.</p>
+          )}
         </main>
       </div>
     </div>

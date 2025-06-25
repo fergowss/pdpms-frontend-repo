@@ -1,8 +1,10 @@
+import './UserManagement.css';
+
 export default function UserManagement() {
   return (
-    <div className="p-8">
-      <h3 className="text-lg font-semibold">Settings / User Management</h3>
-      <p>Placeholder for User Management sub-module.</p>
+    <div className="User-Management-Container">
+      <h2 className="text-xl font-bold">User Management</h2>
+      <p>Placeholder content – build your User Management submodule here.</p>
     </div>
   );
 }

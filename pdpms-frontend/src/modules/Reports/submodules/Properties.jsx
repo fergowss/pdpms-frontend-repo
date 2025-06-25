@@ -1,8 +1,10 @@
+import './Properties.css';
+
 export default function Properties() {
   return (
-    <div className="p-8">
-      <h3 className="text-lg font-semibold">Reports / Properties</h3>
-      <p>Placeholder for Properties sub-module.</p>
+    <div className="Properties-Container">
+      <h2 className="text-xl font-bold">Properties</h2>
+      <p>Placeholder content – build your Properties submodule here.</p>
     </div>
   );
 }
