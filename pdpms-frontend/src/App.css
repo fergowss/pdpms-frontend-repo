@@ -198,6 +198,7 @@ img {
 
 .sub-nav {
   margin-left: 1rem;
+  margin-top: 5px;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;

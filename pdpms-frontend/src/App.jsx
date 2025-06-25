@@ -101,6 +101,7 @@ export default function App() {
       <div className="main-area">
         <header className="header-nav">
           <div className="module-path">
+            {React.createElement(iconMap[activeModule] || FiCircle, { className: 'nav-icon' })}
             <span className="module-name">{activeModule}</span>
             {activeSub && (
               <>
