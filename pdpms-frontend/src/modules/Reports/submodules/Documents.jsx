@@ -1,8 +1,10 @@
+import './Documents.css';
+
 export default function Documents() {
   return (
-    <div className="p-8">
-      <h3 className="text-lg font-semibold">Reports / Documents</h3>
-      <p>Placeholder for Documents sub-module.</p>
+    <div className="Documents-Container">
+      <h2 className="text-xl font-bold">Documents</h2>
+      <p>Placeholder content – build your Documents submodule here.</p>
     </div>
   );
 }
