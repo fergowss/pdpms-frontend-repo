@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import AddDocumentModal from './AddDocumentModal';
 import './PublicDocument.css';
 
 const allData = [
