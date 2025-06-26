@@ -6,13 +6,286 @@
   box-shadow: 0rem 0.2rem 0.1rem rgba(162, 162, 162, 0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: stretch;
+  justify-content: flex-start;
   min-width: 40rem;
   min-height: 30rem;
+  padding: 0;
+  overflow: hidden;
 }
 
-.PublicDocument-Title {
-  font-size: 1.25rem;
+.PublicDocument-HeaderRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem 0 1.5rem;
+  gap: 2rem;
+}
+
+.PublicDocument-HeaderTabs {
+  display: flex;
+  margin-bottom: 0.5rem;
+  padding-left: 0;
+  padding-top: 0;
+  gap: 2rem;
+}
+
+.PublicDocument-SearchBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+}
+
+.PublicDocument-SearchInput {
+  height: 2rem;
+  width: 18rem;
+  padding: 0 0.9rem;
+  border: 2px solid #bfc7d1;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  background: #fff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+.PublicDocument-SearchInput:focus {
+  border-color: #223354;
+}
+
+.PublicDocument-SearchBtn {
+  height: 2rem;
+  padding: 0 1.3rem;
+  background: #223354;
+  color: #fff;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.PublicDocument-SearchBtn:hover {
+  background: #2a5db0;
+}
+
+
+.PublicDocument-Tab {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #5c6b82;
+  padding-bottom: 0.5rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: color 0.2s, border-bottom 0.2s;
+}
+
+.PublicDocument-Tab--active {
+  color: #223354;
+  border-bottom: 2.5px solid #223354;
   font-weight: 700;
 }
+
+.PublicDocument-TableContainer {
+  flex: 1;
+  overflow-y: auto;
+  margin: 1.2rem 1.5rem 0 1.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #e0e0e0;
+  min-height: 24rem;
+  max-height: 28rem;
+  box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.07);
+}
+
+.PublicDocument-Table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 1rem;
+  background: #fff;
+}
+
+.PublicDocument-Table th, .PublicDocument-Table td {
+  padding: 0.8rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  white-space: nowrap;
+}
+
+.PublicDocument-Table th {
+  background: #f6f8fa;
+  font-weight: 600;
+  color: #223354;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.PublicDocument-Table tr:last-child td {
+  border-bottom: none;
+}
+
+.PublicDocument-PDFLink {
+  color: #2a5db0;
+  text-decoration: underline;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.PublicDocument-AddBtnContainer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1.2rem 1.5rem 1.2rem 1.5rem;
+  background: transparent;
+}
+
+.PublicDocument-AddBtn {
+  background: #223354;
+  color: #fff;
+  border: none;
+  border-radius: 0.3rem;
+  padding: 0.4rem 1.2rem;
+  font-size: 0.97rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(34, 51, 84, 0.07);
+  transition: background 0.2s;
+}
+
+.PublicDocument-AddBtn:hover {
+  background: #2a5db0;
+}
+
+/* Custom Scrollbar */
+.PublicDocument-TableContainer::-webkit-scrollbar {
+  width: 10px;
+  background: #f6f8fa;
+  border-radius: 0.5rem;
+}
+.PublicDocument-TableContainer::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+.PublicDocument-TableContainer::-webkit-scrollbar-thumb:hover {
+  background: #b0b6be;
+}
+
+.PublicDocument-TableContainer {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f6f8fa;
+}
+
+/* ======================= MODAL STYLES ======================= */
+.PublicDocument-ModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(34, 51, 84, 0.08);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.PublicDocument-ModalBox {
+  background: #f6fcff;
+  border: 2px solid #3571b9;
+  border-radius: 0.7rem;
+  padding: 1.2rem 1.5rem 1rem 1.5rem;
+  box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
+  min-width: 600px;
+  max-width: 95vw;
+  min-height: 320px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.PublicDocument-ModalForm {
+  width: 100%;
+}
+
+.PublicDocument-ModalGrid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.3rem;
+} 
+.PublicDocument-ModalGrid > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.PublicDocument-ModalLabel {
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 0.13rem;
+  color: #223354;
+}
+
+.PublicDocument-ModalInput {
+  border: 1.5px solid #223354;
+  border-radius: 0.35rem;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.97rem;
+  margin-bottom: 0.45rem;
+  background: #fff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+.PublicDocument-ModalInput:focus {
+  border-color: #3571b9;
+}
+
+.PublicDocument-ModalTextarea {
+  min-height: 6.5rem;
+  resize: vertical;
+}
+
+.PublicDocument-ModalHint {
+  font-size: 0.95rem;
+  color: #223354;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.PublicDocument-ModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.1rem;
+  margin-top: 1.3rem;
+}
+
+.PublicDocument-ModalBtn {
+  padding: 0.38rem 1.2rem;
+  font-size: 0.97rem;
+  border-radius: 0.35rem;
+  border: 2px solid #223354;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.PublicDocument-ModalBtn--primary {
+  background: #223354;
+  color: #fff;
+  border-color: #223354;
+}
+.PublicDocument-ModalBtn--primary:hover {
+  background: #3571b9;
+  border-color: #3571b9;
+}
+.PublicDocument-ModalBtn--secondary {
+  background: #f6fcff;
+  color: #223354;
+  border-color: #bfc7d1;
+}
+.PublicDocument-ModalBtn--secondary:hover {
+  background: #e7ecf3;
+}
+

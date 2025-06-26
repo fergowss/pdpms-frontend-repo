@@ -172,6 +172,7 @@ img {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+
 }
 
 .nav-item {
@@ -188,7 +189,7 @@ img {
 }
 
 .nav-item:hover {
-  background: #e0f2f5;
+  background: #dde0e2;
 }
 
 .nav-item.active {
@@ -204,6 +205,9 @@ img {
   gap: 0.2rem;
 }
 
+.sub-hav-item:hover:hover {
+  background: #dde0e2;
+}
 .sub-item {
   padding: 0.45rem 0.6rem;
   border-radius: 0.25rem;
@@ -286,8 +290,9 @@ img {
   background: white;
   width: 2rem;
   height: 2rem;
-  border-radius: 0.35rem;
+  border-radius: 0.36rem;
   cursor: pointer;
+  margin-top: 0.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
