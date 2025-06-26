@@ -249,17 +249,17 @@
   border-radius: 0.5rem;
 }
 .PublicDocument-TableContainer::-webkit-scrollbar-thumb {
-  background: #d1d5db;
+  background: #4C6085;
   border-radius: 0.5rem;
   transition: background 0.2s;
 }
 .PublicDocument-TableContainer::-webkit-scrollbar-thumb:hover {
-  background: #b0b6be;
+  background: #3571b9;
 }
 
 .PublicDocument-TableContainer {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db #f6f8fa;
+  scrollbar-color: #4C6085 #f6f8fa;
 }
 
 /* ======================= MODAL STYLES ======================= */

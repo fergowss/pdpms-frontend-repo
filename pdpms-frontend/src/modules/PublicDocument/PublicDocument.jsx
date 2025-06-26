@@ -29,7 +29,7 @@ const allData = [
     id: 'PDID00000315', ref: 'ENDR000037', subject: 'Solo Parent ID Application', type: 'Application', date: '01/14/23', received: '03/14/25', remarks: 'Received by Cheska Inciong', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000317', ref: 'ENDR000039', subject: 'PWD ID Application', type: 'Application', date: '01/16/23', received: '03/16/25', remarks: 'Received by User Sandy Ante', status: 'Completed', file: '#',
+    id: 'PDID00000317', ref: 'ENDR000039', subject: 'PWD ID Application', type: 'Application', date: '01/16/23', received: '03/16/25', remarks: 'Received by Sandy Ante', status: 'Completed', file: '#',
   },
   {
     id: 'PDID00000319', ref: 'ENDR000041', subject: 'Certificate of Indigency', type: 'Certification', date: '01/18/23', received: '03/18/25', remarks: 'Received by Albert Bautista', status: 'Completed', file: '#',
@@ -108,25 +108,33 @@ export default function PublicDocument() {
               <th>Document Type</th>
               <th>Date</th>
               <th>Date Received</th>
-              <th>Remarks</th>
+              <th>Received By</th>
               <th>Status</th>
+              <th>Remarks</th>
               <th>File</th>
             </tr>
           </thead>
           <tbody>
-            {data.map((row, i) => (
-              <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
-                <td>{row.id}</td>
-                <td>{row.ref}</td>
-                <td>{row.subject}</td>
-                <td>{row.type}</td>
-                <td>{row.date}</td>
-                <td>{row.received}</td>
-                <td>{row.remarks}</td>
-                <td>{row.status}</td>
-                <td><a href={row.file} className="PublicDocument-PDFLink">View PDF</a></td>
-              </tr>
-            ))}
+            {data.map((row, i) => {
+              // Try to extract 'Received By' from remarks (e.g., 'Received by Edwin Agustin')
+              let receivedBy = '';
+              const match = row.remarks && row.remarks.match(/Received by (.+)/i);
+              if (match) receivedBy = match[1];
+              return (
+                <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
+                  <td>{row.id}</td>
+                  <td>{row.ref}</td>
+                  <td>{row.subject}</td>
+                  <td>{row.type}</td>
+                  <td>{row.date}</td>
+                  <td>{row.received}</td>
+                  <td>{receivedBy}</td>
+                  <td>{row.status}</td>
+                  <td>{row.remarks}</td>
+                  <td><a href={row.file} className="PublicDocument-PDFLink">View PDF</a></td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
         {activeTab === 'all' && selectedRow && !editModalOpen && (
