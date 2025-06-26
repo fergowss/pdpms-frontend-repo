@@ -1,4 +1,3 @@
-import './PublicDocument.css';
 import React, { useState } from 'react';
 import AddDocumentModal from './AddDocumentModal';
 import './PublicDocument.css';
