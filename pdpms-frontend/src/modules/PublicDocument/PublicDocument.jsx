@@ -19,7 +19,7 @@ const allData = [
   },
   {
     id: 'PDID00000309', ref: 'ENDR000031', subject: 'Scholarship Endorsement', type: 'Endorsement', date: '01/08/23', received: '03/08/25', remarks: 'To be distributed to residents', status: 'Completed', file: '#',
-  },
+  }, 
   {
     id: 'PDID00000311', ref: 'ENDR000033', subject: 'Business Permit Request', type: 'Request', date: '01/10/23', received: '03/10/25', remarks: 'For review by committee', status: 'Completed', file: '#',
   },
