@@ -34,7 +34,7 @@
 .Documents-Tabs {
   display: flex;
   gap: 0rem;
-  padding-left: 0.1rem;
+  padding-left: 0.7rem;
   padding-top: 0;
   align-items: center;
   margin-bottom: 0;
@@ -62,14 +62,16 @@
 .Documents-Tab {
   font-weight: 600;
   color: #6a7da1;
-  padding: 0.5rem 1.5rem;
-  margin: 0 0.2rem;
+  padding: 0.5rem 0.5rem;
+  margin: 0 0.1rem;
   border-bottom: 2.5px solid transparent;
   cursor: pointer;
   background: none;
   font-size: 1rem;
   transition: color 0.2s, border-bottom 0.2s;
   display: inline-block;
+  min-width: 80px;
+  text-align: center;
 }
 
 .Documents-Tab--active {
