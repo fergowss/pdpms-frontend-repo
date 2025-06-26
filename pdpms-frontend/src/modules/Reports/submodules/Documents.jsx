@@ -198,7 +198,7 @@ export default function Documents() {
 
   return (
     <div className="Documents-Container">
-      <h2 className="Documents-Title">Documents</h2>
+      
       <div className="Documents">
         <div className="Documents-TopRow">
           <div className="Documents-Tabs">
