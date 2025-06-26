@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './App.css';
-import bottomLogo from './images/bottom_p_logo.png';
+import bottomLogo from './images/pdpms_long.png';
+import shortLogo from './images/pdpms_p_logo.png';
 import AssetProperty from './modules/AssetProperty/AssetProperty.jsx';
 import Dashboard from './modules/Dashboard/Dashboard.jsx';
 import PublicDocument from './modules/PublicDocument/PublicDocument.jsx';
@@ -96,7 +97,11 @@ export default function App() {
         <div className="logo">
           <img src={bottomLogo} alt="PDPMS logo" />
         </div>
+        <div className="logo2">
+          <img src={shortLogo} alt="PDPMS logo 2" />
+        </div>
       </aside>
+
 
       <div className="main-area">
         <header className="header-nav">
