@@ -82,30 +82,36 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0;
+  margin-bottom: 0.2rem;
   padding-left: 0;
+  margin-right: 0.7rem;
 }
 
 .Documents-SearchBar {
-  width: 12rem;
-  min-width: 9rem;
-  max-width: 100%;
-  margin-right: 0.5rem;
-  padding: 0.5rem 1rem; /* Reduce left padding */
-  border: 1px solid #d3d8e3;
+  height: 2rem;
+  width: 15rem;
+  padding: 0 0.9rem;
+  border: 2px solid #bfc7d1;
   border-radius: 0.4rem;
   font-size: 1rem;
+  background: #fff;
+  color: #223354;
   outline: none;
+  transition: border 0.2s;
+  margin-right: 0;
   text-align: left;
+}
+.Documents-SearchBar:focus {
+  border-color: #223354;
 }
 
 .Documents-SearchButton {
+  height: 2rem;
+  padding: 0 1.3rem;
   background: #223354;
   color: #fff;
   border: none;
   border-radius: 0.4rem;
-  height: 2rem;
-  padding: 0 1.3rem;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
@@ -113,7 +119,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-right: 1rem;
+}
+.Documents-SearchButton:hover {
+  background: #2a5db0;
 }
 
 
@@ -164,7 +172,7 @@
 .Documents-Table th {
   background: #f6f8fa;
   color: #223354;
-  font-weight: 700;
+  font-weight: 600;
   border-bottom: 2px solid #e1e7ef;
   font-size: 1rem;
   padding: 0.7rem 1rem;
