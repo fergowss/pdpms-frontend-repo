@@ -128,7 +128,7 @@
   border-radius: 0.5rem;
   border: 1px solid #e6eaf2;
   margin: 1rem 0.5rem 0.5rem 0.5rem;
-  background: #f9fbfd;
+  background: #fff;
   max-height: 28rem;
   min-height: 18rem;
   max-width: 100%;
@@ -137,11 +137,13 @@
   box-sizing: border-box;
 }
 
+
 .Documents-Table {
   border-collapse: collapse;
   min-width: 900px;
   width: max-content;
   max-width: none;
+  background: #fff;
 }
 
 
