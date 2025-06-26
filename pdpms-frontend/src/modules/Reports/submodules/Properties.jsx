@@ -25,7 +25,7 @@ export default function Properties() {
   ];
 
   // This would be replaced with actual data fetching
-  const filteredData = sampleData;
+  const filteredData = sampleData.filter(item => item.status === activeTab);
 
   return (
     <div className="Properties-Container">
