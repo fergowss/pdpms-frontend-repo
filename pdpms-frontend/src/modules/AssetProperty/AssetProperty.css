@@ -1,4 +1,4 @@
-.Asset-Property-Container {
+.AssetProperty-Container {
   width: 100%;
   height: 100%;
   border-radius: 0.5rem;
@@ -6,13 +6,254 @@
   box-shadow: 0rem 0.2rem 0.1rem rgba(162, 162, 162, 0.1);
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
   min-width: 40rem;
   min-height: 30rem;
+  position: relative;
+  padding-bottom: 1rem;
+  overflow: hidden;
+}
+
+.AssetProperty-HeaderRow {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem 0 1.5rem;
+  gap: 2rem;
+}
+
+.AssetProperty-HeaderTabs {
+  display: flex;
+  margin-bottom: 0.5rem;
+  padding-left: 0;
+  padding-top: 0;
+  gap: 2rem;
 }
 
 .AssetProperty-Title {
   font-size: 1.25rem;
   font-weight: 700;
+  color: #223354;
+  margin: 0;
+}
+
+.AssetProperty-SearchBox {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.2rem;
+}
+
+.AssetProperty-SearchInput {
+  height: 2.2rem;
+  width: 15rem;
+  padding: 0 1rem;
+  border: 2px solid #bfc7d1;
+  border-radius: 0.4rem;
+  font-size: 0.9rem;
+  background: #fff;
+  color: #223354;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.AssetProperty-SearchInput:focus {
+  border-color: #223354;
+}
+
+.AssetProperty-SearchBtn {
+  height: 2.2rem;
+  padding: 0 1.5rem;
+  background: #223354;
+  color: #ffffff;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: 0.5rem;
+}
+
+.AssetProperty-SearchBtn:hover {
+ background: #2a5db0;
+}
+
+.AssetProperty-AddBtn {
+  position: fixed;
+  right: 3.5rem;
+  bottom: 2rem;
+  padding: 0.5rem 1.5rem;
+  background: #223354;
+  color: #fff;
+  border: none;
+  border-radius: 0.3rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 5rem;
+}
+
+.AssetProperty-AddBtn:hover {
+  background: #2a5db0;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.AssetProperty-AddBtn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.AssetProperty-TableContainer {
+  flex: 1;
+  margin: 0.5rem 1.5rem 5rem 1.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #e0e0e0;
+  min-height: 28rem; /* Slightly reduced height */
+  max-height: calc(100vh - 10rem); /* Adjusted for better proportion */
+  box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.07);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: auto; /* Shows both vertical and horizontal scrollbars when needed */
+}
+
+.AssetProperty-Table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: #fff;
+  table-layout: auto; /* Changed to auto to allow columns to expand */
+  min-width: 1200px; /* Ensures the table is wider than the container */
+  margin-top: 0.5rem;
+}
+
+.AssetProperty-Table th, 
+.AssetProperty-Table td {
+  padding: 0.8rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.AssetProperty-Table th {
+  background: #f6f8fa;
+  font-weight: 600;
+  color: #223354;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.AssetProperty-Table tr:last-child td {
+  border-bottom: none;
+}
+
+.AssetProperty-Table tbody tr:hover {
+  background: #eaf0fa;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+.AssetProperty-Status {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.AssetProperty-Status.active {
+  background-color: #e3f7ed;
+  color: #2b8c4b;
+  border: 1px solid #a8e0c0;
+}
+
+.AssetProperty-Status.inactive {
+  background-color: #fde8e8;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+}
+
+/* Scrollbar Styling */
+.AssetProperty-TableContainer::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.AssetProperty-TableContainer::-webkit-scrollbar-track {
+  background: #f6f8fa;
+  border-radius: 0.5rem;
+  margin: 0.5rem;
+}
+
+.AssetProperty-TableContainer::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 0.5rem;
+  border: 2px solid #f6f8fa;
+}
+
+.AssetProperty-TableContainer::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Horizontal scrollbar specific */
+.AssetProperty-TableContainer {
+  scrollbar-width: thin;
+  scrollbar-color: #c1c1c1 #f6f8fa;
+}
+
+/* For Firefox */
+@supports (scrollbar-width: thin) {
+  .AssetProperty-TableContainer {
+    scrollbar-width: thin;
+    scrollbar-color: #c1c1c1 #f6f8fa;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .AssetProperty-Table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  
+  .AssetProperty-Table th,
+  .AssetProperty-Table td {
+    min-width: 120px;
+  }
+}
+
+@media (max-width: 768px) {
+  .AssetProperty-HeaderRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .AssetProperty-SearchBox {
+    width: 100%;
+  }
+  
+  .AssetProperty-SearchInput {
+    width: 100%;
+  }
+  
+  .AssetProperty-AddBtn {
+    width: 100%;
+  }
 }
