@@ -3,6 +3,7 @@ import AddDocumentModal from './AddDocumentModal';
 import EditDocumentModal from './EditDocumentModal';
 import './PublicDocument.css';
 
+
 const allData = [
   {
     id: 'PDID00000303', ref: 'ENDR000025', subject: 'Assistance Survey', type: 'Endorsement', date: '06/12/23', received: '02/14/25', remarks: 'To be pass to DOLE', status: 'On Going', file: '#',
@@ -54,7 +55,9 @@ const allData = [
   },
 ];
 
+
 const archivingData = allData.filter((row, i) => i % 2 === 1); // Just for demo: alternate rows
+
 
 export default function PublicDocument() {
   const [activeTab, setActiveTab] = useState('all');
@@ -62,6 +65,7 @@ export default function PublicDocument() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const data = activeTab === 'all' ? allData : archivingData;
+
 
   return (
     <div className="Public-Document-Container">
@@ -169,4 +173,8 @@ export default function PublicDocument() {
     </div>
   );
 }
+
+
+
+
 
