@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import AddDocumentModal from './AddDocumentModal';
+import EditDocumentModal from './EditDocumentModal';
 import './PublicDocument.css';
 
 const allData = [
@@ -58,6 +59,8 @@ const archivingData = allData.filter((row, i) => i % 2 === 1); // Just for demo:
 export default function PublicDocument() {
   const [activeTab, setActiveTab] = useState('all');
   const [modalOpen, setModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
   const data = activeTab === 'all' ? allData : archivingData;
 
   return (
@@ -95,7 +98,7 @@ export default function PublicDocument() {
           </button>
         </div>
       </div>
-      <div className="PublicDocument-TableContainer">
+      <div className="PublicDocument-TableContainer" style={{position: 'relative'}}>
         <table className="PublicDocument-Table">
           <thead>
             <tr>
@@ -112,7 +115,7 @@ export default function PublicDocument() {
           </thead>
           <tbody>
             {data.map((row, i) => (
-              <tr key={row.id + i}>
+              <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
                 <td>{row.id}</td>
                 <td>{row.ref}</td>
                 <td>{row.subject}</td>
@@ -126,6 +129,31 @@ export default function PublicDocument() {
             ))}
           </tbody>
         </table>
+        {activeTab === 'all' && selectedRow && !editModalOpen && (
+          <div className="PublicDocument-EditNotification">
+            <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
+            <div className="PublicDocument-EditNotification-Title">
+              Edit Document<br/>{selectedRow.id}?
+            </div>
+            <button className="PublicDocument-EditNotification-EditBtn" onClick={() => setEditModalOpen(true)}>
+              EDIT
+            </button>
+          </div>
+        )}
+        {activeTab === 'all' && editModalOpen && (
+          <EditDocumentModal open={editModalOpen} onClose={() => { setEditModalOpen(false); setSelectedRow(null); }} doc={selectedRow} />
+        )}
+        {activeTab === 'archiving' && selectedRow && (
+          <div className="PublicDocument-EditNotification">
+            <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
+            <div className="PublicDocument-EditNotification-Title">
+              Archive Document<br/>{selectedRow.id}?
+            </div>
+            <button className="PublicDocument-ArchiveBtn" onClick={() => {/* TODO: archive logic */}}>
+              ARCHIVE
+            </button>
+          </div>
+        )}
       </div>
       <div className="PublicDocument-AddBtnContainer">
         <button className="PublicDocument-AddBtn" onClick={() => setModalOpen(true)}>ADD DOCUMENT</button>
