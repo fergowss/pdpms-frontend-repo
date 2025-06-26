@@ -225,11 +225,11 @@
   font-weight: 600;
   font-size: 1.04rem;
   margin-bottom: 0.16rem;
-  color: #223354;
+  color: #000000;
 }
 
 .PublicDocument-ModalInput {
-  border: 1.5px solid #223354;
+  border: 1.5px solid #2B3E63;
   border-radius: 0.35rem;
   padding: 0.48rem 0.9rem;
   font-size: 0.98rem;
@@ -258,23 +258,24 @@
 .PublicDocument-ModalActions {
   display: flex;
   justify-content: flex-end;
-  gap: 1.1rem;
+  gap: 0.5rem;
   margin-top: 1.3rem;
+  margin-left: 3.5rem;
 }
 
 .PublicDocument-ModalBtn {
   padding: 0.42rem 1.4rem;
   font-size: 0.98rem;
   border-radius: 0.35rem;
-  border: 2px solid #223354;
+  border: 2px solid #2B3E63;
   font-weight: 600;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
 .PublicDocument-ModalBtn--primary {
-  background: #223354;
+  background: #2B3E63;
   color: #fff;
-  border-color: #223354;
+  border-color: #2B3E63;
 }
 .PublicDocument-ModalBtn--primary:hover {
   background: #3571b9;
@@ -282,10 +283,12 @@
 }
 .PublicDocument-ModalBtn--secondary {
   background: #f6fcff;
-  color: #223354;
-  border-color: #bfc7d1;
+  color: #2B3E63;
+  border-color: #2B3E63;
 }
 .PublicDocument-ModalBtn--secondary:hover {
   background: #e7ecf3;
+  color: #3571b9;
+  border-color: #3571b9;
 }
 
