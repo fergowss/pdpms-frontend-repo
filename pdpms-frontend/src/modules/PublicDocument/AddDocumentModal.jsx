@@ -29,14 +29,16 @@ export default function AddDocumentModal({ open, onClose }) {
               <input className="PublicDocument-ModalInput" type="date" />
             </div>
             <div>
-              <label className="PublicDocument-ModalLabel">Remarks</label>
-              <textarea className="PublicDocument-ModalInput PublicDocument-ModalTextarea" rows={4} />
+              <label className="PublicDocument-ModalLabel">Received by</label>
+              <input className="PublicDocument-ModalInput" type="text" disabled style={{background:'#e8eef7'}} value="Herson Fergus Arcanghel" />
               <label className="PublicDocument-ModalLabel">Status</label>
               <select className="PublicDocument-ModalInput">
                 <option>Select Status</option>
                 <option>On Going</option>
                 <option>Completed</option>
               </select>
+              <label className="PublicDocument-ModalLabel">Remarks</label>
+              <textarea className="PublicDocument-ModalInput PublicDocument-ModalTextarea" rows={4} />
               <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only)</span></label>
               <input className="PublicDocument-ModalInput" type="file" accept="application/pdf" />
             </div>
