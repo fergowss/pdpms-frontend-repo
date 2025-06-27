@@ -60,7 +60,7 @@ export default function UserManagement() {
           </table>
         </div>
         <div className="UserManagement-AddUserRow">
-          <button className="UserManagement-AddUser">Add User</button>
+          <button className="UserManagement-AddUser">ADD USER</button>
         </div>
       </div>
     </div>

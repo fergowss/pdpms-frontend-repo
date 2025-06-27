@@ -21,36 +21,43 @@
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.2rem;
+  padding-left: 0;
+  margin-right: 3.5rem;
   width: 100%;
-  margin-top: 1.2rem;
-  margin-bottom: 0.5rem;
 }
 
 
 .UserManagement-SearchInput {
-  width: 18rem;
   height: 2rem;
-  border: 1px solid #c6c6c6;
-  border-radius: 5px;
-  padding: 0 0.75rem;
-  margin-left: 4rem;
-  margin-right: 0.5rem; 
-  font-size: 0.9rem;
-  background: #f8f9fa;
+  width: 15rem;
+  padding: 0 0.9rem 0 35px;
+  border: 2px solid #223354;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888888' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 10px center;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+  margin-right: 0;
+  text-align: left;
 }
 
+.User-Management-SearchBar:focus {
+  border-color: #223354;
+}
 
 .UserManagement-SearchButton {
-  height: 2rem;
-  padding: 0 1.2rem;
-  background: #2e3b4e;
+ height: 2rem;
+  padding: 0 1.3rem;
+  background: #223354;
   color: #fff;
   border: none;
-  border-radius: 5px;
-  font-weight: 500;
+  border-radius: 0.4rem;
   font-size: 1rem;
-  cursor: not-allowed;
-  margin-right: 2rem;
+  font-weight: 400;
+  cursor: pointer;
   transition: background 0.2s;
   display: flex;
   align-items: center;
@@ -80,10 +87,11 @@
   background: #fff;
   border-radius: 0.5rem;
   box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.08);
-  overflow: auto; /* Changed to auto to show scrollbars when needed */
+  overflow: auto; 
   border: 1px solid #e0e0e0;
-  min-height: 7rem;
-  max-height: 28rem;
+  min-height: 8rem;
+  max-height: 27rem;
+  margin-top: 0.8rem;
   display: flex;
   flex-direction: column;
   /* Custom Scrollbar */
@@ -262,19 +270,19 @@
   width: 100%;
   display: flex;
   justify-content: flex-end;
-  margin-top: 0.6rem;
+  margin-top: 1.1rem;
   margin-bottom: 0.4rem;
 }
 
 
 .UserManagement-AddUser {
-  background: #2e3b4e;
+  background: #223354;
   color: #fff;
   border: none;
   border-radius: 7px;
   padding: 0.55rem 1.7rem;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 400;
   box-shadow: 0 1px 2px rgba(44,62,80,0.08);
   cursor: pointer;
   transition: background 0.2s;
@@ -283,6 +291,6 @@
 
 
 .UserManagement-AddUser:hover {
-  background: #1a2233;
+  background: #2a5db0;
 }
 

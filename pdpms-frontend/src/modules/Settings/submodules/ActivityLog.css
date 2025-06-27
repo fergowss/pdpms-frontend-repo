@@ -32,21 +32,21 @@
   gap: 0.5rem;
   margin-bottom: 0.2rem;
   padding-left: 0;
-  margin-right: 1.7rem;
+  margin-right: 1.5rem;
 }
 
 .ActivityLog-SearchBar {
   height: 2rem;
-  width: 18rem;
-  padding: 0 0.8rem 0 2rem; /* space for icon */
-  border: 2px solid #bfc7d1;
+  width: 15rem;
+  padding: 0 0.9rem 0 35px;
+  border: 2px solid #223354;
   border-radius: 0.4rem;
   font-size: 1rem;
-  background: #fff url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 fill=%22none%22 viewBox=%220 0 24 24%22 stroke=%22%236a7da1%22><path stroke-linecap=%22round%22 stroke-linejoin=%22round%22 stroke-width=%222%22 d=%22M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z%22/></svg>') no-repeat 0.6rem center;
-  background-size: 1rem;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888888' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 10px center;
   color: #223354;
   outline: none;
   transition: border 0.2s;
+  margin-right: 0;
   text-align: left;
 }
 
@@ -62,12 +62,13 @@
   border: none;
   border-radius: 0.4rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: background 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
+
 }
 
 .ActivityLog-SearchButton:hover {
