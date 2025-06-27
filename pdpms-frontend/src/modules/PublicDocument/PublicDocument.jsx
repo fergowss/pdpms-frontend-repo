@@ -6,52 +6,52 @@ import './PublicDocument.css';
 
 const allData = [
   {
-    id: 'PDID00000303', ref: 'ENDR000025', subject: 'Assistance Survey', type: 'Endorsement', date: '06/12/23', received: '02/14/25', remarks: 'To be pass to DOLE', status: 'On Going', file: '#',
+    id: 'PDID00000303', ref: 'ENDR000025', subject: 'Assistance Survey', type: 'Endorsement', date: '06/12/23', received: '02/14/25', receivedBy: 'John Smith', remarks: 'To be pass to DOLE', status: 'On Going', file: '#',
   },
   {
-    id: 'PDID00000459', ref: 'MMRM00201', subject: 'Intern Application', type: 'Memorandum', date: '10/06/23', received: '05/12/25', remarks: 'Must be presented to DILG in June 30, 2026', status: 'Completed', file: '#',
+    id: 'PDID00000459', ref: 'MMRM00201', subject: 'Intern Application', type: 'Memorandum', date: '10/06/23', received: '05/12/25', receivedBy: 'Maria Garcia', remarks: 'Must be presented to DILG in June 30, 2026', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000305', ref: 'ENDR000027', subject: 'Barangay Clearance', type: 'Certification', date: '01/04/23', received: '03/04/25', remarks: 'For signature of Brgy. Captain', status: 'Completed', file: '#',
+    id: 'PDID00000305', ref: 'ENDR000027', subject: 'Barangay Clearance', type: 'Certification', date: '01/04/23', received: '03/04/25', receivedBy: 'Robert Johnson', remarks: 'For signature of Brgy. Captain', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000307', ref: 'ENDR000029', subject: 'Barangay ID Application', type: 'Application', date: '01/06/23', received: '03/06/25', remarks: 'To be sent to Office of the Mayor', status: 'Completed', file: '#',
+    id: 'PDID00000307', ref: 'ENDR000029', subject: 'Barangay ID Application', type: 'Application', date: '01/06/23', received: '03/06/25', receivedBy: 'Sarah Wilson', remarks: 'To be sent to Office of the Mayor', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000309', ref: 'ENDR000031', subject: 'Scholarship Endorsement', type: 'Endorsement', date: '01/08/23', received: '03/08/25', remarks: 'To be distributed to residents', status: 'Completed', file: '#',
+    id: 'PDID00000309', ref: 'ENDR000031', subject: 'Scholarship Endorsement', type: 'Endorsement', date: '01/08/23', received: '03/08/25', receivedBy: 'Michael Brown', remarks: 'To be distributed to residents', status: 'Completed', file: '#',
   }, 
   {
-    id: 'PDID00000311', ref: 'ENDR000033', subject: 'Business Permit Request', type: 'Request', date: '01/10/23', received: '03/10/25', remarks: 'For review by committee', status: 'Completed', file: '#',
+    id: 'PDID00000311', ref: 'ENDR000033', subject: 'Business Permit Request', type: 'Request', date: '01/10/23', received: '03/10/25', receivedBy: 'Jennifer Davis', remarks: 'For review by committee', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000313', ref: 'ENDR000035', subject: 'Barangay Residency Certification', type: 'Certification', date: '01/12/23', received: '03/12/25', remarks: 'To be archived', status: 'Completed', file: '#',
+    id: 'PDID00000313', ref: 'ENDR000035', subject: 'Barangay Residency Certification', type: 'Certification', date: '01/12/23', received: '03/12/25', receivedBy: 'James Miller', remarks: 'To be archived', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000315', ref: 'ENDR000037', subject: 'Solo Parent ID Application', type: 'Application', date: '01/14/23', received: '03/14/25', remarks: 'To be checked by secretary', status: 'Completed', file: '#',
+    id: 'PDID00000315', ref: 'ENDR000037', subject: 'Solo Parent ID Application', type: 'Application', date: '01/14/23', received: '03/14/25', receivedBy: 'Patricia Taylor', remarks: 'To be checked by secretary', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000317', ref: 'ENDR000039', subject: 'PWD ID Application', type: 'Application', date: '01/16/23', received: '03/16/25', remarks: 'Pending further documentation', status: 'Completed', file: '#',
+    id: 'PDID00000317', ref: 'ENDR000039', subject: 'PWD ID Application', type: 'Application', date: '01/16/23', received: '03/16/25', receivedBy: 'David Anderson', remarks: 'Pending further documentation', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000319', ref: 'ENDR000041', subject: 'Certificate of Indigency', type: 'Certification', date: '01/18/23', received: '03/18/25', remarks: 'To be picked up by applicant', status: 'Completed', file: '#',
+    id: 'PDID00000319', ref: 'ENDR000041', subject: 'Certificate of Indigency', type: 'Certification', date: '01/18/23', received: '03/18/25', receivedBy: 'Lisa Thomas', remarks: 'To be picked up by applicant', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000321', ref: 'ENDR000043', subject: 'Barangay Business Clearance', type: 'Certification', date: '01/20/23', received: '03/20/25', remarks: 'For legal review', status: 'Completed', file: '#',
+    id: 'PDID00000321', ref: 'ENDR000043', subject: 'Barangay Business Clearance', type: 'Certification', date: '01/20/23', received: '03/20/25', receivedBy: 'Daniel Jackson', remarks: 'For legal review', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000323', ref: 'ENDR000045', subject: 'Barangay Certificate of Good Moral', type: 'Certification', date: '01/22/23', received: '03/22/25', remarks: 'Requires additional attachment', status: 'Completed', file: '#',
+    id: 'PDID00000323', ref: 'ENDR000045', subject: 'Barangay Certificate of Good Moral', type: 'Certification', date: '01/22/23', received: '03/22/25', receivedBy: 'Nancy White', remarks: 'Requires additional attachment', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000325', ref: 'ENDR000047', subject: 'Late Registration of Birth', type: 'Request', date: '01/24/23', received: '03/24/25', remarks: 'To be forwarded to PNP', status: 'Completed', file: '#',
+    id: 'PDID00000325', ref: 'ENDR000047', subject: 'Late Registration of Birth', type: 'Request', date: '01/24/23', received: '03/24/25', receivedBy: 'Kevin Harris', remarks: 'To be forwarded to PNP', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000327', ref: 'ENDR000049', subject: 'Barangay Blotter Report', type: 'Report', date: '01/26/23', received: '03/26/25', remarks: 'To be validated by Treasurer', status: 'Completed', file: '#',
+    id: 'PDID00000327', ref: 'ENDR000049', subject: 'Barangay Blotter Report', type: 'Report', date: '01/26/23', received: '03/26/25', receivedBy: 'Karen Martin', remarks: 'To be validated by Treasurer', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000329', ref: 'ENDR000051', subject: 'Barangay Indigency for Medical', type: 'Certification', date: '01/28/23', received: '03/28/25', remarks: 'To be submitted to Sangguniang Bayan', status: 'Completed', file: '#',
+    id: 'PDID00000329', ref: 'ENDR000051', subject: 'Barangay Indigency for Medical', type: 'Certification', date: '01/28/23', received: '03/28/25', receivedBy: 'Thomas Clark', remarks: 'To be submitted to Sangguniang Bayan', status: 'Completed', file: '#',
   },
   {
-    id: 'PDID00000331', ref: 'ENDR000053', subject: 'Barangay Certificate for Employment', type: 'Certification', date: '01/30/23', received: '03/30/25', remarks: 'For digital archiving', status: 'Completed', file: '#',
+    id: 'PDID00000331', ref: 'ENDR000053', subject: 'Barangay Certificate for Employment', type: 'Certification', date: '01/30/23', received: '03/30/25', receivedBy: 'Susan Lewis', remarks: 'For digital archiving', status: 'Completed', file: '#',
   },
 ];
 
@@ -119,26 +119,20 @@ export default function PublicDocument() {
             </tr>
           </thead>
           <tbody>
-            {data.map((row, i) => {
-              // Try to extract 'Received By' from remarks (e.g., 'Received by Edwin Agustin')
-              let receivedBy = '';
-              const match = row.remarks && row.remarks.match(/Received by (.+)/i);
-              if (match) receivedBy = match[1];
-              return (
-                <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
-                  <td>{row.id}</td>
-                  <td>{row.ref}</td>
-                  <td>{row.subject}</td>
-                  <td>{row.type}</td>
-                  <td>{row.date}</td>
-                  <td>{row.received}</td>
-                  <td>{receivedBy}</td>
-                  <td>{row.status}</td>
-                  <td>{row.remarks}</td>
-                  <td><a href={row.file} className="PublicDocument-PDFLink">View PDF</a></td>
-                </tr>
-              );
-            })}
+            {data.map((row, i) => (
+              <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
+                <td>{row.id}</td>
+                <td>{row.ref}</td>
+                <td>{row.subject}</td>
+                <td>{row.type}</td>
+                <td>{row.date}</td>
+                <td>{row.received}</td>
+                <td>{row.receivedBy}</td>
+                <td>{row.status}</td>
+                <td>{row.remarks}</td>
+                <td><a href={row.file} className="PublicDocument-PDFLink">View PDF</a></td>
+              </tr>
+            ))}
           </tbody>
         </table>
         {activeTab === 'all' && selectedRow && !editModalOpen && (
