@@ -12,7 +12,266 @@
   min-height: 30rem;
 }
 
+
 .UserManagement-Title {
   font-size: 1.25rem;
   font-weight: 700;
 }
+.UserManagement-TopBar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  width: 100%;
+  margin-top: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+
+.UserManagement-SearchInput {
+  width: 18rem;
+  height: 2rem;
+  border: 1px solid #c6c6c6;
+  border-radius: 5px;
+  padding: 0 0.75rem;
+  margin-right: 0.5rem;
+  font-size: 1rem;
+  background: #f8f9fa;
+}
+
+
+.UserManagement-SearchButton {
+  height: 2rem;
+  padding: 0 1.2rem;
+  background: #2e3b4e;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: not-allowed;
+}
+
+
+.UserManagement-TableOuter {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  padding-left: 0.5rem;
+  padding-right:0.5rem;
+  box-sizing: border-box;
+}
+
+.UserManagement-TableWrapper {
+  width: 100%;
+  max-width: 1150px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.08);
+  overflow: auto; /* Changed to auto to show scrollbars when needed */
+  border: 1px solid #e0e0e0;
+  min-height: 7rem;
+  max-height: 28rem;
+  display: flex;
+  flex-direction: column;
+  /* Custom Scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: #4C6085 #f6f8fa;
+}
+/* Custom Scrollbar */
+.UserManagement-TableWrapper::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+  background: #f6f8fa;
+  border-radius: 0.5rem;
+}
+
+.UserManagement-TableWrapper::-webkit-scrollbar-thumb {
+  background: #4C6085;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+
+.UserManagement-TableWrapper::-webkit-scrollbar-thumb:hover {
+  background: #3571b9;
+}
+
+/* Firefox */
+@supports (scrollbar-width: thin) {
+  .UserManagement-TableWrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #4C6085 #f6f8fa;
+  }
+}
+
+
+.UserManagement-Table {
+  width: 100%;
+  min-width: 900px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.9rem;
+  background: #fff;
+  table-layout: auto;
+  margin: 0;
+  font-family: inherit, sans-serif;
+}
+
+
+.UserManagement-Table th, .UserManagement-Table td {
+  padding: 0.8rem 0.7rem;
+  text-align: left;
+  font-size: 0.9rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: inherit, sans-serif;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+
+.UserManagement-Table thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f6f8fa;
+}
+
+.UserManagement-Table th {
+  background: #f6f8fa;
+  font-weight: 600;
+  color: #223354;
+  font-size: 0.9rem;
+  padding: 0.8rem 0.7rem;
+  border-bottom: 1px solid #e0e0e0;
+  white-space: nowrap;
+  position: relative;
+}
+
+/* Remove any default spacing */
+.UserManagement-Table thead tr {
+  margin: 0;
+  padding: 0;
+}
+
+
+
+
+.UserManagement-Table thead {
+  margin: 0;
+  padding: 0;
+}
+
+
+.UserManagement-Table tr {
+  background: #fff;
+  transition: background 0.18s;
+}
+.UserManagement-Table tr:hover td {
+  background: #eaf0fa;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+
+
+.UserManagement-Table tr:not(:last-child) td {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+
+.UserManagement-Status-Activated {
+  color: #138944;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  display: inline;
+  font-size: 1rem;
+  box-shadow: none;
+}
+
+.UserManagement-Status-Deactivated {
+  color: #c0392b;
+  font-weight: 500;
+  background: none;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  display: inline;
+  font-size: 1rem;
+  box-shadow: none;
+}
+
+
+.UserManagement-Reactivate {
+  background: #e9f6ea;
+  color: #138944;
+  border: 1.5px solid #a8e0c0;
+  border-radius: 1rem;
+  padding: 0.2rem 0.9rem;
+  font-size: 0.97rem;
+  font-weight: 600;
+  display: inline-block;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  box-shadow: 0 1px 2px rgba(39,174,96,0.08);
+}
+
+.UserManagement-Reactivate:hover {
+  background: #d4edd9;
+  color: #138944;
+  border-color: #138944;
+}
+
+
+.UserManagement-Deactivate {
+  background: #fbeaea;
+  color: #c0392b;
+  border: 1.5px solid #f5b2b2;
+  border-radius: 1rem;
+  padding: 0.2rem 0.9rem;
+  font-size: 0.97rem;
+  font-weight: 600;
+  display: inline-block;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s;
+  box-shadow: 0 1px 2px rgba(192,57,43,0.08);
+}
+
+.UserManagement-Deactivate:hover {
+  background: #f6b1a3;
+  color: #c0392b;
+  border-color: #c0392b;
+}
+
+
+.UserManagement-AddUserRow {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.6rem;
+  margin-bottom: 0.4rem;
+}
+
+
+.UserManagement-AddUser {
+  background: #2e3b4e;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.55rem 1.7rem;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 0 1px 2px rgba(44,62,80,0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+
+.UserManagement-AddUser:hover {
+  background: #1a2233;
+}
+
