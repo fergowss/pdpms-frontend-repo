@@ -177,7 +177,7 @@
   color: #223354;
   font-weight: 600;
   border-bottom: 2px solid #e1e7ef;
-  font-size: 1rem;
+  font-size: 0.9rem;
   padding: 0.7rem 1rem;
   text-align: left;
   font-family: inherit, sans-serif;
@@ -187,7 +187,7 @@
 .Documents-Table td {
   border-bottom: 1px solid #e1e7ef;
   color: #223354;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-family: inherit, sans-serif;
   padding: 0.7rem 1rem;
 }

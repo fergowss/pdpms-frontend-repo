@@ -39,7 +39,6 @@ export default function AssetProperty() {
       <div className="AssetProperty-HeaderRow">
         <div className="AssetProperty-HeaderTabs">
           <div className="AssetProperty-Title">
-            Asset Properties
           </div>
         </div>
         <div className="AssetProperty-SearchBox">
