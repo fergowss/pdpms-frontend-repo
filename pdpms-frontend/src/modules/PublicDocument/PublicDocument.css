@@ -358,6 +358,9 @@
   border-color: #3571b9;
 }
 
+.PublicDocument-ModalInput--large {
+  height: 105px; 
+}
 
 .PublicDocument-ModalTextarea {
   min-height: 6.5rem;

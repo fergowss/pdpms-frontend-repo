@@ -12,7 +12,7 @@ export default function AddDocumentModal({ open, onClose }) {
               <label className="PublicDocument-ModalLabel">Reference Code</label>
               <input className="PublicDocument-ModalInput" type="text" />
               <label className="PublicDocument-ModalLabel">Subject</label>
-              <input className="PublicDocument-ModalInput" type="text" />
+              <textarea className="PublicDocument-ModalInput PublicDocument-ModalTextarea" rows={4}></textarea>
               <label className="PublicDocument-ModalLabel">Document Type</label>
               <select className="PublicDocument-ModalInput">
                 <option>Select Document Type</option>
