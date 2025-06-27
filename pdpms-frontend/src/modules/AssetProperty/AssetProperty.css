@@ -271,3 +271,171 @@
     width: 100%;
   }
 }
+
+/* ================= MODAL STYLES ================= */
+
+/* Edit notification styles (copied and adapted from PublicDocument) */
+.AssetProperty-EditNotification {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 250px;
+  background: #e8eef7;
+  border: 1.7px solid #bfc7d1;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
+  padding: 1.2rem 1.5rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2000;
+}
+.AssetProperty-EditNotification-Title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000;
+  text-align: center;
+  margin-bottom: 0.7rem;
+  margin-top: 0.2rem;
+}
+.AssetProperty-EditNotification-EditBtn {
+  background: #eaf0fa;
+  color: #2B3E63;
+  border: 2px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.45rem 1.3rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-top: 0.3rem;
+  cursor: pointer;
+  transition: background 0.17s, color 0.17s;
+}
+.AssetProperty-EditNotification-EditBtn:hover {
+  background: #2B3E63;
+  color: #fff;
+}
+.AssetProperty-EditNotification-Close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  font-size: 1.1rem;
+  color: #223354;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+.AssetProperty-EditNotification-Close:hover {
+  opacity: 1;
+}
+
+.AssetProperty-ModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(34, 51, 84, 0.08);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.AssetProperty-ModalBox {
+  background: #f6fcff;
+  border: 2px solid #2B3E63;
+  border-radius: 0.7rem;
+  padding: 1.5rem 2.5rem 1.1rem 2.5rem;
+  box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
+  min-width: 950px;
+  max-width: 1200px;
+  min-height: 360px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.AssetProperty-ModalForm {
+  width: 100%;
+}
+
+.AssetProperty-ModalGrid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.7rem;
+}
+.AssetProperty-ModalGrid > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.AssetProperty-ModalLabel {
+  font-weight: 600;
+  font-size: 1.04rem;
+  margin-bottom: 0.16rem;
+  color: #000000;
+}
+
+.AssetProperty-ModalInput {
+  border: 1.5px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.98rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+.AssetProperty-ModalInput:focus {
+  border-color: #3571b9;
+}
+
+.AssetProperty-ModalTextarea {
+  min-height: 6.5rem;
+  resize: vertical;
+}
+
+.AssetProperty-ModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  margin-left: 3.5rem;
+}
+
+.AssetProperty-ModalBtn {
+  padding: 0.36rem 1.05rem;
+  font-size: 0.93rem;
+  border-radius: 0.35rem;
+  border: 2px solid #2B3E63;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.AssetProperty-ModalBtn--primary {
+  background: #2B3E63;
+  color: #fff;
+  border-color: #2B3E63;
+}
+.AssetProperty-ModalBtn--primary:hover {
+  background: #3571b9;
+  border-color: #3571b9;
+}
+.AssetProperty-ModalBtn--secondary {
+  background: #f6fcff;
+  color: #2B3E63;
+  border-color: #2B3E63;
+}
+.AssetProperty-ModalBtn--secondary:hover {
+  background: #e7ecf3;
+  color: #3571b9;
+  border-color: #3571b9;
+}

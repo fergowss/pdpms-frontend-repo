@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './AssetProperty.css';
+import AddPropertyModal from './AddPropertyModal';
 
 const allData = [
   {
@@ -18,7 +19,13 @@ const allData = [
   // Add more sample data as needed
 ];
 
+import EditPropertyModal from './EditPropertyModal';
+
 export default function AssetProperty() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [editFormOpen, setEditFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   
   const filteredData = allData.filter(item => 
@@ -48,7 +55,7 @@ export default function AssetProperty() {
               SEARCH
             </button>
           </div>
-          <button className="AssetProperty-AddBtn">
+          <button className="AssetProperty-AddBtn" onClick={() => setModalOpen(true)}>
             Add Property
           </button>
         </div>
@@ -73,7 +80,7 @@ export default function AssetProperty() {
           </thead>
           <tbody>
             {filteredData.map((row, index) => (
-              <tr key={index}>
+              <tr key={index} onClick={() => { setSelectedRow(row); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
                 <td>{row.propertyNo}</td>
                 <td>{row.documentNo}</td>
                 <td>{row.parNo}</td>
@@ -94,6 +101,23 @@ export default function AssetProperty() {
           </tbody>
         </table>
       </div>
+      {modalOpen && (
+        <AddPropertyModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      )}
+      {editModalOpen && selectedRow && !editFormOpen && (
+        <div className="AssetProperty-EditNotification">
+          <button className="AssetProperty-EditNotification-Close" onClick={() => { setEditModalOpen(false); setSelectedRow(null); }} title="Close">×</button>
+          <div className="AssetProperty-EditNotification-Title">
+            Edit Property<br/>{selectedRow.propertyNo}?
+          </div>
+          <button className="AssetProperty-EditNotification-EditBtn" onClick={() => { setEditModalOpen(false); setEditFormOpen(true); }}>
+            EDIT
+          </button>
+        </div>
+      )}
+      {editFormOpen && selectedRow && (
+        <EditPropertyModal open={editFormOpen} onClose={() => setEditFormOpen(false)} row={selectedRow} />
+      )};
     </div>
   );
 }
