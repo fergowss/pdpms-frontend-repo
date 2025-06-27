@@ -146,11 +146,7 @@
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
-  width: max-content;
   background: #fff;
-  table-layout: auto; 
-  min-width: 1200px;
-  margin-top: 0.5rem;
 }
 
 .AssetProperty-Table th, 
