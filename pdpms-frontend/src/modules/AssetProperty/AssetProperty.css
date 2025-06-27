@@ -116,22 +116,23 @@
   background: #fff;
   border-radius: 0.5rem;
   border: 1px solid #e0e0e0;
-  min-height: 28rem; /* Slightly reduced height */
-  max-height: calc(100vh - 10rem); /* Adjusted for better proportion */
+  min-height: 28rem; 
+  max-height: calc(100vh - 10rem); 
   box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.07);
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: auto; /* Shows both vertical and horizontal scrollbars when needed */
+  overflow: auto; 
 }
 
 .AssetProperty-Table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.9rem;
+  width: max-content;
   background: #fff;
-  table-layout: auto; /* Changed to auto to allow columns to expand */
-  min-width: 1200px; /* Ensures the table is wider than the container */
+  table-layout: auto; 
+  min-width: 1200px;
   margin-top: 0.5rem;
 }
 
@@ -153,8 +154,17 @@
   top: 0;
   z-index: 2;
   font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: nowrap; 
+  padding: 0.8rem 0.7rem;
+}
+
+.AssetProperty-Table th, 
+.AssetProperty-Table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .AssetProperty-Table tr:last-child td {
@@ -192,6 +202,8 @@
 .AssetProperty-TableContainer::-webkit-scrollbar {
   width: 10px;
   height: 10px;
+  background: #f6f8fa;
+  border-radius: 0.5rem;
 }
 
 .AssetProperty-TableContainer::-webkit-scrollbar-track {
@@ -201,26 +213,28 @@
 }
 
 .AssetProperty-TableContainer::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #4C6085;
   border-radius: 0.5rem;
+  transition: background 0.2s;
   border: 2px solid #f6f8fa;
 }
 
 .AssetProperty-TableContainer::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #3571b9;
 }
 
 /* Horizontal scrollbar specific */
 .AssetProperty-TableContainer {
   scrollbar-width: thin;
-  scrollbar-color: #c1c1c1 #f6f8fa;
+  scrollbar-color: #4C6085 #f6f8fa;
+  overflow-x: auto;
 }
 
 /* For Firefox */
 @supports (scrollbar-width: thin) {
   .AssetProperty-TableContainer {
     scrollbar-width: thin;
-    scrollbar-color: #c1c1c1 #f6f8fa;
+    scrollbar-color: #4C6085 #f6f8fa;
   }
 }
 
