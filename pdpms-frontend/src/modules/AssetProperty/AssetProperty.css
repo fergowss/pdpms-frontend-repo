@@ -304,7 +304,7 @@
 }
 .AssetProperty-EditNotification-Title {
   font-size: 1.1rem;
-  font-weight: 600;
+  font-weight: 400px;
   color: #000;
   text-align: center;
   margin-bottom: 0.7rem;
@@ -317,7 +317,7 @@
   border-radius: 0.35rem;
   padding: 0.45rem 1.3rem;
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 400;
   margin-top: 0.3rem;
   cursor: pointer;
   transition: background 0.17s, color 0.17s;
@@ -427,7 +427,7 @@
   font-size: 0.93rem;
   border-radius: 0.35rem;
   border: 2px solid #2B3E63;
-  font-weight: 600;
+  font-weight: 400;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
