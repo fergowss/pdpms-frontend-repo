@@ -6,6 +6,9 @@ import './UserManagement.css';
 
 export default function UserManagement() {
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [manageModalOpen, setManageModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   const users = [
     { id: 'ADM00001', name: 'Maria Santos', role: 'Administrator', status: 'Activated' },
@@ -58,7 +61,7 @@ export default function UserManagement() {
             </thead>
             <tbody>
               {users.map((user, idx) => (
-                <tr key={idx}>
+                <tr key={idx} onClick={() => { setSelectedUser(user); setManageModalOpen(true); }} style={{ cursor: 'pointer' }}>
                   <td>{user.id}</td>
                   <td>{user.name}</td>
                   <td>{user.role}</td>
@@ -68,7 +71,7 @@ export default function UserManagement() {
                     </span>
                   </td>
                   <td>
-                    <button className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`}>
+                    <button className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} onClick={e => e.stopPropagation()}>
                       {user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}
                     </button>
                   </td>
@@ -80,6 +83,165 @@ export default function UserManagement() {
         <div className="UserManagement-AddUserRow">
           <button className="UserManagement-AddUser" onClick={() => setAddModalOpen(true)}>ADD USER</button>
         </div>
+      </div>
+    <ManageUserModal
+      open={manageModalOpen}
+      onClose={() => setManageModalOpen(false)}
+      onEdit={() => {
+        setEditModalOpen(true);
+        setManageModalOpen(false);
+      }}
+    />
+    <EditUserModal
+      open={editModalOpen}
+      onClose={() => setEditModalOpen(false)}
+      user={selectedUser}
+    />
+    </div>
+  );
+}
+
+function ManageUserModal({ open, onClose, onEdit }) {
+  if (!open) return null;
+  return (
+    <div className="UserManagement-ModalOverlay">
+      <div className="UserManagement-ManageModalBox">
+        <button className="UserManagement-ManageModalClose" onClick={onClose} aria-label="Close">X</button>
+        <div className="UserManagement-ManageModalTitle">Manage User</div>
+        <div className="UserManagement-ManageModalActions">
+          <button className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--edit" onClick={onEdit}>EDIT</button>
+          <button className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--delete">DELETE</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditUserModal({ open, onClose, user }) {
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [form, setForm] = useState({
+    employeeId: '',
+    username: '',
+    currentPassword: '',
+    newPassword: '',
+    role: ''
+  });
+
+  React.useEffect(() => {
+    if (user && open) {
+      setForm({
+        employeeId: user.id || '',
+        username: user.name || '',
+        currentPassword: '',
+        newPassword: '',
+        role: user.role || ''
+      });
+    }
+  }, [user, open]);
+
+  if (!open) return null;
+
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = e => {
+    e.preventDefault();
+    // TODO: handle update logic
+    onClose();
+  };
+
+  return (
+    <div className="UserManagement-ModalOverlay">
+      <div className="UserManagement-ModalBox">
+        <form className="UserManagement-ModalForm" onSubmit={handleSubmit} autoComplete="off">
+          <div className="UserManagement-ModalGrid">
+            <div>
+              <label className="UserManagement-ModalLabel">Employee ID</label>
+              <input
+                className="UserManagement-ModalInput"
+                type="text"
+                name="employeeId"
+                value={form.employeeId}
+                readOnly
+                disabled
+              />
+              <label className="UserManagement-ModalLabel">Username</label>
+              <input
+                className="UserManagement-ModalInput"
+                type="text"
+                name="username"
+                value={form.username}
+                onChange={handleChange}
+                autoFocus
+              />
+              <label className="UserManagement-ModalLabel">Current Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="UserManagement-ModalInput UserManagement-ModalInput--password"
+                  type={showCurrentPassword ? 'text' : 'password'}
+                  name="currentPassword"
+                  value={form.currentPassword}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="UserManagement-ModalPasswordToggle"
+                  onClick={() => setShowCurrentPassword(v => !v)}
+                  tabIndex={-1}
+                  aria-label={showCurrentPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showCurrentPassword ? (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#223354" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3.5" stroke="#223354" strokeWidth="2"/></svg>
+                  ) : (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#223354" strokeWidth="2" d="M17.94 17.94C16.11 19.24 14.13 20 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.06m3.22-1.64A11.93 11.93 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-4.18 5.38M1 1l22 22"/><circle cx="12" cy="12" r="3.5" stroke="#223354" strokeWidth="2"/></svg>
+                  )}
+                </button>
+              </div>
+              <label className="UserManagement-ModalLabel">New Password</label>
+              <div style={{ position: 'relative' }}>
+                <input
+                  className="UserManagement-ModalInput UserManagement-ModalInput--password"
+                  type={showNewPassword ? 'text' : 'password'}
+                  name="newPassword"
+                  value={form.newPassword}
+                  onChange={handleChange}
+                />
+                <button
+                  type="button"
+                  className="UserManagement-ModalPasswordToggle"
+                  onClick={() => setShowNewPassword(v => !v)}
+                  tabIndex={-1}
+                  aria-label={showNewPassword ? 'Hide password' : 'Show password'}
+                >
+                  {showNewPassword ? (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#223354" strokeWidth="2" d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12Z"/><circle cx="12" cy="12" r="3.5" stroke="#223354" strokeWidth="2"/></svg>
+                  ) : (
+                    <svg width="22" height="22" fill="none" viewBox="0 0 24 24"><path stroke="#223354" strokeWidth="2" d="M17.94 17.94C16.11 19.24 14.13 20 12 20c-7 0-11-8-11-8a21.77 21.77 0 0 1 5.06-6.06m3.22-1.64A11.93 11.93 0 0 1 12 4c7 0 11 8 11 8a21.8 21.8 0 0 1-4.18 5.38M1 1l22 22"/><circle cx="12" cy="12" r="3.5" stroke="#223354" strokeWidth="2"/></svg>
+                  )}
+                </button>
+              </div>
+              <label className="UserManagement-ModalLabel">Employee Role</label>
+              <select
+                className="UserManagement-ModalSelect"
+                name="role"
+                value={form.role}
+                onChange={handleChange}
+              >
+                <option value="">Select Employee Role</option>
+                <option value="Administrator">Administrator</option>
+                <option value="Document Manager">Document Manager</option>
+                <option value="Information Access Officer">Information Access Officer</option>
+              </select>
+            </div>
+          </div>
+          <div className="UserManagement-ModalActions">
+            <button type="submit" className="UserManagement-ModalBtn UserManagement-ModalBtn--primary">UPDATE</button>
+            <button type="button" className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+          </div>
+        </form>
       </div>
     </div>
   );

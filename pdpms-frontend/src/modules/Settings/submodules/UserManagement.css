@@ -18,23 +18,139 @@
   font-size: 1.25rem;
   font-weight: 700;
 }
+/* Modal Backdrop (blur effect) */
+.UserManagement-ModalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Container */
+.UserManagement-Modal {
+  background: #f6fcff;
+  border-radius: 1rem;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  padding: 2.5rem 2rem 1.5rem 2rem;
+  min-width: 400px;
+  max-width: 98vw;
+  min-height: 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  z-index: 1010;
+}
+
+.UserManagement-Modal label {
+  font-weight: 600;
+  color: #223354;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.UserManagement-Modal input[type="text"],
+.UserManagement-Modal input[type="password"],
+.UserManagement-Modal select {
+  width: 100%;
+  padding: 0.7rem 1rem;
+  border: 1.5px solid #b8c2cc;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 0.3rem;
+  background: #fff;
+  transition: border 0.2s;
+}
+
+.UserManagement-Modal input[readonly] {
+  background: #e8f0fe;
+  color: #223354;
+  font-weight: 500;
+}
+
+.UserManagement-Modal input[type="password"] {
+  letter-spacing: 0.15em;
+}
+
+.UserManagement-Modal .password-eye {
+  position: absolute;
+  right: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.UserManagement-Modal .UserManagement-ModalRow {
+  display: flex;
+  gap: 1.2rem;
+}
+
+.UserManagement-Modal .UserManagement-ModalCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.UserManagement-ModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1.2rem;
+  margin-top: 1.2rem;
+}
+
+.UserManagement-ModalActions button {
+  padding: 0.6rem 2.1rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.UserManagement-ModalActions .update-btn {
+  background: #223354;
+  color: #fff;
+}
+
+.UserManagement-ModalActions .cancel-btn {
+  background: #f5f5f5;
+  color: #223354;
+  border: 1px solid #b8c2cc;
+}
+
+.UserManagement-ModalActions .update-btn:hover {
+  background: #1a2847;
+}
+
+.UserManagement-ModalActions .cancel-btn:hover {
+  background: #e8e8e8;
+}
+
 /* Search Bar */
 .UserManagement-TopRow {
   display: flex;
   justify-content: flex-end;
   align-items: flex-end;
-  margin-top: 1.2rem;
+  margin-top: 0.7rem;
   width: 100%;
-  margin-top: 0.6rem;
+  margin-bottom: 0.2rem;
 }
 
 .UserManagement-SearchBarRow {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  margin-bottom: 0.2rem;
+  margin-bottom: 0;
   padding-left: 0;
   margin-right: 1.5rem;
+  margin-top: -0.5rem;
 }
 
 .UserManagement-SearchBar {
@@ -94,7 +210,7 @@
   border-radius: 0.5rem;
   border: 1px solid #e0e0e0;
   min-height: 18rem;
-  max-height: 26rem;
+  max-height: 27rem;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   display: flex;
@@ -107,8 +223,8 @@
 
 .UserManagement-AddUserRow {
   position: fixed;
-  right: 2rem;
-  bottom: 2rem;
+  right: 1.8rem;
+  bottom: 1.7rem;
   z-index: 100;
   display: flex;
   justify-content: flex-end;
@@ -155,14 +271,128 @@
   border-radius: 0.5rem;
 }
 
+/* ================= TABLE STYLES ================= */
+.UserManagement-Table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.UserManagement-Table thead th {
+  background-color: #f8f9fa;
+  color: #223354;
+  font-weight: 600;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid #e9ecef;
+  height: 1.7rem;
+  text-align: left;
+  position: sticky;
+  top: 0;
+}
+
+/* ================= MANAGE USER MODAL STYLES ================= */
+.UserManagement-ManageModalBox {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 210px;
+  background: #e8eef7;
+  border: 1.7px solid #bfc7d1;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
+  padding: 1.2rem 1.5rem 1.4rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2000;
+}
+.UserManagement-ManageModalTitle {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: #111;
+  text-align: center;
+  margin-bottom: 0.8rem;
+  margin-top: 0;
+}
+.UserManagement-ManageModalClose {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  font-size: 0.7rem;
+  color: #223354;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.1rem 0.3rem 0.2rem;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  border-radius: 0.15rem;
+}
+.UserManagement-ManageModalClose:hover {
+  opacity: 1;
+}
+/* Legacy modal action style, replaced by .UserManagement-ModalActions above */
+.UserManagement-ManageModalActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+.UserManagement-ManageModalBtn {
+  min-width: 90px;
+  padding: 0.35rem 1rem;
+  font-size: 0.9rem;
+  border-radius: 0.35rem;
+  font-weight: 400;
+  background: #f6fcff;
+  border: 1.5px solid #2B3E63;
+  color: #2B3E63;
+  cursor: pointer;
+  transition: background 0.17s, color 0.17s, border-color 0.17s;
+}
+.UserManagement-ManageModalBtn--edit {
+  background: #eaf0fa;
+  color: #2B3E63;
+  border: 1.5px solid #2B3E63;
+  border-radius: 0.25rem;
+  padding: 0.3rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-top: 0.2rem;
+  cursor: pointer;
+  transition: background 0.17s, color 0.17s;
+}
+.UserManagement-ManageModalBtn--edit:hover {
+  background: #2B3E63;
+  color: #fff;
+}
+.UserManagement-ManageModalBtn--delete {
+  border: 1.5px solid #d32f2f;
+  color: #d32f2f;
+  background: #f6fcff;
+  border-radius: 0.25rem;
+  padding: 0.3rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 400;
+  margin-top: 0.2rem;
+  cursor: pointer;
+  transition: background 0.17s, color 0.17s;
+}
+.UserManagement-ManageModalBtn--delete:hover {
+  background: #fbeaea;
+  color: #b71c1c;
+  border-color: #b71c1c;
+}
+
 /* ================= MODAL STYLES ================= */
 .UserManagement-ModalOverlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(34, 51, 84, 0.08);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.15); 
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -465,7 +695,7 @@
   border-radius: 1rem;
   padding: 0.2rem 0.9rem;
   font-size: 0.97rem;
-  font-weight: 600;
+  font-weight: 400;
   display: inline-block;
   cursor: pointer;
   transition: background 0.18s, color 0.18s;
@@ -486,7 +716,7 @@
   border-radius: 1rem;
   padding: 0.2rem 0.9rem;
   font-size: 0.97rem;
-  font-weight: 600;
+  font-weight: 400;
   display: inline-block;
   cursor: pointer;
   transition: background 0.18s, color 0.18s;
