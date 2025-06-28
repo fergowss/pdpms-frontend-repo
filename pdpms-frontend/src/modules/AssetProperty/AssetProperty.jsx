@@ -42,20 +42,15 @@ export default function AssetProperty() {
           </div>
         </div>
         <div className="AssetProperty-SearchBox">
-          <div className="AssetProperty-SearchWrapper">
-            <input
-              className="AssetProperty-SearchInput"
-              type="text"
-              placeholder="Enter Keyword"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <button className="AssetProperty-SearchBtn">
-              SEARCH
-            </button>
-          </div>
-          <button className="AssetProperty-AddBtn" onClick={() => setModalOpen(true)}>
-        ADD PROPERTY
+          <input
+            className="AssetProperty-SearchInput"
+            type="text"
+            placeholder="Enter Keyword"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <button className="AssetProperty-SearchBtn">
+            SEARCH
           </button>
         </div>
       </div>
@@ -99,6 +94,9 @@ export default function AssetProperty() {
             ))}
           </tbody>
         </table>
+      </div>
+      <div className="AssetProperty-AddBtnContainer">
+        <button className="AssetProperty-AddBtn" onClick={() => setModalOpen(true)}>ADD PROPERTY</button>
       </div>
       {modalOpen && (
         <AddPropertyModal open={modalOpen} onClose={() => setModalOpen(false)} />
