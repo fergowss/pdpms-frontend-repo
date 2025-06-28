@@ -6,11 +6,11 @@
   box-shadow: 0rem 0.2rem 0.1rem rgba(162, 162, 162, 0.1);
   display: flex;
   flex-direction: column;
-  min-width: 40rem;
   min-height: 30rem;
   box-sizing: border-box;
   padding: 1rem 0;
   position: relative;
+  overflow: hidden;
 }
 
 
@@ -84,20 +84,19 @@
   flex-direction: column;
   padding: 0 1.5rem;
   box-sizing: border-box;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .UserManagement-TableWrapper {
   width: 100%;
-  max-width: 1158px;
   margin: 0 auto;
   background: #fff;
   border-radius: 0.5rem;
-  box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.08);
-  overflow: auto; 
   border: 1px solid #e0e0e0;
-  min-height: 8rem;
-  max-height: 27rem;
+  min-height: 18rem;
+  max-height: 26rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   display: flex;
   margin-top: 1rem;
   flex-direction: column;
@@ -108,8 +107,8 @@
 
 .UserManagement-AddUserRow {
   position: fixed;
-  right: 1.8rem;  /* Reduced from 2.5rem to move it right */
-  bottom: 1.5rem;
+  right: 2rem;
+  bottom: 2rem;
   z-index: 100;
   display: flex;
   justify-content: flex-end;
@@ -156,6 +155,155 @@
   border-radius: 0.5rem;
 }
 
+/* ================= MODAL STYLES ================= */
+.UserManagement-ModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(34, 51, 84, 0.08);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.UserManagement-ModalBox {
+  background: #f6fcff;
+  border: 2px solid #2B3E63;
+  border-radius: 0.7rem;
+  padding: 1.5rem 2rem 1.1rem 2rem;
+  box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
+  min-width: 500px;
+  max-width: 95vw;
+  min-height: 360px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.UserManagement-ModalForm {
+  width: 100%;
+}
+
+.UserManagement-ModalGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+.UserManagement-ModalGrid > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.UserManagement-ModalLabel {
+  font-weight: 500;
+  font-size: 1.04rem;
+  margin-bottom: 0.16rem;
+  color: #000000;
+}
+
+.UserManagement-ModalInput {
+  border: 1.5px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.98rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+.UserManagement-ModalInput:focus {
+  border-color: #3571b9;
+}
+
+.UserManagement-ModalInput--password {
+  padding-right: 2.5rem;
+  width: 100%;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.UserManagement-ModalPasswordToggle {
+  position: absolute;
+  right: 0.5rem;
+  top: 0;
+  height: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #223354;
+  opacity: 0.8;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.5rem;
+  margin: 0;
+  transform: none;
+}
+
+.UserManagement-ModalPasswordToggle svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+.UserManagement-ModalSelect {
+  border: 1.5px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.98rem;
+  background: #fff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+  margin-bottom: 0.5rem;
+}
+.UserManagement-ModalSelect:focus {
+  border-color: #3571b9;
+}
+
+.UserManagement-ModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 0.9rem;
+  margin-left: 3.5rem;
+}
+
+.UserManagement-ModalBtn {
+  padding: 0.36rem 1.05rem;
+  font-size: 0.93rem;
+  border-radius: 0.35rem;
+  border: 2px solid #2B3E63;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.UserManagement-ModalBtn--primary {
+  background: #2B3E63;
+  color: #fff;
+  border-color: #2B3E63;
+}
+.UserManagement-ModalBtn--primary:hover {
+  background: #3571b9;
+  border-color: #3571b9;
+}
+.UserManagement-ModalBtn--secondary {
+  background: #f6fcff;
+  color: #2B3E63;
+  border-color: #2B3E63;
+}
+.UserManagement-ModalBtn--secondary:hover {
+  background: #e7ecf3;
+  color: #3571b9;
+  border-color: #3571b9;
+}
+
+
 .UserManagement-TableWrapper::-webkit-scrollbar-thumb {
   background: #4C6085;
   border-radius: 0.5rem;
@@ -177,19 +325,22 @@
 
 .UserManagement-Table {
   width: 100%;
-  min-width: 900px;
-  border-collapse: separate;
-  border-spacing: 0;
-  font-size: 0.9rem;
-  background: #fff;
-  table-layout: auto;
+  border-collapse: collapse;
+  table-layout: fixed;
+  min-width: 100%;
   margin: 0;
-  font-family: inherit, sans-serif;
+  padding: 0;
+  border: none;
 }
 
+@media (min-width: 1200px) {
+  .UserManagement-Table {
+    min-width: 55rem;
+  }
+}
 
 .UserManagement-Table th, .UserManagement-Table td {
-  padding: 0.8rem 0.7rem;
+  padding: 0.5rem 0.3rem;
   text-align: left;
   font-size: 0.9rem;
   white-space: nowrap;
@@ -197,6 +348,39 @@
   text-overflow: ellipsis;
   font-family: inherit, sans-serif;
   border-bottom: 1px solid #f0f0f0;
+}
+
+/* Set specific column widths */
+.UserManagement-Table th:first-child,
+.UserManagement-Table td:first-child {
+  width: 14%;
+  padding: 0.5rem 0.3rem 0.5rem 0.8rem;
+}
+
+.UserManagement-Table th:nth-child(2),
+.UserManagement-Table td:nth-child(2) {
+  width: 22%;
+  padding: 0.5rem 0.3rem;
+}
+
+.UserManagement-Table th:nth-child(3),
+.UserManagement-Table td:nth-child(3) {
+  width: 28%;
+  padding: 0.5rem 0.3rem;
+}
+
+.UserManagement-Table th:nth-child(4),
+.UserManagement-Table td:nth-child(4) {
+  width: 16%;
+  text-align: center;
+  padding: 0.5rem 0.3rem;
+}
+
+.UserManagement-Table th:last-child,
+.UserManagement-Table td:last-child {
+  width: 20%;
+  padding: 0.5rem 0.8rem 0.5rem 0.3rem;
+  text-align: center;
 }
 
 
@@ -212,7 +396,7 @@
   font-weight: 600;
   color: #223354;
   font-size: 0.9rem;
-  padding: 0.8rem 0.7rem;
+  padding: 0.6rem 0.5rem;
   border-bottom: 1px solid #e0e0e0;
   white-space: nowrap;
   position: relative;
