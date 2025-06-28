@@ -55,7 +55,7 @@ export default function AssetProperty() {
             </button>
           </div>
           <button className="AssetProperty-AddBtn" onClick={() => setModalOpen(true)}>
-            Add Property
+        ADD PROPERTY
           </button>
         </div>
       </div>
