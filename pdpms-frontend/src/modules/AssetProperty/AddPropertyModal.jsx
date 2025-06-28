@@ -5,8 +5,8 @@ export default function AddPropertyModal({ open, onClose }) {
   if (!open) return null;
 
   return (
-    <div className="AssetProperty-ModalOverlay">
-      <div className="AssetProperty-ModalBox">
+    <div className="AssetProperty-AddModalOverlay">
+      <div className="AssetProperty-AddModalBox">
         <form className="AssetProperty-ModalForm">
           <div className="AssetProperty-ModalGrid">
             <div>

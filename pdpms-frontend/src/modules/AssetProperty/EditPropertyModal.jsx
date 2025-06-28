@@ -5,8 +5,8 @@ export default function EditPropertyModal({ open, onClose, row }) {
   if (!open || !row) return null;
 
   return (
-    <div className="AssetProperty-ModalOverlay">
-      <div className="AssetProperty-ModalBox">
+    <div className="AssetProperty-EditModalOverlay">
+      <div className="AssetProperty-EditModalBox">
         <form className="AssetProperty-ModalForm">
           <div className="AssetProperty-ModalGrid">
             <div>

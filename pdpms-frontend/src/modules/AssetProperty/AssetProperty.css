@@ -344,7 +344,8 @@
   opacity: 1;
 }
 
-.AssetProperty-ModalOverlay {
+/* Add Property Modal */
+.AssetProperty-AddModalOverlay {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
   width: 100vw;
@@ -357,15 +358,43 @@
   justify-content: center;
 }
 
-.AssetProperty-ModalBox {
+.AssetProperty-AddModalBox {
+  background: #f6fcff;
+  border: 2px solid #2B3E63;
+  border-radius: 0.7rem;
+  padding: 1.5rem 2.5rem 1.1rem 2.5rem;
+  box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
+  min-width: 700px;
+  max-width: 800px;
+  min-height: 400px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Edit Property Modal */
+.AssetProperty-EditModalOverlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(34, 51, 84, 0.08);
+  backdrop-filter: blur(4px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.AssetProperty-EditModalBox {
   background: #f6fcff;
   border: 2px solid #2B3E63;
   border-radius: 0.7rem;
   padding: 1.5rem 2.5rem 1.1rem 2.5rem;
   box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
   min-width: 900px;
-  max-width: 100px;
-  min-height: 360px;
+  max-width: 1100px;
+  min-height: 400px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
