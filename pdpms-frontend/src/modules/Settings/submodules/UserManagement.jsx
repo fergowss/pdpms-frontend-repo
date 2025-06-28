@@ -4,14 +4,16 @@ import './UserManagement.css';
 export default function UserManagement() {
   return (
     <div className="User-Management-Container">
-      <div className="UserManagement-TopBar">
-        <input
-          className="UserManagement-SearchInput"
-          type="text"
-          placeholder="Enter Keyword"
-          disabled
-        />
-        <button className="UserManagement-SearchButton" disabled>SEARCH</button>
+      <div className="UserManagement-TopRow">
+        <div className="UserManagement-SearchBarRow">
+          <input
+            className="UserManagement-SearchBar"
+            type="text"
+            placeholder="Enter Keyword"
+            disabled
+          />
+          <button className="UserManagement-SearchButton" disabled>SEARCH</button>
+        </div>
       </div>
       <div className="UserManagement-TableOuter">
         <div className="UserManagement-TableWrapper">
