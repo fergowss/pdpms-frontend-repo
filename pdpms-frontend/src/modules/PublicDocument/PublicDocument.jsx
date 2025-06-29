@@ -64,12 +64,33 @@ export default function PublicDocument() {
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [showAddNotif, setShowAddNotif] = useState(false);
   const data = activeTab === 'all' ? allData : archivingData;
 
+  // Handler for when a document is added
+  const handleAddDocument = () => {
+    setModalOpen(false);
+    setShowAddNotif(true);
+    setTimeout(() => setShowAddNotif(false), 3000);
+  };
 
   return (
     <div className="Public-Document-Container">
-      <AddDocumentModal open={modalOpen} onClose={() => setModalOpen(false)} />
+      <AddDocumentModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddDocument} />
+      {showAddNotif && (
+        <div className="PublicDocument-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem'}}>
+          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
+            {/* SVG: Simple outlined document icon */}
+            <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
+              <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
+              <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
+              <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+            </svg>
+          </span>
+          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>New Public Document Has Been Added.</span>
+        </div>
+      )}
       <div className="PublicDocument-HeaderRow">
         <div className="PublicDocument-HeaderTabs">
           <div

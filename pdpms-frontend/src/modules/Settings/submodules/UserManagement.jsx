@@ -9,6 +9,8 @@ export default function UserManagement() {
   const [manageModalOpen, setManageModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   const users = [
     { id: 'ADM00001', name: 'Maria Santos', role: 'Administrator', status: 'Activated' },
@@ -91,17 +93,32 @@ export default function UserManagement() {
         setEditModalOpen(true);
         setManageModalOpen(false);
       }}
+      onDelete={() => {
+        setUserToDelete(selectedUser);
+        setManageModalOpen(false);
+        setDeleteModalOpen(true);
+      }}
     />
     <EditUserModal
       open={editModalOpen}
       onClose={() => setEditModalOpen(false)}
       user={selectedUser}
     />
+    <DeleteUserModal
+      open={deleteModalOpen}
+      onClose={() => setDeleteModalOpen(false)}
+      user={userToDelete}
+      onConfirm={() => {
+        // Implement delete logic here (e.g., remove user from list)
+        setDeleteModalOpen(false);
+        setUserToDelete(null);
+      }}
+    />
     </div>
   );
 }
 
-function ManageUserModal({ open, onClose, onEdit }) {
+function ManageUserModal({ open, onClose, onEdit, onDelete }) {
   if (!open) return null;
   return (
     <div className="UserManagement-ModalOverlay">
@@ -110,7 +127,33 @@ function ManageUserModal({ open, onClose, onEdit }) {
         <div className="UserManagement-ManageModalTitle">Manage User</div>
         <div className="UserManagement-ManageModalActions">
           <button className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--edit" onClick={onEdit}>EDIT</button>
-          <button className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--delete">DELETE</button>
+          <button className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--delete" onClick={onDelete}>DELETE</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DeleteUserModal({ open, onClose, user, onConfirm }) {
+  if (!open) return null;
+  return (
+    <div className="UserManagement-ModalOverlay" onClick={onClose}>
+      <div className="UserManagement-DeleteModalBox" onClick={e => e.stopPropagation()}>
+        <button className="UserManagement-DeleteModalClose" onClick={onClose} aria-label="Close">×</button>
+        <div className="UserManagement-DeleteModalContent">
+          <span className="UserManagement-DeleteModalText">
+            {user && user.id ? (
+              <>
+                Are you sure you want to delete<br />
+                <b>user {user.id}</b>?
+              </>
+            ) : (
+              'Are you sure you want to delete this user?'
+            )}
+          </span>
+        </div>
+        <div className="UserManagement-DeleteModalActions UserManagement-DeleteModalActions--centered">
+          <button className="UserManagement-DeleteModalBtn UserManagement-DeleteModalBtn--secondary" onClick={onConfirm}>CONFIRM DELETION</button>
         </div>
       </div>
     </div>

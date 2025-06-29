@@ -33,21 +33,116 @@
   justify-content: center;
 }
 
-/* Modal Container */
-.UserManagement-ModalBox {
+/* Add User Modal */
+.UserManagement-AddUserModal {
+  min-width: 300px;
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Edit User Modal */
+.UserManagement-EditUserModal {
+  min-width: 300px;
+  max-width: 450px;
+  width: 100%;
+}
+
+/* Delete User Modal (Compact, Consistent Style) */
+.UserManagement-DeleteModalBox {
   background: #f6fcff;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.1);
-  padding: 1.5rem 2.5rem;
-  min-width: 350px;
-  max-width: 380px;
-  min-height: auto;
+  border: 2px solid #2B3E63;
+  border-radius: 0.7rem;
+  padding: 1.5rem 2rem 1.1rem 2rem;
+  box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
+  min-width: 280px;
+  max-width: 95vw;
+  min-height: 120px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;
-  z-index: 1010;
-  border: 1px solid #e0e0e0;
+  align-items: center;
+  justify-content: center;
+  position: relative;
 }
+
+.UserManagement-DeleteModalClose {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  font-size: 1.1rem;
+  color: #223354;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  border-radius: 0.15rem;
+  z-index: 1;
+}
+.UserManagement-DeleteModalClose:hover {
+  opacity: 1;
+}
+
+.UserManagement-DeleteModalContent {
+  margin-bottom: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.UserManagement-DeleteModalText {
+  font-size: 1.07rem;
+  color: #223354;
+  font-weight: 500;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+.UserManagement-DeleteModalActions {
+  display: flex;
+  gap: 1.1rem;
+  justify-content: center;
+  width: 100%;
+}
+.UserManagement-DeleteModalActions--centered {
+  justify-content: center;
+  gap: 0;
+}
+
+.UserManagement-DeleteModalBtn {
+  padding: 0.36rem 1.05rem;
+  font-size: 0.93rem;
+  border-radius: 0.35rem;
+  border: 2px solid #2B3E63;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  text-transform: uppercase;
+  min-width: 98px;
+  outline: none;
+}
+.UserManagement-DeleteModalBtn--primary {
+  background: #2B3E63;
+  color: #fff;
+  border-color: #2B3E63;
+}
+.UserManagement-DeleteModalBtn--primary:hover {
+  background: #3571b9;
+  border-color: #3571b9;
+}
+.UserManagement-DeleteModalBtn--secondary {
+  background: #f6fcff;
+  color: #2B3E63;
+  border-color: #2B3E63;
+}
+.UserManagement-DeleteModalBtn--secondary:hover {
+  background: #e7ecf3;
+  color: #3571b9;
+  border-color: #3571b9;
+}
+
 
 .UserManagement-Modal label {
   font-weight: 600;
@@ -432,13 +527,14 @@
   border-radius: 0.7rem;
   padding: 1.5rem 2rem 1.1rem 2rem;
   box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
-  min-width: 500px;
+  min-width: 400px;
   max-width: 95vw;
   min-height: 360px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
 }
+
 
 .UserManagement-ModalForm {
   width: 100%;

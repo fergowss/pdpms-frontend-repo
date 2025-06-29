@@ -1,12 +1,18 @@
 import React from 'react';
 import './PublicDocument.css';
 
-export default function AddDocumentModal({ open, onClose }) {
+export default function AddDocumentModal({ open, onClose, onAdd }) {
   if (!open) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onAdd) onAdd();
+  };
+
   return (
     <div className="PublicDocument-ModalOverlay">
       <div className="PublicDocument-ModalBox">
-        <form className="PublicDocument-ModalForm">
+        <form className="PublicDocument-ModalForm" onSubmit={handleSubmit}>
           <div className="PublicDocument-ModalGrid">
             <div>
               <label className="PublicDocument-ModalLabel">Reference Code</label>
