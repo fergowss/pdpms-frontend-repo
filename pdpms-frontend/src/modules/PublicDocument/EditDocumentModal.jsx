@@ -1,12 +1,18 @@
 import React from 'react';
 import './PublicDocument.css';
 
-export default function EditDocumentModal({ open, onClose, doc }) {
+export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
   if (!open || !doc) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onUpdate) onUpdate();
+  };
+
   return (
     <div className="PublicDocument-ModalOverlay">
       <div className="PublicDocument-ModalBox">
-        <form className="PublicDocument-ModalForm">
+        <form className="PublicDocument-ModalForm" onSubmit={handleSubmit}>
           <div className="PublicDocument-ModalGrid">
             <div>
               <label className="PublicDocument-ModalLabel">Document ID</label>
