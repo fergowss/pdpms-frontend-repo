@@ -67,7 +67,20 @@ export default function PublicDocument() {
   const [showAddNotif, setShowAddNotif] = useState(false);
   const [showUpdateNotif, setShowUpdateNotif] = useState(false);
   const [showArchiveNotif, setShowArchiveNotif] = useState(false);
-  const data = activeTab === 'all' ? allData : archivingData;
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
+  
+  // Get base data based on active tab
+  const baseData = activeTab === 'all' ? allData : archivingData;
+  
+  // Filter data based on search keyword
+  const data = searchKeyword 
+    ? baseData.filter(row => 
+        Object.values(row).some(
+          value => value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+        )
+      )
+    : baseData;
 
   // Handler for when a document is added
   const closeAll = () => {
@@ -91,6 +104,25 @@ export default function PublicDocument() {
     setSelectedRow(null);
     setShowUpdateNotif(true);
     setTimeout(() => setShowUpdateNotif(false), 3000);
+  };
+
+  // Search handler
+  const handleSearch = () => {
+    setSearchKeyword(searchTerm);
+  };
+
+  // Handle Enter key press in search input
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Clear search when changing tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchTerm('');
+    setSearchKeyword('');
   };
 
   return (
@@ -156,7 +188,7 @@ export default function PublicDocument() {
         <div className="PublicDocument-HeaderTabs">
           <div
             className={`PublicDocument-Tab${activeTab === 'all' ? ' PublicDocument-Tab--active' : ''}`}
-            onClick={() => setActiveTab('all')}
+            onClick={() => handleTabChange('all')}
             role="button"
             tabIndex={0}
             style={{ userSelect: 'none' }}
@@ -165,7 +197,7 @@ export default function PublicDocument() {
           </div>
           <div
             className={`PublicDocument-Tab${activeTab === 'archiving' ? ' PublicDocument-Tab--active' : ''}`}
-            onClick={() => setActiveTab('archiving')}
+            onClick={() => handleTabChange('archiving')}
             role="button"
             tabIndex={0}
             style={{ userSelect: 'none' }}
@@ -178,8 +210,14 @@ export default function PublicDocument() {
             className="PublicDocument-SearchInput"
             type="text"
             placeholder="Enter Keyword"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
           />
-          <button className="PublicDocument-SearchBtn">
+          <button 
+            className="PublicDocument-SearchBtn"
+            onClick={handleSearch}
+          >
             SEARCH
           </button>
         </div>

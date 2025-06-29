@@ -192,9 +192,37 @@ const TABS = ['On Going', 'Completed', 'Archived'];
 
 export default function Documents() {
   const [activeTab, setActiveTab] = useState('On Going');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
 
-  // Filter data according to active tab
-  const filteredData = ALL_DATA.filter(row => row.status === activeTab);
+  // Handle search
+  const handleSearch = () => {
+    setSearchKeyword(searchTerm);
+  };
+
+  // Handle Enter key press in search input
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Clear search when changing tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchTerm('');
+    setSearchKeyword('');
+  };
+
+  // Filter data according to active tab and search keyword
+  const filteredData = ALL_DATA.filter(row => {
+    const matchesTab = row.status === activeTab;
+    if (!searchKeyword) return matchesTab;
+    
+    return matchesTab && Object.values(row).some(
+      value => value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+  });
 
   return (
     <div className="Documents-Container">
@@ -206,15 +234,26 @@ export default function Documents() {
               <div
                 key={tab}
                 className={`Documents-Tab${activeTab === tab ? ' Documents-Tab--active' : ''}`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleTabChange(tab)}
               >
                 {tab}
               </div>
             ))}
           </div>
           <div className="Documents-SearchBarRow">
-            <input className="Documents-SearchBar" placeholder="Enter Keyword" />
-            <button className="Documents-SearchButton">SEARCH</button>
+            <input 
+              className="Documents-SearchBar" 
+              placeholder="Enter Keyword"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+            />
+            <button 
+              className="Documents-SearchButton"
+              onClick={handleSearch}
+            >
+              SEARCH
+            </button>
           </div>
         </div>
         <div className="Documents-TableWrapper">

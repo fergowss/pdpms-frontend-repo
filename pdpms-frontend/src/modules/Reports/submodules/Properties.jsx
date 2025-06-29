@@ -5,7 +5,8 @@ const TABS = ['Serviceable', 'Unserviceable', 'For Repair', 'Condemned'];
 
 export default function Properties() {
   const [activeTab, setActiveTab] = useState('Serviceable');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
 
   // Sample data
   const sampleData = [
@@ -24,8 +25,34 @@ export default function Properties() {
     }
   ];
 
-  // This would be replaced with actual data fetching
-  const filteredData = sampleData.filter(item => item.status === activeTab);
+  // Handle search
+  const handleSearch = () => {
+    setSearchKeyword(searchTerm);
+  };
+
+  // Handle Enter key press in search input
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Clear search when changing tabs
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    setSearchTerm('');
+    setSearchKeyword('');
+  };
+
+  // Filter data based on active tab and search keyword
+  const filteredData = sampleData.filter(item => {
+    const matchesTab = item.status === activeTab;
+    if (!searchKeyword) return matchesTab;
+    
+    return matchesTab && Object.values(item).some(
+      value => value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+  });
 
   return (
     <div className="Properties-Container">
@@ -36,7 +63,7 @@ export default function Properties() {
               <div
                 key={tab}
                 className={`Properties-Tab${activeTab === tab ? ' Properties-Tab--active' : ''}`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => handleTabChange(tab)}
               >
                 {tab}
               </div>
@@ -46,10 +73,16 @@ export default function Properties() {
             <input 
               className="Properties-SearchBar" 
               placeholder="Enter Keyword" 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
             />
-            <button className="Properties-SearchButton">SEARCH</button>
+            <button 
+              className="Properties-SearchButton"
+              onClick={handleSearch}
+            >
+              SEARCH
+            </button>
           </div>
         </div>
         <div className="Properties-TableWrapper">

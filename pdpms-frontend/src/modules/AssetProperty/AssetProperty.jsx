@@ -38,12 +38,28 @@ export default function AssetProperty() {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editFormOpen, setEditFormOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
   
-  const filteredData = allData.filter(item => 
-    Object.values(item).some(
-      val => val.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )
-  );
+  // Handle search
+  const handleSearch = () => {
+    setSearchKeyword(searchTerm);
+  };
+
+  // Handle Enter key press in search input
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  // Filter data based on search keyword
+  const filteredData = searchKeyword 
+    ? allData.filter(item => 
+        Object.values(item).some(
+          val => val.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+        )
+      )
+    : allData;
 
   // Handler for when a property is added
   const closeAll = () => {
@@ -99,8 +115,12 @@ export default function AssetProperty() {
             placeholder="Enter Keyword"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
           />
-          <button className="AssetProperty-SearchBtn">
+          <button 
+            className="AssetProperty-SearchBtn"
+            onClick={handleSearch}
+          >
             SEARCH
           </button>
         </div>
