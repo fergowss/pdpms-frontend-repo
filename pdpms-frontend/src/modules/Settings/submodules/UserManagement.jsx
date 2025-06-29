@@ -16,6 +16,11 @@ export default function UserManagement() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [showAddNotif, setShowAddNotif] = useState(false);
   const [showUpdateNotif, setShowUpdateNotif] = useState(false);
+  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
+  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
+  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
+  const [userToDeactivate, setUserToDeactivate] = useState(null);
   const [manageModalOpen, setManageModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -57,6 +62,29 @@ export default function UserManagement() {
     setEditModalOpen(false);
     setShowUpdateNotif(true);
     setTimeout(() => setShowUpdateNotif(false), 3000);
+  };
+
+  // Handler for when a user is deleted
+  const handleDeleteUser = () => {
+    setDeleteModalOpen(false);
+    setUserToDelete(null);
+    setShowDeleteNotif(true);
+    setTimeout(() => setShowDeleteNotif(false), 3000);
+  };
+
+  // Handler for when a user is deactivated/reactivated
+  const handleDeactivateUser = (user) => {
+    setUserToDeactivate(user);
+    setDeactivateModalOpen(true);
+  };
+
+  const confirmDeactivate = () => {
+    // TODO: Implement actual deactivation logic
+    const wasActivated = userToDeactivate.status === 'Activated';
+    setDeactivateModalOpen(false);
+    setDeactivateNotifMessage(wasActivated ? 'User Has Been Deactivated.' : 'User Has Been Reactivated.');
+    setShowDeactivateNotif(true);
+    setTimeout(() => setShowDeactivateNotif(false), 3000);
   };
 
   return (
@@ -141,6 +169,91 @@ export default function UserManagement() {
           </span>
         </div>
       )}
+      {showDeleteNotif && (
+        <div className="AssetProperty-EditNotification" style={{
+          background: '#e8eef7',
+          border: '1.7px solid #bfc7d1',
+          borderRadius: '0.5rem',
+          boxShadow: '0 2px 16px rgba(34, 51, 84, 0.13)',
+          padding: '0.7rem 1.1rem',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: '0.6rem',
+          zIndex: 2000,
+          position: 'fixed',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '260px',
+          maxWidth: '90%'
+        }}>
+          <span style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            flexShrink: 0
+          }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="#223354" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
+          <span style={{
+            fontSize: '0.97rem',
+            color: '#223354',
+            fontWeight: 400,
+            textAlign: 'left',
+            whiteSpace: 'nowrap'
+          }}>
+            User Info Has Been Successfully Deleted.
+          </span>
+        </div>
+      )}
+      {showDeactivateNotif && (
+        <div className="AssetProperty-EditNotification" style={{
+          background: '#e8eef7',
+          border: '1.7px solid #bfc7d1',
+          borderRadius: '0.5rem',
+          boxShadow: '0 2px 16px rgba(34, 51, 84, 0.13)',
+          padding: '0.7rem 1.1rem',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: '0.6rem',
+          zIndex: 2000,
+          position: 'fixed',
+          left: '50%',
+          top: '50%',
+          transform: 'translate(-50%, -50%)',
+          minWidth: '260px',
+          maxWidth: '90%'
+        }}>
+          <span style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '24px',
+            height: '24px',
+            flexShrink: 0
+          }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="8" r="4" fill="#223354"/>
+              <path d="M20 19C20 15.13 16.41 12 12 12C7.59 12 4 15.13 4 19" stroke="#223354" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </span>
+          <span style={{
+            fontSize: '0.97rem',
+            color: '#223354',
+            fontWeight: 400,
+            textAlign: 'left',
+            whiteSpace: 'nowrap'
+          }}>
+            {deactivateNotifMessage}
+          </span>
+        </div>
+      )}
       <AddUserModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onAdd={handleAddUser} />
       <div className="UserManagement-TopRow">
         <div className="UserManagement-SearchBarRow">
@@ -177,7 +290,13 @@ export default function UserManagement() {
                     </span>
                   </td>
                   <td>
-                    <button className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} onClick={e => e.stopPropagation()}>
+                    <button 
+                      className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} 
+                      onClick={e => {
+                        e.stopPropagation();
+                        handleDeactivateUser(user);
+                      }}
+                    >
                       {user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}
                     </button>
                   </td>
@@ -213,12 +332,41 @@ export default function UserManagement() {
       open={deleteModalOpen}
       onClose={() => setDeleteModalOpen(false)}
       user={userToDelete}
-      onConfirm={() => {
-        // Implement delete logic here (e.g., remove user from list)
-        setDeleteModalOpen(false);
-        setUserToDelete(null);
-      }}
+      onConfirm={handleDeleteUser}
     />
+    
+    {/* Deactivate Confirmation Modal */}
+    {deactivateModalOpen && userToDeactivate && (
+      <div className="UserManagement-ModalOverlay" onClick={() => setDeactivateModalOpen(false)}>
+        <div className="UserManagement-DeactivateModalBox" onClick={e => e.stopPropagation()}>
+          <button 
+            className="UserManagement-DeactivateModalClose" 
+            onClick={() => setDeactivateModalOpen(false)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div className="UserManagement-DeactivateModalContent">
+            <div 
+              className="UserManagement-DeactivateModalSubtext"
+              dangerouslySetInnerHTML={{
+                __html: userToDeactivate.status === 'Activated'
+                  ? `Are you sure you want to deactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+                  : `Are you sure you want to reactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+              }}
+            />
+          </div>
+          <div className="UserManagement-DeactivateModalActions">
+            <button 
+              className={`UserManagement-DeactivateModalBtn UserManagement-DeactivateModalBtn--${userToDeactivate.status === 'Activated' ? 'deactivate' : 'reactivate'}`}
+              onClick={confirmDeactivate}
+            >
+              {userToDeactivate.status === 'Activated' ? 'DEACTIVATE' : 'REACTIVATE'}
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
     </div>
   );
 }

@@ -47,6 +47,102 @@
   width: 100%;
 }
 
+/* Deactivate User Modal */
+.UserManagement-DeactivateModalBox {
+  background: #f6fcff;
+  border: 2px solid #2B3E63;
+  border-radius: 0.5rem;
+  padding: 1.5rem 2rem 1.1rem;
+  box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
+  min-width: 280px;
+  max-width: 40vw;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+}
+
+.UserManagement-DeactivateModalClose {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.7rem;
+  font-size: 1.5rem;
+  color: #2B3E63;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s;
+  border-radius: 0.15rem;
+  z-index: 1;
+}
+
+.UserManagement-DeactivateModalClose:hover {
+  opacity: 1;
+}
+
+.UserManagement-DeactivateModalContent {
+  text-align: center;
+  margin: 0.5rem 0 0.5rem;
+  padding: 0.2rem 0;
+}
+
+.UserManagement-DeactivateModalSubtext {
+  font-size: 0.95rem;
+  color: #223354;
+  line-height: 1.4;
+  max-width: 280px;
+  margin: 0 auto;
+}
+
+.UserManagement-DeactivateModalActions {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.UserManagement-DeactivateModalBtn {
+  padding: 0.2rem 1.5rem;
+  border-radius: 1rem;
+  font-size: 0.97rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-transform: none;
+  letter-spacing: normal;
+  min-width: 120px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.UserManagement-DeactivateModalBtn--deactivate {
+  background: #fbeaea;
+  color: #c0392b;
+  border: 1.5px solid #f5b2b2;
+}
+
+.UserManagement-DeactivateModalBtn--deactivate:hover {
+  background: #f6b1a3;
+  color: #c0392b;
+  border-color: #c0392b;
+  transform: none;
+}
+
+.UserManagement-DeactivateModalBtn--reactivate {
+  background: #e9f6ea;
+  color: #138944;
+  border: 1.5px solid #a8e0c0;
+}
+
+.UserManagement-DeactivateModalBtn--reactivate:hover {
+  background: #d4edd9;
+  color: #138944;
+  border-color: #138944;
+  transform: none;
+}
+
 /* Delete User Modal (Compact, Consistent Style) */
 .UserManagement-DeleteModalBox {
   background: #f6fcff;
