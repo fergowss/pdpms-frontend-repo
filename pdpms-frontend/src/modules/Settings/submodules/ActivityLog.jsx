@@ -3,8 +3,9 @@ import './ActivityLog.css';
 import { useState } from 'react';
 
 export default function ActivityLog() {
-  const [query, setQuery] = useState('');
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchKeyword, setSearchKeyword] = useState('');
+  
   // sample rows (would come from props or API)
   const rows = [
     { user: 'June Castro', action: 'Login', details: 'User logged in.', date: '06/25/25', time: '23:00:05' },
@@ -24,9 +25,21 @@ export default function ActivityLog() {
     { user: 'Rose Ann', action: 'Login', details: 'User logged in.', date: '06/20/25', time: '06:18:05' },
   ];
 
-  const filtered = rows.filter(r =>
-    Object.values(r).some(val => val.toLowerCase().includes(query.toLowerCase()))
-  );
+  const handleSearch = () => {
+    setSearchKeyword(searchTerm);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const filtered = searchKeyword ? rows.filter(row =>
+    Object.values(row).some(
+      value => value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+    )
+  ) : rows;
 
   return (
     <div className="Activity-Log-Container">
@@ -37,10 +50,14 @@ export default function ActivityLog() {
             type="text"
             className="ActivityLog-SearchBar"
             placeholder="Enter Keyword"
-            value={query}
-            onChange={e => setQuery(e.target.value)}
+            value={searchTerm}
+            onChange={e => setSearchTerm(e.target.value)}
+            onKeyDown={handleKeyDown}
           />
-          <button className="ActivityLog-SearchButton" onClick={() => {}}>
+          <button 
+            className="ActivityLog-SearchButton" 
+            onClick={handleSearch}
+          >
             SEARCH
           </button>
         </div>
