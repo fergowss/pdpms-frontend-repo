@@ -371,6 +371,7 @@
 }
 
 .PublicDocument-ModalTextarea {
+  resize: none !important;
   min-height: 6.5rem;
   resize: vertical;
 }
@@ -383,18 +384,36 @@
   opacity: 0.7;
 }
 
-
 .PublicDocument-ModalActions {
   display: flex;
   justify-content: flex-end;
-  gap: 0.5rem;
-  margin-top: 0.9rem;
+  gap: 1rem;
+  margin-top: 1.5rem;
   margin-left: 3.5rem;
 }
 
+button:disabled {
+  cursor: not-allowed !important;
+  opacity: 0.6 !important;
+}
+
+button:not(:disabled) {
+  cursor: pointer !important;
+}
+
+.PublicDocument-FormCenterError {
+  color: #e53935;
+  text-align: center;
+  font-weight: 600;
+  margin: 0.7rem auto 0.5rem auto;
+  font-size: 0.85rem;
+  min-height: 1.2em;
+  letter-spacing: 0.01em;
+}
 
 .PublicDocument-ModalBtn {
   padding: 0.36rem 1.05rem;
+  margin-left: -0.6rem;
   font-size: 0.93rem;
   border-radius: 0.35rem;
   border: 2px solid #2B3E63;

@@ -436,6 +436,7 @@
 }
 
 .AssetProperty-ModalTextarea {
+  resize: none !important;
   min-height: 6.5rem;
   resize: vertical;
 }
@@ -471,6 +472,17 @@
   color: #2B3E63;
   border-color: #2B3E63;
 }
+
+.PublicDocument-FormCenterError {
+  color: #e53935;
+  text-align: center;
+  font-weight: 600;
+  margin: 0.7rem auto 0.5rem auto;
+  font-size: 0.85rem;
+  min-height: 1.2em;
+  letter-spacing: 0.01em;
+}
+
 .AssetProperty-ModalBtn--secondary:hover {
   background: #e7ecf3;
   color: #3571b9;

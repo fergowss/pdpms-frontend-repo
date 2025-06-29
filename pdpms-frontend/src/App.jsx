@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import bottomLogo from './images/pdpms_long.png';
 import shortLogo from './images/pdpms_p_logo.png';
@@ -7,6 +7,8 @@ import Dashboard from './modules/Dashboard/Dashboard.jsx';
 import PublicDocument from './modules/PublicDocument/PublicDocument.jsx';
 import Reports from './modules/Reports/Reports.jsx';
 import Settings from './modules/Settings/Settings.jsx';
+import Login from './Login/Login.jsx';
+import UserProfile from './UserProfile/UserProfile.jsx';
 import Documents from './modules/Reports/submodules/Documents.jsx';
 import Properties from './modules/Reports/submodules/Properties.jsx';
 import ActivityLog from './modules/Settings/submodules/ActivityLog.jsx';
@@ -34,6 +36,18 @@ const modules = [
 ];
 
 export default function App() {
+  // authentication
+  const [isAuth, setIsAuth] = useState(false);
+  useEffect(() => {
+    const stored = localStorage.getItem('pdpms_auth');
+    setIsAuth(stored === 'true');
+  }, []);
+  const [username,setUsername]=useState('Admin');
+  const handleLogin = ({username:uname='Admin'}) => {
+    localStorage.setItem('pdpms_auth', 'true');
+    setIsAuth(true);
+    setUsername(uname);
+  };
   // helper to open sidebar if collapsed on item click
   const openSidebarIfCollapsed = () => {
     if (collapsed) setCollapsed(false);
@@ -43,9 +57,24 @@ export default function App() {
   const [activeSub, setActiveSub] = useState(null);
   // sidebar collapse toggle
   const [collapsed, setCollapsed] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   // track which module & submodule are active so we can highlight the sidebar and
   // update the main content area
+  if (!isAuth) {
+    return <Login onLogin={handleLogin} />;
+  }
   return (
+    <>
+      {profileOpen && (
+        <UserProfile username={username} onLogout={()=>{
+          localStorage.removeItem('pdpms_auth');
+          window.location.reload();
+        }} />
+      )}
+      <div className="user-badge" onClick={()=>setProfileOpen(prev=>!prev)}>
+        <div className="user-badge-circle">{username.charAt(0).toUpperCase()}</div>
+        <span className="user-badge-name">{username.charAt(0).toUpperCase() + username.slice(1).toLowerCase()}</span>
+      </div>
     <div className="shell">
       <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
         <button
@@ -65,7 +94,11 @@ export default function App() {
                 onClick={() => {
                   openSidebarIfCollapsed();
                   setActiveModule(m.id);
-                  setActiveSub(null);
+                  if (m.subs && m.subs.length > 0) {
+                    setActiveSub(m.subs[0]);
+                  } else {
+                    setActiveSub(null);
+                  }
                 }}
               >
                 {React.createElement(iconMap[m.id] || FiCircle, { className: 'nav-icon' })}
@@ -115,7 +148,6 @@ export default function App() {
               </>
             )}
           </div>
-          <div className="user-badge">U</div>
         </header>
 
         <main className="content">
@@ -144,5 +176,6 @@ export default function App() {
         </main>
       </div>
     </div>
-  );
+    </>
+   );
 }

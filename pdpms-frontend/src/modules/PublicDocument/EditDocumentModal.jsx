@@ -1,13 +1,96 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import './PublicDocument.css';
 
 export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
-  if (!open || !doc) return null;
+  const [formData, setFormData] = useState({
+    referenceCode: '',
+    date: '',
+    dateReceived: '',
+    status: '',
+    remarks: ''
+  });
+  const [errors, setErrors] = useState({});
+  const [hasChanges, setHasChanges] = useState(false);
+  const [initialData, setInitialData] = useState(null);
+
+  // Initialize form data when doc changes
+  useEffect(() => {
+    if (doc) {
+      const newData = {
+        referenceCode: doc.ref || '',
+        date: doc.date ? new Date(doc.date).toISOString().split('T')[0] : '',
+        dateReceived: doc.received ? new Date(doc.received).toISOString().split('T')[0] : '',
+        status: doc.status || '',
+        remarks: doc.remarks || ''
+      };
+      setFormData(newData);
+      setInitialData(newData);
+    }
+  }, [doc]);
+
+  // Check for changes
+  useEffect(() => {
+    if (initialData) {
+      const changesDetected = Object.keys(formData).some(
+        key => formData[key] !== initialData[key]
+      );
+      setHasChanges(changesDetected);
+    }
+  }, [formData, initialData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    // Clear error when user types
+    if (errors[name]) {
+      setErrors(prev => ({
+        ...prev,
+        [name]: ''
+      }));
+    }
+  };
+
+  const validateField = (name, value) => {
+    if ((!value || (typeof value === 'string' && value.trim() === '')) && name !== 'remarks') {
+      return 'This field is required';
+    }
+    return '';
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    const error = validateField(name, value);
+    setErrors(prev => ({
+      ...prev,
+      [name]: error
+    }));
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (onUpdate) onUpdate();
+    
+    // Validate all fields on submit
+    const newErrors = {};
+    Object.keys(formData).forEach(key => {
+      if (key !== 'remarks') { // Remarks is optional
+        const error = validateField(key, formData[key]);
+        if (error) newErrors[key] = error;
+      }
+    });
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length === 0 && hasChanges && onUpdate) {
+      onUpdate(formData);
+      onClose();
+    }
   };
+
+  if (!open || !doc) return null;
 
   return (
     <div className="PublicDocument-ModalOverlay">
@@ -19,7 +102,15 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               <input className="PublicDocument-ModalInput" type="text" value={doc.id || 'PDID00000459'} disabled style={{background:'#f2f4f8'}} />
               
               <label className="PublicDocument-ModalLabel">Reference Code</label>
-              <input className="PublicDocument-ModalInput" type="text" defaultValue={doc.ref || 'PDID00000459'} />
+              <input 
+                className={`PublicDocument-ModalInput ${errors.referenceCode ? 'PublicDocument-InputError' : ''}`}
+                type="text" 
+                name="referenceCode"
+                value={formData.referenceCode}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
+              {errors.referenceCode && <div className="PublicDocument-ErrorText">{errors.referenceCode}</div>}
               
               <label className="PublicDocument-ModalLabel">Subject</label>
               <input className="PublicDocument-ModalInput PublicDocument-ModalInput--large" type="text" value={doc.subject || 'Intern Application'} disabled style={{background:'#f2f4f8'}} />
@@ -36,37 +127,69 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               
               <label className="PublicDocument-ModalLabel">Date</label>
               <input 
-                className="PublicDocument-ModalInput" 
+                className={`PublicDocument-ModalInput ${errors.date ? 'PublicDocument-InputError' : ''}`}
                 type="date" 
-                defaultValue={doc.date ? new Date(doc.date).toISOString().split('T')[0] : '2023-10-06'} 
+                name="date"
+                value={formData.date}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
+              {errors.date && <div className="PublicDocument-ErrorText">{errors.date}</div>}
             </div>
             <div>
               <label className="PublicDocument-ModalLabel">Date Received</label>
               <input 
-                className="PublicDocument-ModalInput" 
+                className={`PublicDocument-ModalInput ${errors.dateReceived ? 'PublicDocument-InputError' : ''}`}
                 type="date" 
-                defaultValue={doc.received ? new Date(doc.received).toISOString().split('T')[0] : '2025-05-12'} 
+                name="dateReceived"
+                value={formData.dateReceived}
+                onChange={handleChange}
+                onBlur={handleBlur}
               />
+              {errors.dateReceived && <div className="PublicDocument-ErrorText">{errors.dateReceived}</div>}
               
               <label className="PublicDocument-ModalLabel">Received by</label>
               <input className="PublicDocument-ModalInput" type="text" value={doc.receivedBy || 'Edwin Agustin'} disabled style={{background:'#f2f4f8'}} />
               
               <label className="PublicDocument-ModalLabel">Status</label>
-              <select className="PublicDocument-ModalInput" defaultValue={doc.status || 'Completed'}>
-                <option>On Going</option>
-                <option>Completed</option>
+              <select 
+                className={`PublicDocument-ModalInput ${errors.status ? 'PublicDocument-InputError' : ''}`}
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              >
+                <option value="">Select Status</option>
+                <option value="On Going">On Going</option>
+                <option value="Completed">Completed</option>
               </select>
+              {errors.status && <div className="PublicDocument-ErrorText">{errors.status}</div>}
               
               <label className="PublicDocument-ModalLabel">Remarks</label>
-              <textarea className="PublicDocument-ModalInput PublicDocument-ModalTextarea" rows={4} defaultValue={doc.remarks || 'Must be presented to DILG in June 30, 2026'} />
+              <textarea 
+                className="PublicDocument-ModalInput PublicDocument-ModalTextarea" 
+                rows={4} 
+                name="remarks"
+                value={formData.remarks}
+                onChange={handleChange}
+              />
               
               <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only)</span></label>
               <input className="PublicDocument-ModalInput" type="text" value={doc.fileName || 'PubDoc2121.pdf'} disabled style={{background:'#f2f4f8'}} />
             </div>
           </div>
           <div className="PublicDocument-ModalActions">
-            <button type="submit" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary">UPDATE</button>
+            <button 
+              type="submit" 
+              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary"
+              disabled={!hasChanges || Object.keys(errors).some(key => errors[key])}
+              style={{
+                opacity: hasChanges ? 1 : 0.6,
+                cursor: hasChanges ? 'pointer' : 'not-allowed'
+              }}
+            >
+              UPDATE
+            </button>
             <button type="button" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
           </div>
         </form>

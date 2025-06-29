@@ -1,7 +1,27 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './AssetProperty.css';
 
 export default function AddPropertyModal({ open, onClose, onAdd }) {
+  const [formData, setFormData] = useState({
+    endUser: '',
+    dateAcquired: '',
+    unitCost: '',
+    estimatedLife: '',
+    remarks: '',
+    status: '',
+    file: null
+  });
+  const [isValid, setIsValid] = useState(false);
+
+  const handleFormChange = (e) => {
+    const { name, value, type, files } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: type === 'file' ? files[0] : value
+    }));
+    // Update validity state whenever any input changes
+    setIsValid(e.currentTarget.checkValidity());
+  };
   if (!open) return null;
 
   const handleSubmit = (e) => {
@@ -12,45 +32,80 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
   return (
     <div className="AssetProperty-AddModalOverlay">
       <div className="AssetProperty-AddModalBox">
-        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit}>
+        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} onChange={handleFormChange} noValidate>
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input className="AssetProperty-ModalInput" type="text" />
+              <input className="AssetProperty-ModalInput" type="text" name="endUser" required />
 
               <label className="AssetProperty-ModalLabel">Description</label>
               <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={4} />
 
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <input className="AssetProperty-ModalInput" type="text" />
+              <input className="AssetProperty-ModalInput" type="text" name="endUser" required />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
-              <input className="AssetProperty-ModalInput" type="date" />
+              <input className="AssetProperty-ModalInput" type="date" name="dateAcquired" required />
 
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
-              <input className="AssetProperty-ModalInput" type="number" step="0.01" />
+              <input className="AssetProperty-ModalInput" type="number" step="0.01" name="unitCost" required />
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">End User</label>
-              <input className="AssetProperty-ModalInput" type="text" />
+              <input className="AssetProperty-ModalInput" type="text" name="endUser" required />
 
               <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
-              <input className="AssetProperty-ModalInput" type="text" placeholder="0 Years" />
+              <input className="AssetProperty-ModalInput" type="text" name="estimatedLife" placeholder="0 Years" required />
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={4} />
+              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={4} name="remarks" required />
 
               <label className="AssetProperty-ModalLabel">Status</label>
-              <select className="AssetProperty-ModalInput">
-                <option>Select Status</option>
+              <select className="AssetProperty-ModalInput" name="status" required>
+                <option value="">Select Status</option>
                 <option>Active</option>
                 <option>Inactive</option>
                 <option>Disposed</option>
               </select>
+              <label className="AssetProperty-ModalLabel">Upload File <span className="AssetProperty-ModalHint">(PDF Only)</span></label>
+              <div>
+                <input 
+                  className="AssetProperty-ModalInput" 
+                  type="file" 
+                  name="file"
+                  accept="application/pdf"
+                  required
+                />
+              </div>
             </div>
           </div>
-          <div className="AssetProperty-ModalActions">
-            <button type="submit" className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary">ADD</button>
+          {(() => {
+  const requiredFields = [
+    'endUser',
+    'dateAcquired',
+    'unitCost',
+    'estimatedLife',
+    'remarks',
+    'status',
+    'file',
+  ];
+  const missingFields = requiredFields.filter(field => {
+    if (field === 'file') {
+      return !formData[field];
+    }
+    return !formData[field] || formData[field].toString().trim() === '';
+  });
+  return missingFields.length === 1 ? (
+    <div className="PublicDocument-FormCenterError">All fields are required.</div>
+  ) : null;
+})()}
+<div className="AssetProperty-ModalActions">
+            <button 
+              type="submit" 
+              className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary"
+              disabled={!isValid}
+              style={{ opacity: isValid ? 1 : 0.6, cursor: isValid ? 'pointer' : 'not-allowed' }}
+            >ADD</button>
             <button type="button" className="AssetProperty-ModalBtn AssetProperty-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
           </div>
         </form>

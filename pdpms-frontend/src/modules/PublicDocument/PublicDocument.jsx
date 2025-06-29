@@ -70,8 +70,17 @@ export default function PublicDocument() {
   const data = activeTab === 'all' ? allData : archivingData;
 
   // Handler for when a document is added
-  const handleAddDocument = () => {
+  const closeAll = () => {
     setModalOpen(false);
+    setEditModalOpen(false);
+    setSelectedRow(null);
+    setShowAddNotif(false);
+    setShowUpdateNotif(false);
+    setShowArchiveNotif(false);
+  };
+
+  const handleAddDocument = () => {
+    closeAll();
     setShowAddNotif(true);
     setTimeout(() => setShowAddNotif(false), 3000);
   };
@@ -245,13 +254,11 @@ export default function PublicDocument() {
         )}
       </div>
       <div className="PublicDocument-AddBtnContainer">
-        <button className="PublicDocument-AddBtn" onClick={() => setModalOpen(true)}>ADD DOCUMENT</button>
+        <button className="PublicDocument-AddBtn" onClick={() => { closeAll(); setModalOpen(true); }}>ADD DOCUMENT</button>
       </div>
     </div>
   );
 }
-
-
 
 
 

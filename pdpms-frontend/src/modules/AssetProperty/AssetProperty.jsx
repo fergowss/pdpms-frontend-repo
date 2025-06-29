@@ -46,8 +46,17 @@ export default function AssetProperty() {
   );
 
   // Handler for when a property is added
-  const handleAddProperty = () => {
+  const closeAll = () => {
     setModalOpen(false);
+    setEditModalOpen(false);
+    setEditFormOpen(false);
+    setSelectedRow(null);
+    setShowAddNotif(false);
+    setShowUpdateNotif(false);
+  };
+
+  const handleAddProperty = () => {
+    closeAll();
     setShowAddNotif(true);
     setTimeout(() => setShowAddNotif(false), 3000);
   };
@@ -116,7 +125,7 @@ export default function AssetProperty() {
           </thead>
           <tbody>
             {filteredData.map((row, index) => (
-              <tr key={index} onClick={() => { setSelectedRow(row); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
+              <tr key={index} onClick={() => { closeAll(); setSelectedRow(row); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
                 <td>{row.propertyNo}</td>
                 <td>{row.documentNo}</td>
                 <td>{row.parNo}</td>
@@ -138,7 +147,7 @@ export default function AssetProperty() {
         </table>
       </div>
       <div className="AssetProperty-AddBtnContainer">
-        <button className="AssetProperty-AddBtn" onClick={() => setModalOpen(true)}>ADD PROPERTY</button>
+        <button className="AssetProperty-AddBtn" onClick={() => { closeAll(); setModalOpen(true); }}>ADD PROPERTY</button>
       </div>
       {modalOpen && (
         <AddPropertyModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddProperty} />
