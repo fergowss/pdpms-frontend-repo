@@ -1,13 +1,18 @@
 import React from 'react';
 import './AssetProperty.css';
 
-export default function AddPropertyModal({ open, onClose }) {
+export default function AddPropertyModal({ open, onClose, onAdd }) {
   if (!open) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onAdd) onAdd();
+  };
 
   return (
     <div className="AssetProperty-AddModalOverlay">
       <div className="AssetProperty-AddModalBox">
-        <form className="AssetProperty-ModalForm">
+        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit}>
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">PAR No.</label>

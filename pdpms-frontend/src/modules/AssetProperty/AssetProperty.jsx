@@ -2,6 +2,15 @@ import React, { useState } from 'react';
 import './AssetProperty.css';
 import AddPropertyModal from './AddPropertyModal';
 
+// SVG for stack icon (from user screenshot)
+const StackIcon = (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="2" y="16" width="20" height="4" rx="1" fill="#223354"/>
+    <rect x="4" y="10" width="16" height="4" rx="1" fill="#223354"/>
+    <rect x="6" y="4" width="12" height="4" rx="1" fill="#223354"/>
+  </svg>
+);
+
 const allData = [
   {
     propertyNo: 'PROP-0001',
@@ -22,6 +31,8 @@ const allData = [
 import EditPropertyModal from './EditPropertyModal';
 
 export default function AssetProperty() {
+  const [showAddNotif, setShowAddNotif] = useState(false);
+  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -34,8 +45,39 @@ export default function AssetProperty() {
     )
   );
 
+  // Handler for when a property is added
+  const handleAddProperty = () => {
+    setModalOpen(false);
+    setShowAddNotif(true);
+    setTimeout(() => setShowAddNotif(false), 3000);
+  };
+
+  // Handler for when a property is updated
+  const handleUpdateProperty = () => {
+    setEditFormOpen(false);
+    setSelectedRow(null);
+    setShowUpdateNotif(true);
+    setTimeout(() => setShowUpdateNotif(false), 3000);
+  };
+
   return (
     <div className="AssetProperty-Container">
+      {showAddNotif && (
+        <div className="AssetProperty-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem', position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)'}}>
+          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
+            {StackIcon}
+          </span>
+          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>New Asset Property Has Been Added.</span>
+        </div>
+      )}
+      {showUpdateNotif && (
+        <div className="AssetProperty-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem', position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)'}}>
+          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
+            {StackIcon}
+          </span>
+          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>Asset Property Has Been Updated.</span>
+        </div>
+      )}
       <div className="AssetProperty-HeaderRow">
         <div className="AssetProperty-HeaderTabs">
           <div className="AssetProperty-Title">
@@ -99,7 +141,7 @@ export default function AssetProperty() {
         <button className="AssetProperty-AddBtn" onClick={() => setModalOpen(true)}>ADD PROPERTY</button>
       </div>
       {modalOpen && (
-        <AddPropertyModal open={modalOpen} onClose={() => setModalOpen(false)} />
+        <AddPropertyModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddProperty} />
       )}
       {editModalOpen && selectedRow && !editFormOpen && (
         <div className="AssetProperty-EditNotification">
@@ -113,7 +155,12 @@ export default function AssetProperty() {
         </div>
       )}
       {editFormOpen && selectedRow && (
-        <EditPropertyModal open={editFormOpen} onClose={() => setEditFormOpen(false)} row={selectedRow} />
+        <EditPropertyModal 
+          open={editFormOpen} 
+          onClose={() => setEditFormOpen(false)} 
+          row={selectedRow} 
+          onUpdate={handleUpdateProperty} 
+        />
       )};
     </div>
   );

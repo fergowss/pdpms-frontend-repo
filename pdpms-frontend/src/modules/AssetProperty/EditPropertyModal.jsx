@@ -1,13 +1,18 @@
 import React from 'react';
 import './AssetProperty.css';
 
-export default function EditPropertyModal({ open, onClose, row }) {
+export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   if (!open || !row) return null;
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (onUpdate) onUpdate();
+  };
 
   return (
     <div className="AssetProperty-EditModalOverlay">
       <div className="AssetProperty-EditModalBox">
-        <form className="AssetProperty-ModalForm">
+        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit}>
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">Property No.</label>
@@ -29,7 +34,7 @@ export default function EditPropertyModal({ open, onClose, row }) {
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
               <input className="AssetProperty-ModalInput" type="date" defaultValue={row.dateAcquired || ''} />
 
-              <label className="AssetProperty-ModalLabel">Unit Cost</label>
+              <label className="AssetProperty-ModalLabel">Unit Cost</label>   
               <input className="AssetProperty-ModalInput" type="text" defaultValue={row.unitCost || ''} />
 
               <label className="AssetProperty-ModalLabel">End User</label>
