@@ -1,6 +1,3 @@
-import './UserManagement.css';
-
-
 import React, { useState } from 'react';
 import './UserManagement.css';
 
@@ -13,20 +10,6 @@ const UserIcon = (
 );
 
 export default function UserManagement() {
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [showAddNotif, setShowAddNotif] = useState(false);
-  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
-  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
-  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
-  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
-  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
-  const [userToDeactivate, setUserToDeactivate] = useState(null);
-  const [manageModalOpen, setManageModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
-
   const users = [
     { id: 'ADM00001', name: 'Maria Santos', role: 'Administrator', status: 'Activated' },
     { id: 'DCM00002', name: 'Juan Dela Cruz', role: 'Document Manager', status: 'Activated' },
@@ -49,6 +32,44 @@ export default function UserManagement() {
     { id: 'IA00019', name: 'Lourdes Lim', role: 'Information Access Officer', status: 'Deactivated' },
     { id: 'ADM00020', name: 'Antonio Ocampo', role: 'Administrator', status: 'Activated' }
   ];
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState(users);
+
+  const handleSearch = () => {
+    const keyword = searchKeyword.trim().toLowerCase();
+    if (!keyword) {
+      setFilteredUsers(users);
+      return;
+    }
+    setFilteredUsers(
+      users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(keyword) ||
+          user.id.toLowerCase().includes(keyword) ||
+          user.role.toLowerCase().includes(keyword) ||
+          user.status.toLowerCase().includes(keyword)
+      )
+    );
+  };
+
+  const handleSearchKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [showAddNotif, setShowAddNotif] = useState(false);
+  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
+  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
+  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
+  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
+  const [userToDeactivate, setUserToDeactivate] = useState(null);
+  const [manageModalOpen, setManageModalOpen] = useState(false);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   // Handler for when a user is added
   const handleAddUser = () => {
@@ -261,9 +282,11 @@ export default function UserManagement() {
             className="UserManagement-SearchBar"
             type="text"
             placeholder="Enter Keyword"
-            disabled
+            value={searchKeyword}
+            onChange={e => setSearchKeyword(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
           />
-          <button className="UserManagement-SearchButton" disabled>SEARCH</button>
+          <button className="UserManagement-SearchButton" onClick={handleSearch}>SEARCH</button>
         </div>
       </div>
       <div className="UserManagement-TableOuter">
@@ -279,7 +302,7 @@ export default function UserManagement() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user, idx) => (
+              {filteredUsers.map((user, idx) => (
                 <tr key={idx} onClick={() => { setSelectedUser(user); setManageModalOpen(true); }} style={{ cursor: 'pointer' }}>
                   <td>{user.id}</td>
                   <td>{user.name}</td>
