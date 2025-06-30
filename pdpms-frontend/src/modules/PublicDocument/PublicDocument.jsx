@@ -243,7 +243,7 @@ export default function PublicDocument() {
             <div className="PublicDocument-EditNotification">
               <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
               <div className="PublicDocument-EditNotification-Title">
-                Edit Document?<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>
+                Edit Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>?
               </div>
               <button className="PublicDocument-EditNotification-EditBtn" onClick={() => {
                 setEditModalOpen(true);
@@ -264,7 +264,7 @@ export default function PublicDocument() {
             <div className="PublicDocument-EditNotification">
               <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
               <div className="PublicDocument-EditNotification-Title">
-                Archive Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>
+                Archive Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>?
               </div>
               <button className="PublicDocument-ArchiveBtn" onClick={() => {
                 setSelectedRow(null);

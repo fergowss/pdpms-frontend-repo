@@ -359,7 +359,7 @@
   padding: 0.48rem 0.9rem;
   font-size: 0.98rem;
   margin-bottom: 0.5rem;
-  background: #fff;
+  background: #f6fcff;
   color: #223354;
   outline: none;
   transition: border 0.2s;
@@ -376,6 +376,7 @@
   resize: none !important;
   min-height: 6.5rem;
   resize: vertical;
+  background: #f6fcff;
 }
 
 

@@ -501,7 +501,7 @@
   border: 1.5px solid #2B3E63;
   border-radius: 0.35rem;
   font-size: 0.98rem;
-  background: #fff;
+  background: #f6fcff;
   color: #223354;
   outline: none;
   transition: border 0.2s;
@@ -525,7 +525,7 @@
   padding: 0.48rem 0.9rem;
   font-size: 0.98rem;
   margin-bottom: 0.5rem;
-  background: #fff;
+  background: #f6fcff;
   color: #223354;
   outline: none;
   transition: border 0.2s;
@@ -538,6 +538,7 @@
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  background-color: #f6fcff;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232B3E63' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.7em top 50%;
