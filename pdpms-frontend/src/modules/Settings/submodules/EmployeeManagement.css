@@ -102,6 +102,44 @@
   border-bottom: none;
 }
 
+/* Status Badge Styles */
+.EmployeeManagement-Status {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: capitalize;
+  text-align: center;
+  min-width: 5rem;
+}
+
+.EmployeeManagement-Status.active {
+  background-color: #e3f5e5;
+  color: #00a854;
+  border: 1px solid #b7eb8f;
+}
+
+.EmployeeManagement-Status.inactive {
+  background-color: #fff1f0;
+  color: #f5222d;
+  border: 1px solid #ffa39e;
+}
+
+.EmployeeManagement-Status.onleave,
+.EmployeeManagement-Status[status="on leave"] {
+  background-color: #fff7e6;
+  color: #fa8c16;
+  border: 1px solid #ffd591;
+}
+
+.EmployeeManagement-Status.joborder,
+.EmployeeManagement-Status[status="job order"] {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
+}
+
 .EmployeeManagement-Table tbody tr:hover {
   background: #eaf0fa;
   cursor: pointer;

@@ -124,7 +124,11 @@ export default function EmployeeManagement() {
                 <td>{row.name}</td>
                 <td>{row.position}</td>
                 <td>{row.contact}</td>
-                <td>{row.status}</td>
+                <td>
+                  <span className={`EmployeeManagement-Status ${row.status.toLowerCase().replace(/\s+/g, '')}`}>
+                    {row.status}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>

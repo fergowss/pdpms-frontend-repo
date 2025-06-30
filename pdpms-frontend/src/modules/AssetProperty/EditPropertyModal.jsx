@@ -2,40 +2,54 @@ import React, { useState, useEffect } from 'react';
 import './AssetProperty.css';
 
 export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
-  const [formValid, setFormValid] = useState(false);
+  const [formData, setFormData] = useState({
+    serialNo: '',
+    dateAcquired: '',
+    unitCost: '',
+    endUser: '',
+    estimatedLife: '',
+    status: '',
+    remarks: '',
+    description: ''
+  });
+  const [formValid, setFormValid] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
   const [initialData, setInitialData] = useState(null);
 
   useEffect(() => {
     if (row) {
-      setInitialData({
+      const newData = {
         serialNo: row.serialNo || '',
         dateAcquired: row.dateAcquired || '',
         unitCost: row.unitCost || '',
         endUser: row.endUser || '',
         estimatedLife: row.estimatedLife || '',
-        status: row.status || '',
+        status: row.status || 'Active',
         remarks: row.remarks || '',
         description: row.description || ''
-      });
+      };
+      setFormData(newData);
+      setInitialData(newData);
+      setFormValid(true);
+      setHasChanges(false);
     }
   }, [row]);
 
-  const handleFormChange = (e) => {
-    const form = e.currentTarget;
-    setFormValid(form.checkValidity());
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+    
     if (initialData) {
       const changed = (
-        form.serialNo.value !== initialData.serialNo ||
-        form.dateAcquired.value !== initialData.dateAcquired ||
-        form.unitCost.value !== initialData.unitCost ||
-        form.endUser.value !== initialData.endUser ||
-        form.estimatedLife.value !== initialData.estimatedLife ||
-        form.status.value !== initialData.status ||
-        form.remarks.value !== initialData.remarks ||
-        form.description.value !== initialData.description
+        (name === 'endUser' ? value : formData.endUser) !== initialData.endUser ||
+        (name === 'status' ? value : formData.status) !== initialData.status ||
+        (name === 'remarks' ? value : formData.remarks) !== initialData.remarks
       );
       setHasChanges(changed);
+      setFormValid(true);
     }
   };
   if (!open || !row) return null;
@@ -43,14 +57,14 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formValid && hasChanges && onUpdate) {
-      onUpdate();
+      onUpdate(formData);
     }
   };
 
   return (
     <div className="AssetProperty-EditModalOverlay">
       <div className="AssetProperty-EditModalBox">
-        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} onChange={handleFormChange} noValidate>
+        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} noValidate>
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">Property No.</label>
@@ -60,44 +74,60 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               <input className="AssetProperty-ModalInput" type="text" value={row.documentNo || ''} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input className="AssetProperty-ModalInput" type="text" value={row.parNo || ''} disabled style={{background:'#e8eef7'}} />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="parNo"
+                value={formData.parNo} 
+                disabled
+                style={{background:'#e8eef7'}}
+                required
+              />
 
               <label className="AssetProperty-ModalLabel">Description</label>
               <textarea 
                 className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
                 rows={3} 
-                value={row.description || ''} 
-                disabled 
-                style={{background:'#e8eef7'}} 
+                name="description" 
+                value={formData.description}
+                disabled
+                style={{background:'#e8eef7'}}
+                required 
               />
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                rows={3} 
-                value={row.serialNo || ''} 
-                disabled 
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text"
+                name="serialNo"
+                value={formData.serialNo} 
+                disabled
                 style={{background:'#e8eef7'}}
+                required
               />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
               <input 
                 className="AssetProperty-ModalInput" 
                 type="date" 
-                value={row.dateAcquired || ''} 
-                disabled 
+                name="dateAcquired"
+                value={formData.dateAcquired} 
+                disabled
                 style={{background:'#e8eef7'}}
+                required
               />
 
               <label className="AssetProperty-ModalLabel">Unit Cost</label>   
               <input 
                 className="AssetProperty-ModalInput" 
                 type="number" 
+                name="unitCost"
                 step="0.01" 
-                value={row.unitCost || ''} 
-                disabled 
+                value={formData.unitCost}
+                disabled
                 style={{background:'#e8eef7'}}
+                required
               />
 
               <label className="AssetProperty-ModalLabel">End User</label>
@@ -105,7 +135,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 className="AssetProperty-ModalInput" 
                 type="text" 
                 name="endUser" 
-                defaultValue={row.endUser || ''} 
+                value={formData.endUser}
+                onChange={handleInputChange}
                 required 
               />
             </div>
@@ -114,16 +145,19 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               <input 
                 className="AssetProperty-ModalInput" 
                 type="text" 
-                value={row.estimatedLife || ''} 
-                disabled 
+                name="estimatedLife"
+                value={formData.estimatedLife}
+                disabled
                 style={{background:'#e8eef7'}}
+                required
               />
 
               <label className="AssetProperty-ModalLabel">Status</label>
               <select 
                 className="AssetProperty-ModalInput" 
                 name="status" 
-                defaultValue={row.status || ''} 
+                value={formData.status}
+                onChange={handleInputChange}
                 required
               >
                 <option value="">Select Status</option>
@@ -138,7 +172,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
                 rows={3} 
                 name="remarks" 
-                defaultValue={row.remarks || ''} 
+                value={formData.remarks}
+                onChange={handleInputChange}
                 required 
               />
             </div>

@@ -177,23 +177,37 @@
 
 .AssetProperty-Status {
   display: inline-block;
-  padding: 0.2rem 0.6rem;
+  padding: 0.25rem 0.75rem;
   border-radius: 1rem;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 600;
+  text-transform: capitalize;
   text-align: center;
+  min-width: 5rem;
 }
 
 .AssetProperty-Status.active {
-  background-color: #e3f7ed;
-  color: #2b8c4b;
-  border: 1px solid #a8e0c0;
+  background-color: #e3f5e5;
+  color: #00a854;
+  border: 1px solid #b7eb8f;
 }
 
 .AssetProperty-Status.inactive {
-  background-color: #fde8e8;
-  color: #c53030;
-  border: 1px solid #feb2b2;
+  background-color: #fff1f0;
+  color: #f5222d;
+  border: 1px solid #ffa39e;
+}
+
+.AssetProperty-Status.forrepair {
+  background-color: #fff7e6;
+  color: #fa8c16;
+  border: 1px solid #ffd591;
+}
+
+.AssetProperty-Status.disposed {
+  background-color: #e6f7ff;
+  color: #1890ff;
+  border: 1px solid #91d5ff;
 }
 
 /* Scrollbar Styling */

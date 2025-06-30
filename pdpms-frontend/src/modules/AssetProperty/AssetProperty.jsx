@@ -25,8 +25,253 @@ const allData = [
     status: 'Active',
     remarks: 'Assigned to IT Department'
   },
-  // Add more sample data as needed
-];
+  {
+    propertyNo: 'PROP-0002',
+    documentNo: 'DOC-2023-002',
+    parNo: 'PAR-2023-002',
+    description: 'Desktop Computer',
+    serialNo: 'SN-789012',
+    dateAcquired: '2023-02-20',
+    unitCost: '35,000.00',
+    endUser: 'Jane Smith',
+    estimatedLife: '4 years',
+    status: 'Active',
+    remarks: 'Finance Department'
+  },
+  {
+    propertyNo: 'PROP-0003',
+    documentNo: 'DOC-2023-003',
+    parNo: 'PAR-2023-003',
+    description: 'Projector',
+    serialNo: 'SN-345678',
+    dateAcquired: '2023-03-10',
+    unitCost: '28,500.00',
+    endUser: 'Marketing Team',
+    estimatedLife: '5 years',
+    status: 'Active',
+    remarks: 'Conference Room A'
+  },
+  {
+    propertyNo: 'PROP-0004',
+    documentNo: 'DOC-2023-004',
+    parNo: 'PAR-2023-004',
+    description: 'Printer',
+    serialNo: 'SN-901234',
+    dateAcquired: '2022-12-05',
+    unitCost: '15,750.00',
+    endUser: 'HR Department',
+    estimatedLife: '3 years',
+    status: 'For Repair',
+    remarks: 'Paper jam issue'
+  },
+  {
+    propertyNo: 'PROP-0005',
+    documentNo: 'DOC-2023-005',
+    parNo: 'PAR-2023-005',
+    description: 'Office Chair',
+    serialNo: 'SN-567890',
+    dateAcquired: '2023-01-30',
+    unitCost: '8,500.00',
+    endUser: 'Meeting Room',
+    estimatedLife: '5 years',
+    status: 'Active',
+    remarks: 'Executive chair'
+  },
+  {
+    propertyNo: 'PROP-0006',
+    documentNo: 'DOC-2023-006',
+    parNo: 'PAR-2023-006',
+    description: 'Air Conditioner',
+    serialNo: 'SN-123789',
+    dateAcquired: '2022-11-15',
+    unitCost: '32,000.00',
+    endUser: 'Executive Office',
+    estimatedLife: '7 years',
+    status: 'Active',
+    remarks: '2.5HP Inverter'
+  },
+  {
+    propertyNo: 'PROP-0007',
+    documentNo: 'DOC-2023-007',
+    parNo: 'PAR-2023-007',
+    description: 'Office Table',
+    serialNo: 'SN-456123',
+    dateAcquired: '2023-02-28',
+    unitCost: '12,500.00',
+    endUser: 'Reception Area',
+    estimatedLife: '8 years',
+    status: 'Active',
+    remarks: 'L-shaped work desk'
+  },
+  {
+    propertyNo: 'PROP-0008',
+    documentNo: 'DOC-2023-008',
+    parNo: 'PAR-2023-008',
+    description: 'Network Switch',
+    serialNo: 'SN-789456',
+    dateAcquired: '2023-01-10',
+    unitCost: '18,750.00',
+    endUser: 'IT Department',
+    estimatedLife: '5 years',
+    status: 'Active',
+    remarks: '48-port Gigabit'
+  },
+  {
+    propertyNo: 'PROP-0009',
+    documentNo: 'DOC-2023-009',
+    parNo: 'PAR-2023-009',
+    description: 'Security Camera',
+    serialNo: 'SN-321654',
+    dateAcquired: '2022-12-20',
+    unitCost: '9,800.00',
+    endUser: 'Main Entrance',
+    estimatedLife: '4 years',
+    status: 'Active',
+    remarks: '4K Resolution'
+  },
+  {
+    propertyNo: 'PROP-0010',
+    documentNo: 'DOC-2023-010',
+    parNo: 'PAR-2023-010',
+    description: 'Water Dispenser',
+    serialNo: 'SN-987321',
+    dateAcquired: '2023-03-01',
+    unitCost: '7,200.00',
+    endUser: 'Pantry Area',
+    estimatedLife: '3 years',
+    status: 'Active',
+    remarks: 'Hot & Cold'
+  },
+  {
+    propertyNo: 'PROP-0011',
+    documentNo: 'DOC-2023-011',
+    parNo: 'PAR-2023-011',
+    description: 'Whiteboard',
+    serialNo: 'SN-654789',
+    dateAcquired: '2023-02-15',
+    unitCost: '5,400.00',
+    endUser: 'Training Room',
+    estimatedLife: '5 years',
+    status: 'Active',
+    remarks: '120x180cm'
+  },
+  {
+    propertyNo: 'PROP-0012',
+    documentNo: 'DOC-2023-012',
+    parNo: 'PAR-2023-012',
+    description: 'File Cabinet',
+    serialNo: 'SN-159753',
+    dateAcquired: '2023-01-20',
+    unitCost: '6,800.00',
+    endUser: 'Admin Office',
+    estimatedLife: '10 years',
+    status: 'Active',
+    remarks: '4-drawer, Lockable'
+  },
+  {
+    propertyNo: 'PROP-0013',
+    documentNo: 'DOC-2023-013',
+    parNo: 'PAR-2023-013',
+    description: 'Coffee Machine',
+    serialNo: 'SN-357159',
+    dateAcquired: '2023-03-05',
+    unitCost: '24,500.00',
+    endUser: 'Executive Lounge',
+    estimatedLife: '5 years',
+    status: 'Active',
+    remarks: 'Espresso Machine'
+  },
+  {
+    propertyNo: 'PROP-0014',
+    documentNo: 'DOC-2023-014',
+    parNo: 'PAR-2023-014',
+    description: 'Server Rack',
+    serialNo: 'SN-753951',
+    dateAcquired: '2023-01-05',
+    unitCost: '38,000.00',
+    endUser: 'Server Room',
+    estimatedLife: '8 years',
+    status: 'Active',
+    remarks: '42U Rack Cabinet'
+  },
+  {
+    propertyNo: 'PROP-0015',
+    documentNo: 'DOC-2023-015',
+    parNo: 'PAR-2023-015',
+    description: 'UPS',
+    serialNo: 'SN-258369',
+    dateAcquired: '2023-02-10',
+    unitCost: '22,000.00',
+    endUser: 'Server Room',
+    estimatedLife: '4 years',
+    status: 'Active',
+    remarks: '3KVA Online UPS'
+  },
+  {
+    propertyNo: 'PROP-0016',
+    documentNo: 'DOC-2023-016',
+    parNo: 'PAR-2023-016',
+    description: 'Fire Extinguisher',
+    serialNo: 'SN-147258',
+    dateAcquired: '2023-01-15',
+    unitCost: '3,200.00',
+    endUser: 'Hallway',
+    estimatedLife: '2 years',
+    status: 'Active',
+    remarks: '5kg ABC Type'
+  },
+  {
+    propertyNo: 'PROP-0017',
+    documentNo: 'DOC-2023-017',
+    parNo: 'PAR-2023-017',
+    description: 'First Aid Kit',
+    serialNo: 'SN-369258',
+    dateAcquired: '2023-03-10',
+    unitCost: '1,800.00',
+    endUser: 'Clinic',
+    estimatedLife: '1 year',
+    status: 'Active',
+    remarks: 'Standard Kit'
+  },
+  {
+    propertyNo: 'PROP-0018',
+    documentNo: 'DOC-2023-018',
+    parNo: 'PAR-2023-018',
+    description: 'Microwave Oven',
+    serialNo: 'SN-582471',
+    dateAcquired: '2023-02-20',
+    unitCost: '6,500.00',
+    endUser: 'Pantry',
+    estimatedLife: '5 years',
+    status: 'Active',
+    remarks: '25L Capacity'
+  },
+  {
+    propertyNo: 'PROP-0019',
+    documentNo: 'DOC-2023-019',
+    parNo: 'PAR-2023-019',
+    description: 'Refrigerator',
+    serialNo: 'SN-694827',
+    dateAcquired: '2023-01-25',
+    unitCost: '21,000.00',
+    endUser: 'Pantry',
+    estimatedLife: '7 years',
+    status: 'Active',
+    remarks: '12 cu.ft'
+  },
+  {
+    propertyNo: 'PROP-0020',
+    documentNo: 'DOC-2023-020',
+    parNo: 'PAR-2023-020',
+    description: 'Air Purifier',
+    serialNo: 'SN-135790',
+    dateAcquired: '2023-03-15',
+    unitCost: '15,000.00',
+    endUser: 'Meeting Room',
+    estimatedLife: '5 years',
+    status: 'Active',
+    remarks: 'HEPA Filter'
+  }];
 
 import EditPropertyModal from './EditPropertyModal';
 
@@ -72,7 +317,16 @@ export default function AssetProperty() {
   };
 
   // Handler for when a property is updated
-  const handleUpdateProperty = () => {
+  const handleUpdateProperty = (updatedData) => {
+    // Update the data in the table
+    const updatedIndex = allData.findIndex(item => item.propertyNo === selectedRow.propertyNo);
+    if (updatedIndex !== -1) {
+      allData[updatedIndex] = {
+        ...allData[updatedIndex],
+        ...updatedData
+      };
+    }
+    
     setEditFormOpen(false);
     setSelectedRow(null);
     setShowUpdateNotif(true);
@@ -153,7 +407,7 @@ export default function AssetProperty() {
                 <td>{row.endUser}</td>
                 <td>{row.estimatedLife}</td>
                 <td>
-                  <span className={`AssetProperty-Status ${row.status.toLowerCase()}`}>
+                  <span className={`AssetProperty-Status ${row.status.toLowerCase().replace(/\s+/g, '')}`}>
                     {row.status}
                   </span>
                 </td>
@@ -176,6 +430,7 @@ export default function AssetProperty() {
             onClose={() => {
               setEditFormOpen(false);
               setEditModalOpen(false);
+              setSelectedRow(null);
             }}
             onUpdate={handleUpdateProperty}
             row={selectedRow}
