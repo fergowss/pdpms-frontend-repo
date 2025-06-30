@@ -8,16 +8,15 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     unitCost: '',
     estimatedLife: '',
     remarks: '',
-    status: '',
-    file: null
+    status: ''
   });
   const [isValid, setIsValid] = useState(false);
 
   const handleFormChange = (e) => {
-    const { name, value, type, files } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'file' ? files[0] : value
+      [name]: value
     }));
     // Update validity state whenever any input changes
     setIsValid(e.currentTarget.checkValidity());
@@ -67,16 +66,7 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
                 <option>Inactive</option>
                 <option>Disposed</option>
               </select>
-              <label className="AssetProperty-ModalLabel">Upload File <span className="AssetProperty-ModalHint">(PDF Only)</span></label>
-              <div>
-                <input 
-                  className="AssetProperty-ModalInput" 
-                  type="file" 
-                  name="file"
-                  accept="application/pdf"
-                  required
-                />
-              </div>
+
             </div>
           </div>
           {(() => {
@@ -86,15 +76,11 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     'unitCost',
     'estimatedLife',
     'remarks',
-    'status',
-    'file',
+    'status'
   ];
-  const missingFields = requiredFields.filter(field => {
-    if (field === 'file') {
-      return !formData[field];
-    }
-    return !formData[field] || formData[field].toString().trim() === '';
-  });
+  const missingFields = requiredFields.filter(field => 
+    !formData[field] || formData[field].toString().trim() === ''
+  );
   return missingFields.length === 1 ? (
     <div className="PublicDocument-FormCenterError">All fields are required.</div>
   ) : null;
