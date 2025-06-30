@@ -1,0 +1,123 @@
+.EmployeeEditModal-Overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 3000;
+}
+
+.EmployeeEditModal-Box {
+  background: #f6fcff;
+  border: 2px solid #2B3E63;
+  border-radius: 0.7rem;
+  padding: 2rem 2.5rem 1.4rem 2.5rem;
+  box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
+  min-width: 520px;
+  max-width: 95vw;
+  min-height: 320px;
+  max-height: 95vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  margin-top: 0;
+}
+
+.EmployeeEditModal-Form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+}
+
+.EmployeeEditModal-Row {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5rem;
+}
+
+.EmployeeEditModal-Grid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.7rem;
+}
+
+.EmployeeEditModal-Grid > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.EmployeeEditModal-Label {
+  font-weight: 500;
+  font-size: 1.04rem;
+  margin-bottom: 0.16rem;
+  color: #223354;
+}
+
+.EmployeeEditModal-Input {
+  border: 1.5px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.98rem;
+  background: #f6fcff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.EmployeeEditModal-Input:focus {
+  border-color: #3571b9;
+}
+
+.EmployeeEditModal-Disabled {
+  background-color: #e8eef7 !important;
+  cursor: not-allowed;
+}
+
+.EmployeeEditModal-Actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0rem;
+  margin-top: 0.2rem;
+}
+
+.EmployeeEditModal-UpdateBtn {
+  background: #223354;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 1.3rem;
+  font-size: 1rem;
+  font-weight: 400;
+  box-shadow: 0 1px 2px rgba(44,62,80,0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.EmployeeEditModal-UpdateBtn:hover {
+  background: #2a5db0;
+}
+
+.EmployeeEditModal-CancelBtn {
+  background: #f6fcff;
+  color: #223354;
+  border: 2px solid #2B3E63;
+  border-radius: 7px;
+  padding: 0.5rem 1.3rem;
+  font-size: 1rem;
+  font-weight: 400;
+  margin-left: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.EmployeeEditModal-CancelBtn:hover {
+  background: #eaf0fa;
+  color: #2a5db0;
+}

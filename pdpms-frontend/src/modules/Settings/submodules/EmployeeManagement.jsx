@@ -21,11 +21,19 @@ const employeeData = [
   { id: 'EMP015', name: 'Thomas Clark', position: 'System Admin', contact: '09667890123', status: 'Active' },
 ];
 
+import EmployeeEditNotification from './EmployeeEditNotification';
+import './EmployeeEditNotification.css';
+
+import EmployeeEditModal from './EmployeeEditModal';
+import './EmployeeEditModal.css';
+
 export default function EmployeeManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [employees, setEmployees] = useState(employeeData);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
 
   // Filter data based on search keyword
   const data = searchKeyword
@@ -52,6 +60,10 @@ export default function EmployeeManagement() {
         status: newEmp.status,
       },
     ]);
+  };
+
+  const handleRowClick = (row) => {
+    setSelectedEmployee(row);
   };
 
   return (
@@ -83,7 +95,7 @@ export default function EmployeeManagement() {
           </thead>
           <tbody>
             {data.map((row, i) => (
-              <tr key={row.id + i}>
+              <tr key={row.id + i} onClick={() => handleRowClick(row)}>
                 <td>{row.id}</td>
                 <td>{row.name}</td>
                 <td>{row.position}</td>
@@ -103,6 +115,30 @@ export default function EmployeeManagement() {
         open={modalOpen}
         onClose={() => setModalOpen(false)}
         onAdd={handleAddEmployee}
+      />
+      <EmployeeEditNotification
+        open={!!selectedEmployee && !editModalOpen}
+        onClose={() => setSelectedEmployee(null)}
+        onEdit={() => setEditModalOpen(true)}
+      />
+      <EmployeeEditModal
+        open={!!selectedEmployee && editModalOpen}
+        employee={selectedEmployee}
+        onClose={() => {
+          setEditModalOpen(false);
+          setSelectedEmployee(null);
+        }}
+        onUpdate={(updated) => {
+          setEmployees(prev => prev.map(emp => emp.id === updated.employeeId ? {
+            ...emp,
+            name: `${updated.firstName} ${updated.lastName}`,
+            position: updated.position,
+            contact: updated.contact,
+            status: updated.status
+          } : emp));
+          setEditModalOpen(false);
+          setSelectedEmployee(null);
+        }}
       />
     </div>
   );
