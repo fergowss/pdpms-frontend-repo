@@ -106,16 +106,10 @@ export default function PublicDocument() {
     setTimeout(() => setShowUpdateNotif(false), 3000);
   };
 
-  // Search handler
-  const handleSearch = () => {
-    setSearchKeyword(searchTerm);
-  };
-
-  // Handle Enter key press in search input
-  const handleSearchKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  // Handle search on input change
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setSearchKeyword(value);
   };
 
   // Clear search when changing tabs
@@ -206,20 +200,15 @@ export default function PublicDocument() {
           </div>
         </div>
         <div className="PublicDocument-SearchBox">
-          <input
-            className="PublicDocument-SearchInput"
-            type="text"
-            placeholder="Enter Keyword"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-          />
-          <button 
-            className="PublicDocument-SearchBtn"
-            onClick={handleSearch}
-          >
-            SEARCH
-          </button>
+          <div className="PublicDocument-SearchBarRow">
+            <input
+              className="PublicDocument-SearchBar"
+              type="text"
+              placeholder="Enter Keyword"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </div>
         </div>
       </div>
       <div className="PublicDocument-TableContainer" style={{position: 'relative'}}>

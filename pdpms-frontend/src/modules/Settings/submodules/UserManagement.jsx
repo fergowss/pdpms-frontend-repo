@@ -286,7 +286,6 @@ export default function UserManagement() {
             onChange={e => setSearchKeyword(e.target.value)}
             onKeyDown={handleSearchKeyDown}
           />
-          <button className="UserManagement-SearchButton" onClick={handleSearch}>SEARCH</button>
         </div>
       </div>
       <div className="UserManagement-TableOuter">

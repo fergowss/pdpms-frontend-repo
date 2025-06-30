@@ -26,11 +26,11 @@
 
 .ActivityLog-SearchBarRow {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  justify-content: flex-end;
   margin-bottom: 0.2rem;
   padding-left: 0;
   margin-right: 1.5rem;
+  width: 100%;
 }
 
 .ActivityLog-SearchBar {
@@ -44,7 +44,6 @@
   color: #223354;
   outline: none;
   transition: border 0.2s;
-  margin-right: 0;
   text-align: left;
 }
 
@@ -52,26 +51,7 @@
   border-color: #223354;
 }
 
-.ActivityLog-SearchButton {
-  height: 2rem;
-  padding: 0 1.3rem;
-  background: #223354;
-  color: #fff;
-  border: none;
-  border-radius: 0.4rem;
-  font-size: 1rem;
-  font-weight: 400;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-}
-
-.ActivityLog-SearchButton:hover {
-  background: #2a5db0;
-}
 
 .ActivityLog-TableWrapper {
   flex: 1 1 auto;

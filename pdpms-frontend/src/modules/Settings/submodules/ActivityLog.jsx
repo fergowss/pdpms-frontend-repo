@@ -25,14 +25,10 @@ export default function ActivityLog() {
     { user: 'Rose Ann', action: 'Login', details: 'User logged in.', date: '06/20/25', time: '06:18:05' },
   ];
 
-  const handleSearch = () => {
-    setSearchKeyword(searchTerm);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  // Handle search on input change
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setSearchKeyword(value);
   };
 
   const filtered = searchKeyword ? rows.filter(row =>
@@ -51,15 +47,8 @@ export default function ActivityLog() {
             className="ActivityLog-SearchBar"
             placeholder="Enter Keyword"
             value={searchTerm}
-            onChange={e => setSearchTerm(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onChange={e => handleSearch(e.target.value)}
           />
-          <button 
-            className="ActivityLog-SearchButton" 
-            onClick={handleSearch}
-          >
-            SEARCH
-          </button>
         </div>
       </div>
       <div className="ActivityLog-TableWrapper">

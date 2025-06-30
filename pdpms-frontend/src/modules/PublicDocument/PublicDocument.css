@@ -35,15 +35,20 @@
 
 .PublicDocument-SearchBox {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.2rem;
-  padding-left: 0;
-  margin-right: 0rem;
+  flex: 1;
 }
 
 
-.PublicDocument-SearchInput {
+.PublicDocument-SearchBarRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.2rem;
+  padding-left: 0;
+  margin-right: 0.1rem;
+  flex: 1;
+}
+
+.PublicDocument-SearchBar {
   height: 2rem;
   width: 15rem;
   padding: 0 0.9rem 0 35px;
@@ -54,33 +59,15 @@
   color: #223354;
   outline: none;
   transition: border 0.2s;
-  margin-right: 0;
   text-align: left;
 }
-.PublicDocument-SearchInput:focus {
+
+.PublicDocument-SearchBar:focus {
   border-color: #223354;
 }
 
 
-.PublicDocument-SearchBtn {
-  height: 2rem;
-  padding: 0 1.3rem;
-  background: #223354;
-  color: #fff;
-  border: none;
-  border-radius: 0.4rem;
-  font-size: 1rem;
-  font-weight: 400px;
-  cursor: pointer;
-  transition: background 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 
-}
-.PublicDocument-SearchBtn:hover {
-  background: #2a5db0;
-}
 
 
 
