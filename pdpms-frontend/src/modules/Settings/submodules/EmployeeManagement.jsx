@@ -1,78 +1,109 @@
 import React, { useState } from 'react';
 import './EmployeeManagement.css';
+import AddEmployeeModal from './AddEmployeeModal';
+
+
+const employeeData = [
+  { id: 'EMP001', name: 'John Smith', position: 'Manager', contact: '09123456789', status: 'Active' },
+  { id: 'EMP002', name: 'Maria Garcia', position: 'Developer', contact: '09234567890', status: 'Active' },
+  { id: 'EMP003', name: 'Robert Johnson', position: 'Designer', contact: '09345678901', status: 'Active' },
+  { id: 'EMP004', name: 'Sarah Wilson', position: 'QA Engineer', contact: '09456789012', status: 'On Leave' },
+  { id: 'EMP005', name: 'Michael Brown', position: 'HR Specialist', contact: '09567890123', status: 'Active' },
+  { id: 'EMP006', name: 'Jennifer Davis', position: 'Accountant', contact: '09678901234', status: 'Active' },
+  { id: 'EMP007', name: 'James Miller', position: 'Admin Assistant', contact: '09789012345', status: 'Inactive' },
+  { id: 'EMP008', name: 'Patricia Taylor', position: 'Marketing Officer', contact: '09890123456', status: 'Active' },
+  { id: 'EMP009', name: 'David Anderson', position: 'Sales Executive', contact: '09901234567', status: 'Active' },
+  { id: 'EMP010', name: 'Lisa Thomas', position: 'IT Support', contact: '09112345678', status: 'Active' },
+  { id: 'EMP011', name: 'Daniel Jackson', position: 'Operations Head', contact: '09223456789', status: 'Active' },
+  { id: 'EMP012', name: 'Nancy White', position: 'Recruiter', contact: '09334567890', status: 'On Leave' },
+  { id: 'EMP013', name: 'Kevin Harris', position: 'Content Writer', contact: '09445678901', status: 'Active' },
+  { id: 'EMP014', name: 'Karen Martin', position: 'Graphic Designer', contact: '09556789012', status: 'Active' },
+  { id: 'EMP015', name: 'Thomas Clark', position: 'System Admin', contact: '09667890123', status: 'Active' },
+];
 
 export default function EmployeeManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [employees, setEmployees] = useState(employeeData);
 
-  // Sample data - replace with actual API call
-  const employees = [
-    { id: 'EMP0001', name: 'Juan Dela Cruz', department: 'HR', position: 'HR Manager', status: 'Active' },
-    { id: 'EMP0002', name: 'Maria Santos', department: 'IT', position: 'Developer', status: 'Active' },
-    { id: 'EMP0003', name: 'Pedro Reyes', department: 'Finance', position: 'Accountant', status: 'Inactive' },
-  ];
+  // Filter data based on search keyword
+  const data = searchKeyword
+    ? employees.filter(row =>
+        Object.values(row).some(
+          value => value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+        )
+      )
+    : employees;
 
-  const filteredEmployees = employees.filter(emp => 
-    emp.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.department.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.position.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    emp.status.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setSearchKeyword(value);
+  };
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    setSearchTerm(searchKeyword);
+  const handleAddEmployee = (newEmp) => {
+    setEmployees(prev => [
+      ...prev,
+      {
+        id: newEmp.employeeId,
+        name: `${newEmp.firstName} ${newEmp.lastName}`,
+        position: newEmp.position,
+        contact: newEmp.contact,
+        status: newEmp.status,
+      },
+    ]);
   };
 
   return (
     <div className="EmployeeManagement-Container">
-      <div className="EmployeeManagement-Header">
-        <h2 className="EmployeeManagement-Title">Employee Management</h2>
-        <div className="EmployeeManagement-TopRow">
-          <form onSubmit={handleSearch} className="EmployeeManagement-SearchBarRow">
+      <div className="EmployeeManagement-HeaderRow">
+      <div style={{ flex: 1 }}></div>
+        <div className="EmployeeManagement-SearchBox">
+          <div className="EmployeeManagement-SearchBarRow">
             <input
-              type="text"
-              placeholder="Search employees..."
               className="EmployeeManagement-SearchBar"
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
+              type="text"
+              placeholder="Enter Keyword"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
             />
-          </form>
+          </div>
         </div>
       </div>
-      
       <div className="EmployeeManagement-TableContainer">
         <table className="EmployeeManagement-Table">
           <thead>
             <tr>
               <th>Employee ID</th>
-              <th>Name</th>
-              <th>Department</th>
+              <th>Full Name</th>
               <th>Position</th>
+              <th>Contact No.</th>
               <th>Status</th>
-              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredEmployees.map((emp) => (
-              <tr key={emp.id}>
-                <td>{emp.id}</td>
-                <td>{emp.name}</td>
-                <td>{emp.department}</td>
-                <td>{emp.position}</td>
-                <td>
-                  <span className={`EmployeeManagement-Status ${emp.status.toLowerCase()}`}>
-                    {emp.status}
-                  </span>
-                </td>
-                <td>
-                  <button className="EmployeeManagement-EditBtn">Edit</button>
-                </td>
+            {data.map((row, i) => (
+              <tr key={row.id + i}>
+                <td>{row.id}</td>
+                <td>{row.name}</td>
+                <td>{row.position}</td>
+                <td>{row.contact}</td>
+                <td>{row.status}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <div className="EmployeeManagement-AddBtnContainer">
+        <button className="EmployeeManagement-AddBtn" onClick={() => setModalOpen(true)}>
+          ADD EMPLOYEE
+        </button>
+      </div>
+      <AddEmployeeModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onAdd={handleAddEmployee}
+      />
     </div>
   );
 }

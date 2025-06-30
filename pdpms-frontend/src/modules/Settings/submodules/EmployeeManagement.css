@@ -6,33 +6,33 @@
   box-shadow: 0rem 0.2rem 0.1rem rgba(162, 162, 162, 0.1);
   display: flex;
   flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  min-width: 40rem;
   min-height: 30rem;
-  box-sizing: border-box;
-  padding: 1rem 0;
-  position: relative;
+  padding: 0;
   overflow: hidden;
 }
 
-.EmployeeManagement-Header {
-  padding: 0 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.EmployeeManagement-Title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: #2B3E63;
-  margin: 0 0 1rem 0;
-}
-
-/* Search Bar */
-.EmployeeManagement-TopRow {
+.EmployeeManagement-HeaderRow {
   display: flex;
-  justify-content: flex-end;
   align-items: flex-end;
-  margin-top: 1.2rem;
-  width: 100%;
-  margin-bottom: 0.2rem;
+  justify-content: space-between;
+  padding: 1.2rem 1.5rem 0 1.5rem;
+  gap: 2rem;
+}
+
+.EmployeeManagement-HeaderTabs {
+  display: flex;
+  margin-bottom: 0.5rem;
+  padding-left: 0;
+  padding-top: 0;
+  gap: 2rem;
+}
+
+.EmployeeManagement-SearchBox {
+  display: flex;
+  flex: 1;
 }
 
 .EmployeeManagement-SearchBarRow {
@@ -40,8 +40,8 @@
   justify-content: flex-end;
   margin-bottom: 0.2rem;
   padding-left: 0;
-  margin-right: 1.8rem;
-  width: 100%;
+  margin-right: 0.1rem;
+  flex: 1;
 }
 
 .EmployeeManagement-SearchBar {
@@ -55,18 +55,24 @@
   color: #223354;
   outline: none;
   transition: border 0.2s;
+  text-align: left;
 }
 
 .EmployeeManagement-SearchBar:focus {
-  border-color: #3571b9;
+  border-color: #223354;
 }
 
-/* Table Styles */
+
 .EmployeeManagement-TableContainer {
   flex: 1;
-  width: 100%;
-  overflow: auto;
-  padding: 0 1.5rem 1.5rem;
+  overflow-y: auto;
+  margin: 1.2rem 1.5rem 0 1.5rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  border: 1px solid #e0e0e0;
+  min-height: 24rem;
+  max-height: 28rem;
+  box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.07);
 }
 
 .EmployeeManagement-Table {
@@ -74,15 +80,13 @@
   border-collapse: collapse;
   font-size: 0.9rem;
   background: #fff;
-  border-radius: 0.5rem;
-  overflow: hidden;
 }
 
-.EmployeeManagement-Table th,
-.EmployeeManagement-Table td {
-  padding: 0.8rem 1rem;
+.EmployeeManagement-Table th, .EmployeeManagement-Table td {
+  padding: 0.8rem 0.7rem;
   text-align: left;
   border-bottom: 1px solid #f0f0f0;
+  white-space: nowrap;
 }
 
 .EmployeeManagement-Table th {
@@ -92,51 +96,197 @@
   position: sticky;
   top: 0;
   z-index: 2;
-  font-size: 0.85rem;
-  text-transform: none;
-  letter-spacing: normal;
-  white-space: nowrap;
 }
 
-.EmployeeManagement-Table tr:hover {
-  background: #f8f9fa;
+.EmployeeManagement-Table tr:last-child td {
+  border-bottom: none;
 }
 
-/* Status Badge */
-.EmployeeManagement-Status {
-  display: inline-block;
-  padding: 0.25rem 0.6rem;
-  border-radius: 1rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  text-align: center;
-  min-width: 70px;
-}
-
-.EmployeeManagement-Status.active {
-  background-color: #e3f7ed;
-  color: #2b8c4b;
-  border: 1px solid #a8e0c0;
-}
-
-.EmployeeManagement-Status.inactive {
-  background-color: #fde8e8;
-  color: #c53030;
-  border: 1px solid #feb2b2;
-}
-
-/* Action Buttons */
-.EmployeeManagement-EditBtn {
-  background: #2B3E63;
-  color: white;
-  border: none;
-  border-radius: 0.25rem;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.85rem;
+.EmployeeManagement-Table tbody tr:hover {
+  background: #eaf0fa;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: background 0.18s;
 }
 
-.EmployeeManagement-EditBtn:hover {
-  background-color: #1e2e4a;
+.EmployeeManagement-AddBtnContainer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: 1.2rem 1.4rem 1.2rem 1.4rem;
+  background: transparent;
+}
+
+.EmployeeManagement-AddBtn {
+  background: #223354;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 0.5rem 1.3rem;
+  font-size: 0.9rem;
+  font-weight: 400px;
+  box-shadow: 0 1px 2px rgba(44,62,80,0.08);
+  cursor: pointer;
+  transition: background 0.2s;
+
+}
+
+.EmployeeManagement-AddBtn:hover {
+  background: #2a5db0;
+}
+
+.EmployeeManagement-TableContainer::-webkit-scrollbar {
+  width: 10px;
+  background: #f6f8fa;
+  border-radius: 0.5rem;
+}
+
+.EmployeeManagement-TableContainer::-webkit-scrollbar-thumb {
+  background: #4C6085;
+  border-radius: 0.5rem;
+  transition: background 0.2s;
+}
+
+/* Modal Buttons */
+.AddEmployeeModal-ButtonContainer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+  margin-right: 0.1rem;
+}
+
+.AddEmployeeModal-Button {
+  padding: 0.45rem 1.1rem;
+  font-size: 0.93rem;
+  border-radius: 0.35rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 2px solid #2B3E63;
+}
+
+.AddEmployeeModal-Button--primary {
+  background: #2B3E63;
+  color: #fff;
+  border-color: #2B3E63;
+}
+
+.AddEmployeeModal-Button--primary:hover {
+  background: #3571b9;
+  border-color: #3571b9;
+}
+
+.AddEmployeeModal-Button--secondary {
+  background: #f6fcff;
+  color: #2B3E63;
+  border-color: #2B3E63;
+}
+
+.AddEmployeeModal-Button--secondary:hover {
+  background: #e7ecf3;
+  color: #3571b9;
+  border-color: #3571b9;
+}
+
+/* ================= MODAL STYLES ================= */
+.EmployeeManagement-ModalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: none;
+}
+
+.EmployeeManagement-ModalBox {
+  background: #f6fcff;
+  border: 2px solid #2B3E63;
+  border-radius: 0.7rem;
+  padding: 1.5rem 2rem 1.1rem 2rem;
+  box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
+  min-width: 700px;
+  max-width: 95vw;
+  min-height: 320px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.EmployeeManagement-ModalForm {
+  width: 100%;
+}
+
+.EmployeeManagement-ModalGrid {
+  display: flex;
+  flex-direction: row;
+  gap: 1.7rem;
+}
+
+.EmployeeManagement-ModalGrid > div {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.EmployeeManagement-ModalLabel {
+  font-weight: 500;
+  font-size: 1.04rem;
+  margin-bottom: 0.16rem;
+  color: #000000;
+}
+
+.EmployeeManagement-ModalInput {
+  border: 1.5px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.48rem 0.9rem;
+  font-size: 0.98rem;
+  margin-bottom: 0.5rem;
+  background: #f6fcff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.EmployeeManagement-ModalInput:focus {
+  border-color: #3571b9;
+}
+
+.EmployeeManagement-ModalTextarea {
+  resize: none !important;
+  min-height: 6.5rem;
+  resize: vertical;
+  background: #f6fcff;
+}
+
+.EmployeeManagement-ModalHint {
+  font-size: 0.95rem;
+  color: #223354;
+  font-style: italic;
+  opacity: 0.7;
+}
+
+.EmployeeManagement-ModalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  margin-left: 3.5rem;
+}
+
+.EmployeeManagement-TableContainer::-webkit-scrollbar-thumb:hover {
+  background: #3571b9;
+}
+
+.EmployeeManagement-TableContainer {
+  scrollbar-width: thin;
+  scrollbar-color: #4C6085 #f6f8fa;
 }
