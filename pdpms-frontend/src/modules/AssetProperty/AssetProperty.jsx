@@ -40,16 +40,10 @@ export default function AssetProperty() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   
-  // Handle search
-  const handleSearch = () => {
-    setSearchKeyword(searchTerm);
-  };
-
-  // Handle Enter key press in search input
-  const handleSearchKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  // Handle search on input change
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setSearchKeyword(value);
   };
 
   // Filter data based on search keyword
@@ -109,20 +103,15 @@ export default function AssetProperty() {
           </div>
         </div>
         <div className="AssetProperty-SearchBox">
-          <input
-            className="AssetProperty-SearchInput"
-            type="text"
-            placeholder="Enter Keyword"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={handleSearchKeyDown}
-          />
-          <button 
-            className="AssetProperty-SearchBtn"
-            onClick={handleSearch}
-          >
-            SEARCH
-          </button>
+          <div className="AssetProperty-SearchBarRow">
+            <input
+              className="AssetProperty-SearchBar"
+              type="text"
+              placeholder="Enter Keyword"
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+            />
+          </div>
         </div>
       </div>
 

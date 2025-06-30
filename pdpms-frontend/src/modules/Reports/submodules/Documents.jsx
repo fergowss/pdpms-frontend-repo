@@ -195,16 +195,10 @@ export default function Documents() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
 
-  // Handle search
-  const handleSearch = () => {
-    setSearchKeyword(searchTerm);
-  };
-
-  // Handle Enter key press in search input
-  const handleSearchKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  // Handle search on input change
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setSearchKeyword(value);
   };
 
   // Clear search when changing tabs
@@ -245,15 +239,8 @@ export default function Documents() {
               className="Documents-SearchBar" 
               placeholder="Enter Keyword"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
+              onChange={(e) => handleSearch(e.target.value)}
             />
-            <button 
-              className="Documents-SearchButton"
-              onClick={handleSearch}
-            >
-              SEARCH
-            </button>
           </div>
         </div>
         <div className="Documents-TableWrapper">

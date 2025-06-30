@@ -25,16 +25,10 @@ export default function Properties() {
     }
   ];
 
-  // Handle search
-  const handleSearch = () => {
-    setSearchKeyword(searchTerm);
-  };
-
-  // Handle Enter key press in search input
-  const handleSearchKeyDown = (e) => {
-    if (e.key === 'Enter') {
-      handleSearch();
-    }
+  // Handle search on input change
+  const handleSearch = (value) => {
+    setSearchTerm(value);
+    setSearchKeyword(value);
   };
 
   // Clear search when changing tabs
@@ -74,15 +68,8 @@ export default function Properties() {
               className="Properties-SearchBar" 
               placeholder="Enter Keyword" 
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
+              onChange={(e) => handleSearch(e.target.value)}
             />
-            <button 
-              className="Properties-SearchButton"
-              onClick={handleSearch}
-            >
-              SEARCH
-            </button>
           </div>
         </div>
         <div className="Properties-TableWrapper">
