@@ -63,33 +63,69 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               <input className="AssetProperty-ModalInput" type="text" value={row.parNo || ''} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">Description</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="description" defaultValue={row.description || ''} required />
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                rows={3} 
+                value={row.description || ''} 
+                disabled 
+                style={{background:'#e8eef7'}} 
+              />
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Serial No.</label>
               <textarea 
                 className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
                 rows={3} 
-                name="serialNo" 
-                defaultValue={row.serialNo || ''} 
-                required 
+                value={row.serialNo || ''} 
+                disabled 
+                style={{background:'#e8eef7'}}
               />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
-              <input className="AssetProperty-ModalInput" type="date" name="dateAcquired" defaultValue={row.dateAcquired || ''} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="date" 
+                value={row.dateAcquired || ''} 
+                disabled 
+                style={{background:'#e8eef7'}}
+              />
 
               <label className="AssetProperty-ModalLabel">Unit Cost</label>   
-              <input className="AssetProperty-ModalInput" type="number" step="0.01" name="unitCost" defaultValue={row.unitCost || ''} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="number" 
+                step="0.01" 
+                value={row.unitCost || ''} 
+                disabled 
+                style={{background:'#e8eef7'}}
+              />
 
               <label className="AssetProperty-ModalLabel">End User</label>
-              <input className="AssetProperty-ModalInput" type="text" name="endUser" defaultValue={row.endUser || ''} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="endUser" 
+                defaultValue={row.endUser || ''} 
+                required 
+              />
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
-              <input className="AssetProperty-ModalInput" type="text" name="estimatedLife" defaultValue={row.estimatedLife || ''} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                value={row.estimatedLife || ''} 
+                disabled 
+                style={{background:'#e8eef7'}}
+              />
 
               <label className="AssetProperty-ModalLabel">Status</label>
-              <select className="AssetProperty-ModalInput" name="status" defaultValue={row.status || ''} required>
+              <select 
+                className="AssetProperty-ModalInput" 
+                name="status" 
+                defaultValue={row.status || ''} 
+                required
+              >
                 <option value="">Select Status</option>
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
@@ -98,7 +134,13 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               </select>
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="remarks" defaultValue={row.remarks || ''} required />
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                rows={3} 
+                name="remarks" 
+                defaultValue={row.remarks || ''} 
+                required 
+              />
             </div>
           </div>
           <div className="AssetProperty-ModalActions">
