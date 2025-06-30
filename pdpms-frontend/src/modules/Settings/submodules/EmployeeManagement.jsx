@@ -26,6 +26,8 @@ import './EmployeeEditNotification.css';
 
 import EmployeeEditModal from './EmployeeEditModal';
 import './EmployeeEditModal.css';
+import EmployeeAddNotification from './EmployeeAddNotification';
+import EmployeeUpdateNotification from './EmployeeUpdateNotification';
 
 export default function EmployeeManagement() {
   const [searchTerm, setSearchTerm] = useState('');
@@ -34,6 +36,8 @@ export default function EmployeeManagement() {
   const [employees, setEmployees] = useState(employeeData);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [addNotifOpen, setAddNotifOpen] = useState(false);
+  const [updateNotifOpen, setUpdateNotifOpen] = useState(false);
 
   // Filter data based on search keyword
   const data = searchKeyword
@@ -60,14 +64,34 @@ export default function EmployeeManagement() {
         status: newEmp.status,
       },
     ]);
+    setAddNotifOpen(true);
+    setTimeout(() => setAddNotifOpen(false), 2500);
   };
 
   const handleRowClick = (row) => {
     setSelectedEmployee(row);
   };
 
+  const handleUpdateEmployee = (updatedEmp) => {
+    setEmployees(prev => prev.map(emp =>
+      emp.id === updatedEmp.employeeId
+        ? {
+            ...emp,
+            name: `${updatedEmp.firstName} ${updatedEmp.lastName}`,
+            position: updatedEmp.position,
+            contact: updatedEmp.contact,
+            status: updatedEmp.status,
+          }
+        : emp
+    ));
+    setUpdateNotifOpen(true);
+    setTimeout(() => setUpdateNotifOpen(false), 2500);
+  };
+
   return (
     <div className="EmployeeManagement-Container">
+      <EmployeeAddNotification open={addNotifOpen} onClose={() => setAddNotifOpen(false)} />
+      <EmployeeUpdateNotification open={updateNotifOpen} onClose={() => setUpdateNotifOpen(false)} />
       <div className="EmployeeManagement-HeaderRow">
       <div style={{ flex: 1 }}></div>
         <div className="EmployeeManagement-SearchBox">
@@ -128,17 +152,7 @@ export default function EmployeeManagement() {
           setEditModalOpen(false);
           setSelectedEmployee(null);
         }}
-        onUpdate={(updated) => {
-          setEmployees(prev => prev.map(emp => emp.id === updated.employeeId ? {
-            ...emp,
-            name: `${updated.firstName} ${updated.lastName}`,
-            position: updated.position,
-            contact: updated.contact,
-            status: updated.status
-          } : emp));
-          setEditModalOpen(false);
-          setSelectedEmployee(null);
-        }}
+        onUpdate={handleUpdateEmployee}
       />
     </div>
   );

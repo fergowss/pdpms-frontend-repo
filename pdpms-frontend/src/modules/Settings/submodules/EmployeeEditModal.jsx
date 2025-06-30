@@ -32,10 +32,25 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
     setForm(f => ({ ...f, [name]: value }));
   };
 
+  const isFormChanged = () => {
+    return (
+      form.employeeId !== (employee?.id || '') ||
+      form.firstName !== (employee?.name?.split(' ')[0] || '') ||
+      form.lastName !== (employee?.name?.split(' ').slice(1).join(' ') || '') ||
+      form.position !== (employee?.position || '') ||
+      form.contact !== (employee?.contact || '') ||
+      form.status !== (employee?.status || 'Active')
+    );
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onUpdate(form);
+    if (isFormChanged()) {
+      onUpdate(form);
+      onClose();
+    }
   };
+
 
   return (
     <div className="EmployeeEditModal-Overlay">
@@ -111,7 +126,7 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             </select>
           </div>
           <div className="EmployeeEditModal-Actions">
-            <button type="submit" className="EmployeeEditModal-UpdateBtn">UPDATE</button>
+            <button type="submit" className="EmployeeEditModal-UpdateBtn" disabled={!(isFormChanged() && form.position && form.contact && form.status)}>UPDATE</button>
             <button type="button" className="EmployeeEditModal-CancelBtn" onClick={onClose}>CANCEL</button>
           </div>
         </form>

@@ -18,8 +18,11 @@ export default function AddEmployeeModal({ open, onClose, onAdd }) {
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
+  const isFormValid = Object.values(form).every(v => v && v.trim() !== '');
+
   const handleSubmit = e => {
     e.preventDefault();
+    if (!isFormValid) return;
     if (onAdd) onAdd(form);
     onClose();
   };
@@ -75,7 +78,7 @@ export default function AddEmployeeModal({ open, onClose, onAdd }) {
           </div>
           
           <div className="EmployeeManagement-ModalActions">
-            <button type="submit" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary">
+            <button type="submit" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary" disabled={!isFormValid}>
               ADD
             </button>
             <button type="button" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" onClick={onClose}>
