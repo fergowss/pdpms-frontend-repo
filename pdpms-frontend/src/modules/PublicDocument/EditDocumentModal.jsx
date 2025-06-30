@@ -127,26 +127,24 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               
               <label className="PublicDocument-ModalLabel">Date</label>
               <input 
-                className={`PublicDocument-ModalInput ${errors.date ? 'PublicDocument-InputError' : ''}`}
+                className="PublicDocument-ModalInput"
                 type="date" 
                 name="date"
                 value={formData.date}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                disabled 
+                style={{background:'#f2f4f8'}}
               />
-              {errors.date && <div className="PublicDocument-ErrorText">{errors.date}</div>}
             </div>
             <div>
               <label className="PublicDocument-ModalLabel">Date Received</label>
               <input 
-                className={`PublicDocument-ModalInput ${errors.dateReceived ? 'PublicDocument-InputError' : ''}`}
+                className="PublicDocument-ModalInput"
                 type="date" 
                 name="dateReceived"
                 value={formData.dateReceived}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                disabled 
+                style={{background:'#f2f4f8'}}
               />
-              {errors.dateReceived && <div className="PublicDocument-ErrorText">{errors.dateReceived}</div>}
               
               <label className="PublicDocument-ModalLabel">Received by</label>
               <input className="PublicDocument-ModalInput" type="text" value={doc.receivedBy || 'Edwin Agustin'} disabled style={{background:'#f2f4f8'}} />
