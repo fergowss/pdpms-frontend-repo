@@ -349,7 +349,7 @@
   background: #f6fcff;
   border: 2px solid #2B3E63;
   border-radius: 0.7rem;
-  padding: 1.5rem 2.5rem 1.1rem 2.5rem;
+  padding: 1rem 2.5rem 1.1rem 2.5rem;
   box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
   min-width: 700px;
   max-width: 800px;
@@ -357,6 +357,7 @@
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  margin-top: -20px;
 }
 
 /* Edit Property Modal */
@@ -395,12 +396,35 @@
   display: flex;
   flex-direction: row;
   gap: 1.7rem;
+  margin-bottom: 1rem;
+  align-items: flex-start;
 }
+
 .AssetProperty-ModalGrid > div {
   flex: 1;
   display: flex;
   flex-direction: column;
   gap: 0.7rem;
+  justify-content: space-between;
+}
+
+.AssetProperty-ModalTextarea {
+  min-height: 6rem;
+  resize: vertical;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.5rem 0.75rem;
+  border: 1.5px solid #2B3E63;
+  border-radius: 0.35rem;
+  font-size: 0.98rem;
+  background: #fff;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.AssetProperty-ModalTextarea:focus {
+  border-color: #3571b9;
 }
 
 .AssetProperty-ModalLabel {
@@ -410,7 +434,8 @@
   color: #000000;
 }
 
-.AssetProperty-ModalInput {
+.AssetProperty-ModalInput,
+.AssetProperty-ModalSelect {
   border: 1.5px solid #2B3E63;
   border-radius: 0.35rem;
   padding: 0.48rem 0.9rem;
@@ -420,6 +445,20 @@
   color: #223354;
   outline: none;
   transition: border 0.2s;
+  height: 2.5rem;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.AssetProperty-ModalSelect {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232B3E63' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.7em top 50%;
+  background-size: 0.8em auto;
+  padding-right: 2.2em;
 }
 .AssetProperty-ModalInput:focus {
   border-color: #3571b9;

@@ -1,10 +1,10 @@
 import './Settings.css';
 
-export default function Settings() {
+export default function Admin() {
   return (
-    <div className="Settings-Container">
-      <h2 className="Settings-Title">Settings</h2>
-      <p>Select a submodule (Activity Log, User Management) from the sidebar.</p>
+    <div className="Admin-Container">
+      <h2 className="Admin-Title">Admin Panel</h2>
+      <p>Select a submodule (Activity Log, Employee Management, User Management) from the sidebar.</p>
     </div>
   );
 }

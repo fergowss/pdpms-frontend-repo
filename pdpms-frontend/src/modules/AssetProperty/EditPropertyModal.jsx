@@ -67,7 +67,13 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="serialNo" defaultValue={row.serialNo || ''} required />
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                rows={3} 
+                name="serialNo" 
+                defaultValue={row.serialNo || ''} 
+                required 
+              />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
               <input className="AssetProperty-ModalInput" type="date" name="dateAcquired" defaultValue={row.dateAcquired || ''} required />

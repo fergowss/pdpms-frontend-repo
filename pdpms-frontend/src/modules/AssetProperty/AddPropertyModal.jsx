@@ -35,21 +35,21 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="endUser" required />
+              <input className="AssetProperty-ModalInput" type="text" name="parNo" required />
 
               <label className="AssetProperty-ModalLabel">Description</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={4} />
+              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="description" required />
 
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="endUser" required />
+              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="serialNo" required />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
               <input className="AssetProperty-ModalInput" type="date" name="dateAcquired" required />
-
-              <label className="AssetProperty-ModalLabel">Unit Cost</label>
-              <input className="AssetProperty-ModalInput" type="number" step="0.01" name="unitCost" required />
             </div>
             <div>
+              <label className="AssetProperty-ModalLabel">Unit Cost</label>
+              <input className="AssetProperty-ModalInput" type="number" step="0.01" name="unitCost" required />
+
               <label className="AssetProperty-ModalLabel">End User</label>
               <input className="AssetProperty-ModalInput" type="text" name="endUser" required />
 
@@ -57,16 +57,15 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
               <input className="AssetProperty-ModalInput" type="text" name="estimatedLife" placeholder="0 Years" required />
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={4} name="remarks" required />
+              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="remarks" required />
 
               <label className="AssetProperty-ModalLabel">Status</label>
-              <select className="AssetProperty-ModalInput" name="status" required>
+              <select className="AssetProperty-ModalInput AssetProperty-ModalSelect" name="status" required>
                 <option value="">Select Status</option>
                 <option>Active</option>
                 <option>Inactive</option>
                 <option>Disposed</option>
               </select>
-
             </div>
           </div>
           {(() => {

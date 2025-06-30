@@ -1,0 +1,142 @@
+.EmployeeManagement-Container {
+  width: 100%;
+  height: 100%;
+  border-radius: 0.5rem;
+  background-color: #ffffff !important;
+  box-shadow: 0rem 0.2rem 0.1rem rgba(162, 162, 162, 0.1);
+  display: flex;
+  flex-direction: column;
+  min-height: 30rem;
+  box-sizing: border-box;
+  padding: 1rem 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.EmployeeManagement-Header {
+  padding: 0 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.EmployeeManagement-Title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2B3E63;
+  margin: 0 0 1rem 0;
+}
+
+/* Search Bar */
+.EmployeeManagement-TopRow {
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  margin-top: 1.2rem;
+  width: 100%;
+  margin-bottom: 0.2rem;
+}
+
+.EmployeeManagement-SearchBarRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.2rem;
+  padding-left: 0;
+  margin-right: 1.8rem;
+  width: 100%;
+}
+
+.EmployeeManagement-SearchBar {
+  height: 2rem;
+  width: 15rem;
+  padding: 0 0.9rem 0 35px;
+  border: 2px solid #223354;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23888888' viewBox='0 0 16 16'%3E%3Cpath d='M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z'/%3E%3C/svg%3E") no-repeat 10px center;
+  color: #223354;
+  outline: none;
+  transition: border 0.2s;
+}
+
+.EmployeeManagement-SearchBar:focus {
+  border-color: #3571b9;
+}
+
+/* Table Styles */
+.EmployeeManagement-TableContainer {
+  flex: 1;
+  width: 100%;
+  overflow: auto;
+  padding: 0 1.5rem 1.5rem;
+}
+
+.EmployeeManagement-Table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  background: #fff;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.EmployeeManagement-Table th,
+.EmployeeManagement-Table td {
+  padding: 0.8rem 1rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.EmployeeManagement-Table th {
+  background: #f6f8fa;
+  font-weight: 600;
+  color: #223354;
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  font-size: 0.85rem;
+  text-transform: none;
+  letter-spacing: normal;
+  white-space: nowrap;
+}
+
+.EmployeeManagement-Table tr:hover {
+  background: #f8f9fa;
+}
+
+/* Status Badge */
+.EmployeeManagement-Status {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+  min-width: 70px;
+}
+
+.EmployeeManagement-Status.active {
+  background-color: #e3f7ed;
+  color: #2b8c4b;
+  border: 1px solid #a8e0c0;
+}
+
+.EmployeeManagement-Status.inactive {
+  background-color: #fde8e8;
+  color: #c53030;
+  border: 1px solid #feb2b2;
+}
+
+/* Action Buttons */
+.EmployeeManagement-EditBtn {
+  background: #2B3E63;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.EmployeeManagement-EditBtn:hover {
+  background-color: #1e2e4a;
+}

@@ -13,18 +13,20 @@ import Documents from './modules/Reports/submodules/Documents.jsx';
 import Properties from './modules/Reports/submodules/Properties.jsx';
 import ActivityLog from './modules/Settings/submodules/ActivityLog.jsx';
 import UserManagement from './modules/Settings/submodules/UserManagement.jsx';
-import { FiHome, FiFileText, FiBook, FiLayers, FiSettings, FiFolder, FiActivity, FiUsers, FiCircle } from 'react-icons/fi';
+import EmployeeManagement from './modules/Settings/submodules/EmployeeManagement.jsx';
+import { FiHome, FiFileText, FiBook, FiLayers, FiFolder, FiActivity, FiUsers, FiUser, FiUserCheck, FiCircle } from 'react-icons/fi';
 
 const iconMap = {
   Dashboard: FiHome,
   Reports: FiFileText,
   'Public Document': FiBook,
   'Asset Property': FiLayers,
-  Settings: FiSettings,
+  Admin: FiUsers,
   Documents: FiFolder,
   Properties: FiLayers,
   'Activity Log': FiActivity,
-  'User Management': FiUsers,
+  'User Management': FiUser,
+  'Employee Management': FiUserCheck,
 };
 
 const modules = [
@@ -32,7 +34,7 @@ const modules = [
   { id: 'Reports', subs: ['Documents', 'Properties'] },
   { id: 'Public Document' },
   { id: 'Asset Property' },
-  { id: 'Settings', subs: ['Activity Log', 'User Management'] },
+  { id: 'Admin', subs: ['Activity Log', 'Employee Management', 'User Management'] },
 ];
 
 export default function App() {
@@ -157,6 +159,7 @@ export default function App() {
               'Properties': <Properties />,
               'Activity Log': <ActivityLog />,
               'User Management': <UserManagement />,
+              'Employee Management': <EmployeeManagement />,
             }[activeSub] || (
               <div>
                 <h2>{activeModule}</h2>
