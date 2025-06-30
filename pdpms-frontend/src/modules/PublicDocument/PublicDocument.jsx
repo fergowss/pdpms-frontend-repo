@@ -122,60 +122,54 @@ export default function PublicDocument() {
   return (
     <div className="Public-Document-Container">
       <AddDocumentModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddDocument} />
+      {/* Add Document Success Notification */}
       {showAddNotif && (
-        <div className="PublicDocument-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem'}}>
-          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
-            {/* SVG: Simple outlined document icon */}
-            <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-              <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
-            </svg>
-          </span>
-          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>New Public Document Has Been Added.</span>
+        <div className="PublicDocument-EditNotificationOverlay">
+          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
+              <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+              </svg>
+            </span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>New Public Document Has Been Added.</span>
+          </div>
         </div>
       )}
+
+      {/* Update Document Success Notification */}
       {showUpdateNotif && (
-        <div className="PublicDocument-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem'}}>
-          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
-            {/* SVG: Simple outlined document icon */}
-            <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-              <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
-            </svg>
-          </span>
-          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>Public Document Has Been Updated.</span>
+        <div className="PublicDocument-EditNotificationOverlay">
+          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
+              <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+              </svg>
+            </span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Public Document Has Been Updated.</span>
+          </div>
         </div>
       )}
+
+      {/* Archive Document Success Notification */}
       {showArchiveNotif && (
-        <div className="PublicDocument-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem'}}>
-          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
-            {/* SVG: Simple outlined document icon */}
-            <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-              <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
-            </svg>
-          </span>
-          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>Document Has Been Moved to Archived.</span>
-        </div>
-      )}
-      {showUpdateNotif && (
-        <div className="PublicDocument-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem'}}>
-          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
-            {/* SVG: Simple outlined document icon */}
-            <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-              <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-              <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
-            </svg>
-          </span>
-          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>Public Document Has Been Updated.</span>
+        <div className="PublicDocument-EditNotificationOverlay">
+          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
+              <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+              </svg>
+            </span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Document Has Been Moved to Archived.</span>
+          </div>
         </div>
       )}
       <div className="PublicDocument-HeaderRow">
@@ -245,38 +239,41 @@ export default function PublicDocument() {
           </tbody>
         </table>
         {activeTab === 'all' && selectedRow && !editModalOpen && (
-          <div className="PublicDocument-EditNotification">
-            <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
-            <div className="PublicDocument-EditNotification-Title">
-              Edit Document<br/>{selectedRow.id}?
+          <div className="PublicDocument-EditNotificationOverlay">
+            <div className="PublicDocument-EditNotification">
+              <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
+              <div className="PublicDocument-EditNotification-Title">
+                Edit Document?<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>
+              </div>
+              <button className="PublicDocument-EditNotification-EditBtn" onClick={() => {
+                setEditModalOpen(true);
+                setSelectedRow(selectedRow);
+                setShowAddNotif(false);
+                setShowUpdateNotif(false);
+              }}>
+                EDIT
+              </button>
             </div>
-            <button className="PublicDocument-EditNotification-EditBtn" onClick={() => {
-              setEditModalOpen(true);
-              setSelectedRow(selectedRow); // ensure selectedRow is set
-              // Hide edit notification popup immediately when editing
-              setShowAddNotif(false);
-              setShowUpdateNotif(false);
-            }}>
-              EDIT
-            </button>
           </div>
         )}
         {activeTab === 'all' && editModalOpen && (
           <EditDocumentModal open={editModalOpen} onClose={() => { setEditModalOpen(false); setSelectedRow(null); }} doc={selectedRow} onUpdate={handleUpdateDocument} />
         )}
         {activeTab === 'archiving' && selectedRow && (
-          <div className="PublicDocument-EditNotification">
-            <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
-            <div className="PublicDocument-EditNotification-Title">
-              Archive Document<br/>{selectedRow.id}?
+          <div className="PublicDocument-EditNotificationOverlay">
+            <div className="PublicDocument-EditNotification">
+              <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
+              <div className="PublicDocument-EditNotification-Title">
+                Archive Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>
+              </div>
+              <button className="PublicDocument-ArchiveBtn" onClick={() => {
+                setSelectedRow(null);
+                setShowArchiveNotif(true);
+                setTimeout(() => setShowArchiveNotif(false), 3000);
+              }}>
+                ARCHIVE
+              </button>
             </div>
-            <button className="PublicDocument-ArchiveBtn" onClick={() => {
-              setSelectedRow(null);
-              setShowArchiveNotif(true);
-              setTimeout(() => setShowArchiveNotif(false), 3000);
-            }}>
-              ARCHIVE
-            </button>
           </div>
         )}
       </div>

@@ -295,7 +295,7 @@ export default function UserManagement() {
               <tr>
                 <th>Employee ID</th>
                 <th>Username</th>
-                <th>Role</th>
+                <th>User Access</th>
                 <th>Status</th>
                 <th>Reactivate/Deactivate</th>
               </tr>
@@ -393,16 +393,22 @@ export default function UserManagement() {
   );
 }
 
-function ManageUserModal({ open, onClose, onEdit, onDelete }) {
+function ManageUserModal({ open, onClose, onEdit }) {
   if (!open) return null;
+  
   return (
     <div className="UserManagement-ModalOverlay">
       <div className="UserManagement-ManageModalBox">
         <button className="UserManagement-ManageModalClose" onClick={onClose} aria-label="Close">X</button>
-        <div className="UserManagement-ManageModalTitle">Manage User</div>
-        <div className="UserManagement-ManageModalActions">
-          <button className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--edit" onClick={onEdit}>EDIT</button>
-          <button className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--delete" onClick={onDelete}>DELETE</button>
+        <div className="UserManagement-ManageModalTitle">Edit User Info?</div>
+        <div className="UserManagement-ManageModalActions" style={{ justifyContent: 'center' }}>
+          <button 
+            className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--edit" 
+            onClick={onEdit}
+            style={{ margin: '0' }}
+          >
+            EDIT
+          </button>
         </div>
       </div>
     </div>
@@ -541,14 +547,14 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                   )}
                 </button>
               </div>
-              <label className="UserManagement-ModalLabel">Employee Role</label>
+              <label className="UserManagement-ModalLabel">User Access</label>
               <select
                 className="UserManagement-ModalSelect"
                 name="role"
                 value={form.role}
                 onChange={handleChange}
               >
-                <option value="">Select Employee Role</option>
+                <option value="">User Access</option>
                 <option value="Administrator">Administrator</option>
                 <option value="Document Manager">Document Manager</option>
                 <option value="Information Access Officer">Information Access Officer</option>
@@ -633,14 +639,14 @@ function AddUserModal({ open, onClose, onAdd }) {
                   )}
                 </button>
               </div>
-              <label className="UserManagement-ModalLabel">Employee Role</label>
+              <label className="UserManagement-ModalLabel">User Access</label>
               <select
                 className="UserManagement-ModalSelect"
                 name="role"
                 value={form.role}
                 onChange={handleChange}
               >
-                <option value="">Select Employee Role</option>
+                <option value="">Select User Access</option>
                 <option value="Administrator">Administrator</option>
                 <option value="Document Manager">Document Manager</option>
                 <option value="Information Access Officer">Information Access Officer</option>

@@ -272,77 +272,157 @@
 
 /* ================= MODAL STYLES ================= */
 
-/* Edit notification styles */
-.AssetProperty-EditNotification {
+/* Notification and Modal Overlay Styles */
+.AssetProperty-NotificationOverlay {
   position: fixed;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 250px;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 1.5rem;
+  z-index: 2000;
+  backdrop-filter: none;
+}
+
+.AssetProperty-NotificationBox {
   background: #e8eef7;
   border: 1.7px solid #bfc7d1;
   border-radius: 0.5rem;
+  padding: 1rem 1.5rem;
   box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
-  padding: 1.2rem 1.5rem 1.4rem 1.5rem;
+  min-width: 200px;
+  max-width: 80%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  z-index: 2000;
+  text-align: center;
 }
+
+.AssetProperty-NotificationContent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+}
+
+/* Edit Notification */
+.AssetProperty-EditNotificationOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: none;
+}
+
+.AssetProperty-EditNotification {
+  background: #e8eef7;
+  border: 1.7px solid #bfc7d1;
+  border-radius: 0.5rem;
+  padding: 1.2rem 1.8rem;
+  min-width: 220px;
+  max-width: 85%;
+  box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
+  position: relative;
+  text-align: center;
+}
+
 .AssetProperty-EditNotification-Title {
   font-size: 1.1rem;
-  font-weight: 400px;
-  color: #000;
-  text-align: center;
-  margin-bottom: 0.7rem;
-  margin-top: 0.2rem;
+  font-weight: 500;
+  color: #000000;
+  margin-bottom: 1.2rem;
+  line-height: 1.4;
 }
+
+/* Style the property number to be bold and black */
+.AssetProperty-EditNotification-Title b {
+  color: #000000;
+  font-weight: 700;
+}
+
+.AssetProperty-EditNotification-Actions {
+  display: flex;
+  justify-content: center;
+  gap: 0.8rem;
+  margin-top: 0.5rem;
+}
+
 .AssetProperty-EditNotification-EditBtn {
   background: #eaf0fa;
   color: #2B3E63;
   border: 2px solid #2B3E63;
   border-radius: 0.35rem;
-  padding: 0.45rem 1.3rem;
-  font-size: 1rem;
-  font-weight: 400;
-  margin-top: 0.3rem;
+  padding: 0.45rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 500;
   cursor: pointer;
-  transition: background 0.17s, color 0.17s;
+  transition: all 0.2s ease;
 }
+
 .AssetProperty-EditNotification-EditBtn:hover {
   background: #2B3E63;
   color: #fff;
 }
+
 .AssetProperty-EditNotification-Close {
   position: absolute;
-  top: 0.5rem;
-  right: 0.7rem;
-  font-size: 1.1rem;
-  color: #223354;
+  top: 0.7rem;
+  right: 0.9rem;
   background: none;
   border: none;
+  font-size: 1.3rem;
   cursor: pointer;
-  padding: 0;
+  color: #5e6e8c;
+  padding: 0.2rem;
   line-height: 1;
-  opacity: 0.6;
+  opacity: 0.7;
   transition: opacity 0.15s;
 }
+
 .AssetProperty-EditNotification-Close:hover {
   opacity: 1;
+}
+
+/* Edit Form Overlay */
+.AssetProperty-EditFormOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: none;
 }
 
 /* Add Property Modal */
 .AssetProperty-AddModalOverlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(34, 51, 84, 0.08);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: none;
 }
 
 .AssetProperty-AddModalBox {
@@ -363,15 +443,19 @@
 /* Edit Property Modal */
 .AssetProperty-EditModalOverlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(34, 51, 84, 0.08);
-  backdrop-filter: blur(4px);
-  z-index: 1000;
+  background: rgba(0, 0, 0, 0.15);
+  z-index: 2000;
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: none;
+  padding: 1rem;
 }
 
 .AssetProperty-EditModalBox {

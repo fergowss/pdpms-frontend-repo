@@ -82,19 +82,27 @@ export default function AssetProperty() {
   return (
     <div className="AssetProperty-Container">
       {showAddNotif && (
-        <div className="AssetProperty-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem', position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)'}}>
-          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
-            {StackIcon}
-          </span>
-          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>New Asset Property Has Been Added.</span>
+        <div className="AssetProperty-NotificationOverlay">
+          <div className="AssetProperty-NotificationBox">
+            <div className="AssetProperty-NotificationContent" style={{flexDirection: 'row', gap: '0.6rem', alignItems: 'center'}}>
+              <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
+                {StackIcon}
+              </span>
+              <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>New Asset Property Has Been Added.</span>
+            </div>
+          </div>
         </div>
       )}
       {showUpdateNotif && (
-        <div className="AssetProperty-EditNotification" style={{zIndex: 3000, flexDirection: 'row', gap: '0.6rem', alignItems: 'center', minWidth: 260, padding: '0.7rem 1.1rem', position: 'fixed', left: '50%', top: '50%', transform: 'translate(-50%, -50%)'}}>
-          <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
-            {StackIcon}
-          </span>
-          <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>Asset Property Has Been Updated.</span>
+        <div className="AssetProperty-NotificationOverlay">
+          <div className="AssetProperty-NotificationBox">
+            <div className="AssetProperty-NotificationContent" style={{flexDirection: 'row', gap: '0.6rem', alignItems: 'center'}}>
+              <span style={{display: 'flex', alignItems: 'center', marginRight: '0.4rem'}}>
+                {StackIcon}
+              </span>
+              <span style={{fontSize: '0.97rem', color: '#223354', fontWeight: 400}}>Asset Property Has Been Updated.</span>
+            </div>
+          </div>
         </div>
       )}
       <div className="AssetProperty-HeaderRow">
@@ -161,25 +169,43 @@ export default function AssetProperty() {
       {modalOpen && (
         <AddPropertyModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddProperty} />
       )}
-      {editModalOpen && selectedRow && !editFormOpen && (
-        <div className="AssetProperty-EditNotification">
-          <button className="AssetProperty-EditNotification-Close" onClick={() => { setEditModalOpen(false); setSelectedRow(null); }} title="Close">×</button>
-          <div className="AssetProperty-EditNotification-Title">
-            Edit Property<br/>{selectedRow.propertyNo}?
-          </div>
-          <button className="AssetProperty-EditNotification-EditBtn" onClick={() => { setEditModalOpen(false); setEditFormOpen(true); }}>
-            EDIT
-          </button>
+      {editModalOpen && selectedRow && editFormOpen && (
+        <div className="AssetProperty-EditFormOverlay">
+          <EditPropertyModal 
+            open={true}
+            onClose={() => {
+              setEditFormOpen(false);
+              setEditModalOpen(false);
+            }}
+            onUpdate={handleUpdateProperty}
+            row={selectedRow}
+          />
         </div>
       )}
-      {editFormOpen && selectedRow && (
-        <EditPropertyModal 
-          open={editFormOpen} 
-          onClose={() => setEditFormOpen(false)} 
-          row={selectedRow} 
-          onUpdate={handleUpdateProperty} 
-        />
-      )};
+      {editModalOpen && selectedRow && !editFormOpen && (
+        <div className="AssetProperty-EditNotificationOverlay">
+          <div className="AssetProperty-EditNotification">
+            <button 
+              className="AssetProperty-EditNotification-Close" 
+              onClick={() => setEditModalOpen(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <div className="AssetProperty-EditNotification-Title">
+              Edit Property<br/>{selectedRow.propertyNo}?
+            </div>
+            <div className="AssetProperty-EditNotification-Actions">
+              <button 
+                className="AssetProperty-EditNotification-EditBtn"
+                onClick={() => setEditFormOpen(true)}
+              >
+                EDIT
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
