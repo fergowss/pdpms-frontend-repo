@@ -59,6 +59,8 @@ const allData = [
 const archivingData = allData.filter((row, i) => i % 2 === 1); // Just for demo: alternate rows
 
 
+import AddFollowUpModal from './AddFollowUpModal';
+
 export default function PublicDocument() {
   const [activeTab, setActiveTab] = useState('all');
   const [modalOpen, setModalOpen] = useState(false);
@@ -69,6 +71,10 @@ export default function PublicDocument() {
   const [showArchiveNotif, setShowArchiveNotif] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [addFollowUpModalOpen, setAddFollowUpModalOpen] = useState(false);
+  const [addFollowUpDocId, setAddFollowUpDocId] = useState(null);
+  const [showFollowUpNotif, setShowFollowUpNotif] = useState(false);
+
   
   // Get base data based on active tab
   const baseData = activeTab === 'all' ? allData : archivingData;
@@ -90,6 +96,7 @@ export default function PublicDocument() {
     setShowAddNotif(false);
     setShowUpdateNotif(false);
     setShowArchiveNotif(false);
+    setShowFollowUpNotif(false);
   };
 
   const handleAddDocument = () => {
@@ -239,7 +246,7 @@ export default function PublicDocument() {
           </tbody>
         </table>
         {activeTab === 'all' && selectedRow && !editModalOpen && (
-          <div className="PublicDocument-EditNotificationOverlay">
+          <div className="PublicDocument-EditNotificationOverlay" style={{ zIndex: 2100 }}>
             <div className="PublicDocument-EditNotification">
               <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
               <div className="PublicDocument-EditNotification-Title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem' }}>
@@ -255,8 +262,8 @@ export default function PublicDocument() {
   }}>
     EDIT
   </button>
-  <button className="PublicDocument-EditNotification-EditBtn">
-    ADD FOLLOW-UP DOCUMENT
+  <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { setAddFollowUpDocId(selectedRow?.id); setSelectedRow(null); setAddFollowUpModalOpen(true); }}>
+    ADD FOLLOW-UP
   </button>
 </div>
             </div>
@@ -283,6 +290,33 @@ export default function PublicDocument() {
           </div>
         )}
       </div>
+      <AddFollowUpModal
+        open={addFollowUpModalOpen}
+        onClose={() => setAddFollowUpModalOpen(false)}
+        onAddFollowUp={(data) => { 
+          setAddFollowUpModalOpen(false);
+          setShowFollowUpNotif(true);
+          setTimeout(() => setShowFollowUpNotif(false), 3000);
+        }}
+        docId={addFollowUpDocId}
+      />
+
+      {/* Follow-Up Document Success Notification */}
+      {showFollowUpNotif && (
+        <div className="PublicDocument-EditNotificationOverlay">
+          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
+              <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+              </svg>
+            </span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Follow-Up Document Has Been Added.</span>
+          </div>
+        </div>
+      )}
       <div className="PublicDocument-AddBtnContainer">
         <button className="PublicDocument-AddBtn" onClick={() => { closeAll(); setModalOpen(true); }}>ADD DOCUMENT</button>
       </div>

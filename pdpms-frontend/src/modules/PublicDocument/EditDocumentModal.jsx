@@ -99,7 +99,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
           <div className="PublicDocument-ModalGrid">
             <div>
               <label className="PublicDocument-ModalLabel">Document ID</label>
-              <input className="PublicDocument-ModalInput" type="text" value={doc.id || 'PDID00000459'} disabled style={{background:'#f2f4f8'}} />
+              <input className="PublicDocument-ModalInput" type="text" value={doc.id || 'PDID00000459'} disabled style={{background:'#e8eef7'}} />
               
               <label className="PublicDocument-ModalLabel">Reference Code</label>
               <input 
@@ -113,10 +113,10 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               {errors.referenceCode && <div className="PublicDocument-ErrorText">{errors.referenceCode}</div>}
               
               <label className="PublicDocument-ModalLabel">Subject</label>
-              <input className="PublicDocument-ModalInput PublicDocument-ModalInput--large" type="text" value={doc.subject || 'Intern Application'} disabled style={{background:'#f2f4f8'}} />
+              <input className="PublicDocument-ModalInput PublicDocument-ModalInput--large" type="text" value={doc.subject || 'Intern Application'} disabled style={{background:'#e8eef7'}} />
               
               <label className="PublicDocument-ModalLabel">Document Type</label>
-              <select className="PublicDocument-ModalInput" value={doc.type || 'Memorandum'} disabled style={{background:'#f2f4f8'}}>
+              <select className="PublicDocument-ModalInput" value={doc.type || 'Memorandum'} disabled style={{background:'#e8eef7'}}>
                 <option>Endorsement</option>
                 <option>Memorandum</option>
                 <option>Certification</option>
@@ -132,7 +132,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
                 name="date"
                 value={formData.date}
                 disabled 
-                style={{background:'#f2f4f8'}}
+                style={{background:'#e8eef7'}}
               />
             </div>
             <div>
@@ -143,11 +143,11 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
                 name="dateReceived"
                 value={formData.dateReceived}
                 disabled 
-                style={{background:'#f2f4f8'}}
+                style={{background:'#e8eef7'}}
               />
               
               <label className="PublicDocument-ModalLabel">Received by</label>
-              <input className="PublicDocument-ModalInput" type="text" value={doc.receivedBy || 'Edwin Agustin'} disabled style={{background:'#f2f4f8'}} />
+              <input className="PublicDocument-ModalInput" type="text" value={doc.receivedBy || 'Edwin Agustin'} disabled style={{background:'#e8eef7'}} />
               
               <label className="PublicDocument-ModalLabel">Status</label>
               <select 
