@@ -91,10 +91,10 @@
   background: #223354;
   color: #fff;
   border: none;
-  border-radius: 7px;
-  padding: 0.5rem 1.3rem;
-  font-size: 1rem;
-  font-weight: 400;
+  border-radius: 0.35rem;
+  padding: 0.36rem 1.05rem;
+  font-size: 0.93rem;
+  font-weight: 500;
   box-shadow: 0 1px 2px rgba(44,62,80,0.08);
   cursor: pointer;
   transition: background 0.2s;
@@ -108,14 +108,21 @@
   background: #f6fcff;
   color: #223354;
   border: 2px solid #2B3E63;
-  border-radius: 7px;
-  padding: 0.5rem 1.3rem;
-  font-size: 1rem;
-  font-weight: 400;
+  border-radius: 0.35rem;
+  padding: 0.36rem 1.05rem;
+  font-size: 0.93rem;
+  font-weight: 500;
   margin-left: 0.8rem;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+
+.EmployeeEditModal-CancelBtn:hover {
+  background: #e7ecf3;
+  color: #3571b9;
+  border-color: #3571b9;
+}
+
 
 .EmployeeEditModal-CancelBtn:hover {
   background: #eaf0fa;
