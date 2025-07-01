@@ -154,16 +154,19 @@
   font-size: 0.85rem;
   text-transform: none;
   letter-spacing: normal;
-  white-space: nowrap; 
-  padding: 0.8rem 0.7rem;
 }
+
 
 .AssetProperty-Table th, 
 .AssetProperty-Table td {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  padding: 0.8rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid #f0f0f0;
 }
+
 
 .AssetProperty-Table tr:last-child td {
   border-bottom: none;
@@ -341,13 +344,87 @@
 .AssetProperty-EditNotification {
   background: #e8eef7;
   border: 1.7px solid #bfc7d1;
-  border-radius: 0.5rem;
-  padding: 1.2rem 1.8rem;
-  min-width: 220px;
-  max-width: 85%;
-  box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
+  border-radius: 0.75rem; 
+  padding: 1.8rem 2.2rem 2rem 2.2rem; 
+  min-width: 220px !important; 
+  max-width: 220px !important; 
+  box-shadow: 0 4px 20px rgba(34, 51, 84, 0.15); 
   position: relative;
+  text-align: center !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  min-height: 110px; 
+  padding: 1rem 0.5rem; 
+}
+ 
+
+.AssetProperty-EditNotification-Title {
+    width: 100% !important;
+    text-align: center !important;
+    margin-bottom: 0.5rem !important; 
+    font-size: 1.1rem !important; 
+    font-weight: 500 !important;
+    color: #000 !important;
+    line-height: 1.4;
+  }
+
+.AssetProperty-EditNotification-Actions {
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.AssetProperty-EditNotification-EditBtn {
+  width: auto !important;
+  display: block !important;
+  margin: 0 auto !important;
+  background: #eaf0fa !important;
+  color: #2B3E63 !important;
+  border: 2px solid #2B3E63 !important;
+  border-radius: 0.35rem !important;
+  padding: 0.45rem 1.8rem !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  margin-bottom:rem;
+}
+
+.AssetProperty-EditNotification-EditBtn:hover {
+  background: #2B3E63 !important;
+  color: #fff !important;
+}
+
+.AssetProperty-EditNotification-Title {
+  width: 100%;
   text-align: center;
+  margin-bottom: 1.2rem;
+}
+
+.AssetProperty-EditNotification-Actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.AssetProperty-EditNotification-EditBtn {
+  width: auto;
+  display: block;
+  margin: 0 auto;
+  background: #eaf0fa;
+  color: #2B3E63;
+  border: 2px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.45rem 1.8rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .AssetProperty-EditNotification-Title {
@@ -356,19 +433,22 @@
   color: #000000;
   margin-bottom: 1.2rem;
   line-height: 1.4;
+  text-align: center;
 }
 
 /* Style the property number to be bold and black */
 .AssetProperty-EditNotification-Title b {
   color: #000000;
-  font-weight: 700;
+  font-weight: 500;
 }
 
 .AssetProperty-EditNotification-Actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
   gap: 0.8rem;
-  margin-top: 0.5rem;
+  margin: 0;
+  padding: 0;
 }
 
 .AssetProperty-EditNotification-EditBtn {
@@ -381,6 +461,9 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  width: auto;
+  display: block;
+  margin: 0 auto;
 }
 
 .AssetProperty-EditNotification-EditBtn:hover {
@@ -390,20 +473,21 @@
 
 .AssetProperty-EditNotification-Close {
   position: absolute;
-  top: 0.7rem;
-  right: 0.9rem;
+  top: 0.1rem;
+  right: 0.2rem;
   background: none;
   border: none;
   font-size: 1.3rem;
   cursor: pointer;
   color: #5e6e8c;
-  padding: 0.2rem;
+  padding: 0.2rem 0.4rem;
   line-height: 1;
-  opacity: 0.7;
-  transition: opacity 0.15s;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
 }
 
 .AssetProperty-EditNotification-Close:hover {
+  background-color: rgba(0, 0, 0, 0.05);
   opacity: 1;
 }
 

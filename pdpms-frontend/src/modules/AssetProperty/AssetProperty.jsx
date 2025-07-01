@@ -278,10 +278,10 @@ import EditPropertyModal from './EditPropertyModal';
 export default function AssetProperty() {
   const [showAddNotif, setShowAddNotif] = useState(false);
   const [showUpdateNotif, setShowUpdateNotif] = useState(false);
-  const [modalOpen, setModalOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
-  const [editFormOpen, setEditFormOpen] = useState(false);
+  const [showEditConfirm, setShowEditConfirm] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   
@@ -302,9 +302,9 @@ export default function AssetProperty() {
 
   // Handler for when a property is added
   const closeAll = () => {
-    setModalOpen(false);
+    setAddModalOpen(false);
     setEditModalOpen(false);
-    setEditFormOpen(false);
+    setShowEditConfirm(false);
     setSelectedRow(null);
     setShowAddNotif(false);
     setShowUpdateNotif(false);
@@ -326,8 +326,6 @@ export default function AssetProperty() {
         ...updatedData
       };
     }
-    
-    setEditFormOpen(false);
     setSelectedRow(null);
     setShowUpdateNotif(true);
     setTimeout(() => setShowUpdateNotif(false), 3000);
@@ -396,7 +394,7 @@ export default function AssetProperty() {
           </thead>
           <tbody>
             {filteredData.map((row, index) => (
-              <tr key={index} onClick={() => { closeAll(); setSelectedRow(row); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
+              <tr key={index} onClick={() => { closeAll(); setSelectedRow(row); setShowEditConfirm(true); }} style={{ cursor: 'pointer' }}>
                 <td>{row.propertyNo}</td>
                 <td>{row.documentNo}</td>
                 <td>{row.parNo}</td>
@@ -418,42 +416,27 @@ export default function AssetProperty() {
         </table>
       </div>
       <div className="AssetProperty-AddBtnContainer">
-        <button className="AssetProperty-AddBtn" onClick={() => { closeAll(); setModalOpen(true); }}>ADD PROPERTY</button>
+        <button className="AssetProperty-AddBtn" onClick={() => { closeAll(); setAddModalOpen(true); }}>ADD PROPERTY</button>
       </div>
-      {modalOpen && (
-        <AddPropertyModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddProperty} />
-      )}
-      {editModalOpen && selectedRow && editFormOpen && (
-        <div className="AssetProperty-EditFormOverlay">
-          <EditPropertyModal 
-            open={true}
-            onClose={() => {
-              setEditFormOpen(false);
-              setEditModalOpen(false);
-              setSelectedRow(null);
-            }}
-            onUpdate={handleUpdateProperty}
-            row={selectedRow}
-          />
-        </div>
-      )}
-      {editModalOpen && selectedRow && !editFormOpen && (
+      <AddPropertyModal open={addModalOpen} onClose={closeAll} onAdd={handleAddProperty} />
+      {/* Edit confirmation modal */}
+      {showEditConfirm && selectedRow && (
         <div className="AssetProperty-EditNotificationOverlay">
           <div className="AssetProperty-EditNotification">
             <button 
               className="AssetProperty-EditNotification-Close" 
-              onClick={() => setEditModalOpen(false)}
+              onClick={closeAll}
               aria-label="Close"
             >
               ×
             </button>
             <div className="AssetProperty-EditNotification-Title">
-              Edit Property<br/>{selectedRow.propertyNo}?
+              Edit Property<br/><b>{selectedRow.propertyNo}</b>?
             </div>
             <div className="AssetProperty-EditNotification-Actions">
               <button 
                 className="AssetProperty-EditNotification-EditBtn"
-                onClick={() => setEditFormOpen(true)}
+                onClick={() => { setShowEditConfirm(false); setEditModalOpen(true); }}
               >
                 EDIT
               </button>
@@ -461,6 +444,8 @@ export default function AssetProperty() {
           </div>
         </div>
       )}
+      <EditPropertyModal open={editModalOpen && !!selectedRow} onClose={closeAll} row={selectedRow} onUpdate={handleUpdateProperty} />
+
     </div>
   );
 }
