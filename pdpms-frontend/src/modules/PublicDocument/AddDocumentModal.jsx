@@ -104,7 +104,7 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
 
   return (
     <div className="PublicDocument-ModalOverlay">
-      <div className="PublicDocument-ModalBox">
+      <div className="PublicDocument-ModalBox" style={{ minWidth: '700px', maxWidth: '700px', width: '700px' }}>
         <form className="PublicDocument-ModalForm" onSubmit={handleSubmit}>
           <div className="PublicDocument-ModalGrid">
             <div>
@@ -193,7 +193,7 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
               />
               
               <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only)</span></label>
-              <div>
+              <div style={{ width: '100%', overflow: 'hidden' }}>
                 <input 
                   className={`PublicDocument-ModalInput ${errors.file ? 'PublicDocument-InputError' : ''}`}
                   type="file" 
@@ -201,13 +201,8 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
                   accept="application/pdf"
                   onChange={handleChange}
                   onBlur={handleBlur}
+                  style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }}
                 />
-                {formData.file && (
-                  <div style={{ marginTop: '0.5rem', fontSize: '0.875rem', color: '#4B5563' }}>
-                    Selected file: {formData.file.name}
-                  </div>
-                )}
-                
               </div>
             </div>
           </div>
