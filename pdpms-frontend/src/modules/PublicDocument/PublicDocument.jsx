@@ -242,17 +242,23 @@ export default function PublicDocument() {
           <div className="PublicDocument-EditNotificationOverlay">
             <div className="PublicDocument-EditNotification">
               <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
-              <div className="PublicDocument-EditNotification-Title">
-                Edit Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>?
-              </div>
-              <button className="PublicDocument-EditNotification-EditBtn" onClick={() => {
-                setEditModalOpen(true);
-                setSelectedRow(selectedRow);
-                setShowAddNotif(false);
-                setShowUpdateNotif(false);
-              }}>
-                EDIT
-              </button>
+              <div className="PublicDocument-EditNotification-Title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem' }}>
+  <span>Manage Document</span>
+  <b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}?</b>
+</div>
+              <div style={{ display: 'flex', gap: '0.7rem', justifyContent: 'center' }}>
+  <button className="PublicDocument-EditNotification-EditBtn" onClick={() => {
+    setEditModalOpen(true);
+    setSelectedRow(selectedRow);
+    setShowAddNotif(false);
+    setShowUpdateNotif(false);
+  }}>
+    EDIT
+  </button>
+  <button className="PublicDocument-EditNotification-EditBtn">
+    ADD FOLLOW-UP DOCUMENT
+  </button>
+</div>
             </div>
           </div>
         )}
