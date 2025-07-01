@@ -135,10 +135,10 @@ export default function PublicDocument() {
           <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
               </svg>
             </span>
             <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>New Public Document Has Been Added.</span>
@@ -152,10 +152,10 @@ export default function PublicDocument() {
           <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
               </svg>
             </span>
             <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Public Document Has Been Updated.</span>
@@ -169,10 +169,10 @@ export default function PublicDocument() {
           <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
               </svg>
             </span>
             <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Document Has Been Moved to Archived.</span>
@@ -307,10 +307,10 @@ export default function PublicDocument() {
           <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#223354" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#223354"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#223354"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
               </svg>
             </span>
             <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Follow-Up Document Has Been Added.</span>

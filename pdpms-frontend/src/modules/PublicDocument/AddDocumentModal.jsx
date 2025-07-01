@@ -206,23 +206,24 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
               </div>
             </div>
           </div>
-          {(() => {
-  const requiredFields = [
-    'referenceCode',
-    'subject',
-    'documentType',
-    'date',
-    'dateReceived',
-    'status',
-    'remarks',
-    'file',
-  ];
-  const missingFields = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === '');
-  return missingFields.length === 1 ? (
-    <div className="PublicDocument-FormCenterError">All fields are required.</div>
-  ) : null;
-})()}
-<div className="PublicDocument-ModalActions">
+          <div style={{ marginTop: '0.5rem' }}>
+            {(() => {
+              const requiredFields = [
+                'referenceCode',
+                'subject',
+                'documentType',
+                'date',
+                'dateReceived',
+                'status',
+                'remarks',
+                'file',
+              ];
+              const missingFields = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === '');
+              return missingFields.length === 1 ? (
+                <div className="PublicDocument-FormCenterError">All fields are required.</div>
+              ) : null;
+            })()}
+            <div className="PublicDocument-ModalActions">
             <button 
               type="submit" 
               className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary"
@@ -234,7 +235,8 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
             >
               ADD
             </button>
-            <button type="button" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+              <button type="button" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+            </div>
           </div>
         </form>
       </div>
