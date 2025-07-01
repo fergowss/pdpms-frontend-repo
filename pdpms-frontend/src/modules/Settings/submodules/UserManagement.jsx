@@ -65,7 +65,7 @@ export default function UserManagement() {
   const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
   const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
   const [userToDeactivate, setUserToDeactivate] = useState(null);
-  const [manageModalOpen, setManageModalOpen] = useState(false);
+  
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -302,7 +302,7 @@ export default function UserManagement() {
             </thead>
             <tbody>
               {filteredUsers.map((user, idx) => (
-                <tr key={idx} onClick={() => { setSelectedUser(user); setManageModalOpen(true); }} style={{ cursor: 'pointer' }}>
+                <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
                   <td>{user.id}</td>
                   <td>{user.name}</td>
                   <td>{user.role}</td>
@@ -331,19 +331,7 @@ export default function UserManagement() {
           <button className="UserManagement-AddUser" onClick={() => setAddModalOpen(true)}>ADD USER</button>
         </div>
       </div>
-    <ManageUserModal
-      open={manageModalOpen}
-      onClose={() => setManageModalOpen(false)}
-      onEdit={() => {
-        setEditModalOpen(true);
-        setManageModalOpen(false);
-      }}
-      onDelete={() => {
-        setUserToDelete(selectedUser);
-        setManageModalOpen(false);
-        setDeleteModalOpen(true);
-      }}
-    />
+    
     <EditUserModal
       open={editModalOpen}
       onClose={() => setEditModalOpen(false)}
@@ -480,29 +468,57 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
   return (
     <div className="UserManagement-ModalOverlay">
       <div className="UserManagement-ModalBox">
-        <form className="UserManagement-ModalForm" onSubmit={handleSubmit} autoComplete="off">
-          <div className="UserManagement-ModalGrid">
-            <div>
-              <label className="UserManagement-ModalLabel">Employee ID</label>
-              <input
-                className="UserManagement-ModalInput"
-                type="text"
-                name="employeeId"
-                value={form.employeeId}
-                readOnly
-                disabled
-              />
-              <label className="UserManagement-ModalLabel">Username</label>
-              <input
-                className="UserManagement-ModalInput"
-                type="text"
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-                autoFocus
-              />
+        <form 
+          className="UserManagement-ModalForm UserManagement-EditUserForm" 
+          onSubmit={handleSubmit} 
+          autoComplete="off" 
+          style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            gap: '1.2rem'
+          }}>
+          <div className="UserManagement-ModalGrid" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            gap: '1.2rem'
+          }}>
+            {/* First Row - Employee ID and Username */}
+            <div className="UserManagement-FormRow" style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: '100%',
+              gap: '1rem'
+            }}>
+              <div className="UserManagement-FormGroup">
+                <label className="UserManagement-ModalLabel">Employee ID</label>
+                <input
+                  className="UserManagement-ModalInput"
+                  type="text"
+                  name="employeeId"
+                  value={form.employeeId}
+                  readOnly
+                  disabled
+                />
+              </div>
+              <div className="UserManagement-FormGroup">
+                <label className="UserManagement-ModalLabel">Username</label>
+                <input
+                  className="UserManagement-ModalInput"
+                  type="text"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                  autoFocus
+                />
+              </div>
+            </div>
+
+            {/* Current Password */}
+            <div className="UserManagement-FormGroup">
               <label className="UserManagement-ModalLabel">Current Password</label>
-              <div style={{ position: 'relative' }}>
+              <div className="UserManagement-PasswordWrapper">
                 <input
                   className="UserManagement-ModalInput UserManagement-ModalInput--password"
                   type={showCurrentPassword ? 'text' : 'password'}
@@ -524,8 +540,12 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* New Password */}
+            <div className="UserManagement-FormGroup">
               <label className="UserManagement-ModalLabel">New Password</label>
-              <div style={{ position: 'relative' }}>
+              <div className="UserManagement-PasswordWrapper">
                 <input
                   className="UserManagement-ModalInput UserManagement-ModalInput--password"
                   type={showNewPassword ? 'text' : 'password'}
@@ -547,12 +567,38 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* User Role */}
+            <div className="UserManagement-FormGroup" style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
               <label className="UserManagement-ModalLabel">User Access</label>
               <select
                 className="UserManagement-ModalSelect"
                 name="role"
                 value={form.role}
                 onChange={handleChange}
+                style={{
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  margin: 0,
+                  padding: '0.48rem 0.9rem',
+                  border: '1.5px solid #2B3E63',
+                  borderRadius: '0.35rem',
+                  fontSize: '0.98rem',
+                  backgroundColor: '#f6fcff',
+                  color: '#223354',
+                  outline: 'none',
+                  transition: 'border 0.2s',
+                  appearance: 'none',
+                  backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D"292.4"%20height%3D"292.4"%3E%3Cpath%20fill%3D"%23223354"%20d%3D"M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z"%2F%3E%3C%2Fsvg%3E")',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 0.7rem top 50%',
+                  backgroundSize: '0.65em auto'
+                }}
               >
                 <option value="">User Access</option>
                 <option value="Administrator">Administrator</option>
@@ -561,9 +607,22 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
               </select>
             </div>
           </div>
+          
+          {/* Form Actions */}
           <div className="UserManagement-ModalActions">
-            <button type="submit" className="UserManagement-ModalBtn UserManagement-ModalBtn--primary">UPDATE</button>
-            <button type="button" className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+            <button 
+              type="submit" 
+              className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
+            >
+              UPDATE
+            </button>
+            <button 
+              type="button" 
+              className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
+              onClick={onClose}
+            >
+              CANCEL
+            </button>
           </div>
         </form>
       </div>
@@ -573,12 +632,15 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
 
 function AddUserModal({ open, onClose, onAdd }) {
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({
-    employeeId: '',
-    username: '',
-    password: '',
-    role: ''
-  });
+  const initialForm = { employeeId: '', username: '', password: '', role: '' };
+  const [form, setForm] = useState(initialForm);
+
+  React.useEffect(() => {
+    if (open) {
+      setForm(initialForm);
+      setShowPassword(false);
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -596,28 +658,51 @@ function AddUserModal({ open, onClose, onAdd }) {
   return (
     <div className="UserManagement-ModalOverlay">
       <div className="UserManagement-ModalBox">
-        <form className="UserManagement-ModalForm" onSubmit={handleSubmit} autoComplete="off">
-          <div className="UserManagement-ModalGrid">
-            <div>
-              <label className="UserManagement-ModalLabel">Employee ID</label>
-              <input
-                className="UserManagement-ModalInput"
-                type="text"
-                name="employeeId"
-                value={form.employeeId}
-                onChange={handleChange}
-                autoFocus
-              />
-              <label className="UserManagement-ModalLabel">Username</label>
-              <input
-                className="UserManagement-ModalInput"
-                type="text"
-                name="username"
-                value={form.username}
-                onChange={handleChange}
-              />
+      <form className="UserManagement-ModalForm UserManagement-AddUserForm" onSubmit={handleSubmit} autoComplete="off" style={{          display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            gap: '1.2rem'
+          }}>
+          <div className="UserManagement-ModalGrid" style={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            gap: '1.2rem'
+          }}>
+            {/* First Row - Employee ID and Username */}
+            <div className="UserManagement-FormRow" style={{
+              display: 'flex',
+              flexDirection: 'row',
+              width: '100%',
+              gap: '1rem'
+            }}>
+              <div className="UserManagement-FormGroup">
+                <label className="UserManagement-ModalLabel">Employee ID</label>
+                <input
+                  className="UserManagement-ModalInput"
+                  type="text"
+                  name="employeeId"
+                  value={form.employeeId}
+                  onChange={handleChange}
+                  autoFocus
+                />
+              </div>
+              <div className="UserManagement-FormGroup">
+                <label className="UserManagement-ModalLabel">Username</label>
+                <input
+                  className="UserManagement-ModalInput"
+                  type="text"
+                  name="username"
+                  value={form.username}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div className="UserManagement-FormGroup">
               <label className="UserManagement-ModalLabel">Set Password</label>
-              <div style={{ position: 'relative' }}>
+              <div className="UserManagement-PasswordWrapper">
                 <input
                   className="UserManagement-ModalInput UserManagement-ModalInput--password"
                   type={showPassword ? 'text' : 'password'}
@@ -639,12 +724,38 @@ function AddUserModal({ open, onClose, onAdd }) {
                   )}
                 </button>
               </div>
+            </div>
+
+            {/* User Role */}
+            <div className="UserManagement-FormGroup" style={{
+              width: '100%',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
               <label className="UserManagement-ModalLabel">User Access</label>
               <select
                 className="UserManagement-ModalSelect"
                 name="role"
                 value={form.role}
                 onChange={handleChange}
+                style={{
+                  width: '100%',
+                  boxSizing: 'border-box',
+                  margin: 0,
+                  padding: '0.48rem 0.9rem',
+                  border: '1.5px solid #2B3E63',
+                  borderRadius: '0.35rem',
+                  fontSize: '0.98rem',
+                  backgroundColor: '#f6fcff',
+                  color: '#223354',
+                  outline: 'none',
+                  transition: 'border 0.2s',
+                  appearance: 'none',
+                  backgroundImage: 'url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D"292.4"%20height%3D"292.4"%3E%3Cpath%20fill%3D"%23223354"%20d%3D"M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z"%2F%3E%3C%2Fsvg%3E")',
+                  backgroundRepeat: 'no-repeat',
+                  backgroundPosition: 'right 0.7rem top 50%',
+                  backgroundSize: '0.65em auto'
+                }}
               >
                 <option value="">Select User Access</option>
                 <option value="Administrator">Administrator</option>
@@ -653,16 +764,25 @@ function AddUserModal({ open, onClose, onAdd }) {
               </select>
             </div>
           </div>
+          
+          {/* Form Actions */}
           <div className="UserManagement-ModalActions">
-            <button type="submit" className="UserManagement-ModalBtn UserManagement-ModalBtn--primary">ADD</button>
-            <button type="button" className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+            <button 
+              type="submit" 
+              className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
+            >
+              ADD
+            </button>
+            <button 
+              type="button" 
+              className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
+              onClick={onClose}
+            >
+              CANCEL
+            </button>
           </div>
         </form>
       </div>
     </div>
   );
 }
-
-
-
-
