@@ -183,46 +183,18 @@ export default function UserManagement() {
         </div>
       )}
       {showDeactivateNotif && (
-        <div className="AssetProperty-EditNotification" style={{
-          background: '#e8eef7',
-          border: '1.7px solid #bfc7d1',
-          borderRadius: '0.5rem',
-          boxShadow: '0 2px 16px rgba(34, 51, 84, 0.13)',
-          padding: '0.7rem 1.1rem',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '0.6rem',
-          zIndex: 2000,
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          minWidth: '260px',
-          maxWidth: '90%'
-        }}>
-          <span style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            flexShrink: 0
-          }}>
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="8" r="4" fill="#223354"/>
-              <path d="M20 19C20 15.13 16.41 12 12 12C7.59 12 4 15.13 4 19" stroke="#223354" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </span>
-          <span style={{
-            fontSize: '0.97rem',
-            color: '#223354',
-            fontWeight: 400,
-            textAlign: 'left',
-            whiteSpace: 'nowrap'
-          }}>
-            {deactivateNotifMessage}
-          </span>
+        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" fill="#223354"/>
+                <path d="M20 19C20 15.13 16.41 12 12 12C7.59 12 4 15.13 4 19" stroke="#223354" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </span>
+            <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
+              {deactivateNotifMessage}
+            </span>
+          </div>
         </div>
       )}
       <AddUserModal open={addModalOpen} onClose={() => setAddModalOpen(false)} onAdd={handleAddUser} />
