@@ -111,83 +111,33 @@ export default function UserManagement() {
   return (
     <div className="User-Management-Container">
       {showAddNotif && (
-        <div className="AssetProperty-EditNotification" style={{
-          background: '#e8eef7',
-          border: '1.7px solid #bfc7d1',
-          borderRadius: '0.5rem',
-          boxShadow: '0 2px 16px rgba(34, 51, 84, 0.13)',
-          padding: '0.7rem 1.1rem',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '0.6rem',
-          zIndex: 2000,
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          minWidth: '260px',
-          maxWidth: '90%'
-        }}>
-          <span style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            flexShrink: 0
-          }}>
-            {UserIcon}
-          </span>
-          <span style={{
-            fontSize: '0.97rem',
-            color: '#223354',
-            fontWeight: 400,
-            textAlign: 'left',
-            whiteSpace: 'nowrap'
-          }}>
-            New User Has Been Added.
-          </span>
-        </div>
-      )}
+  <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+    <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
+      <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8" r="4" fill="#223354" />
+          <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
+        </svg>
+      </span>
+      <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
+        New User Has Been Added.
+      </span>
+    </div>
+  </div>
+)}
       {showUpdateNotif && (
-        <div className="AssetProperty-EditNotification" style={{
-          background: '#e8eef7',
-          border: '1.7px solid #bfc7d1',
-          borderRadius: '0.5rem',
-          boxShadow: '0 2px 16px rgba(34, 51, 84, 0.13)',
-          padding: '0.7rem 1.1rem',
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: '0.6rem',
-          zIndex: 2000,
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          minWidth: '260px',
-          maxWidth: '90%'
-        }}>
-          <span style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '24px',
-            height: '24px',
-            flexShrink: 0
-          }}>
-            {UserIcon}
-          </span>
-          <span style={{
-            fontSize: '0.97rem',
-            color: '#223354',
-            fontWeight: 400,
-            textAlign: 'left',
-            whiteSpace: 'nowrap'
-          }}>
-            User Info Has Been Updated.
-          </span>
+        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" fill="#223354" />
+                <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
+              </svg>
+            </span>
+            <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
+              User Info Has Been Updated.
+            </span>
+          </div>
         </div>
       )}
       {showDeleteNotif && (
@@ -685,6 +635,7 @@ function AddUserModal({ open, onClose, onAdd }) {
                   value={form.employeeId}
                   onChange={handleChange}
                   autoFocus
+                  required
                 />
               </div>
               <div className="UserManagement-FormGroup">
@@ -695,6 +646,7 @@ function AddUserModal({ open, onClose, onAdd }) {
                   name="username"
                   value={form.username}
                   onChange={handleChange}
+                  required
                 />
               </div>
             </div>
@@ -709,6 +661,7 @@ function AddUserModal({ open, onClose, onAdd }) {
                   name="password"
                   value={form.password}
                   onChange={handleChange}
+                  required
                 />
                 <button
                   type="button"
@@ -768,11 +721,12 @@ function AddUserModal({ open, onClose, onAdd }) {
           {/* Form Actions */}
           <div className="UserManagement-ModalActions">
             <button 
-              type="submit" 
-              className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
-            >
-              ADD
-            </button>
+               type="submit" 
+               className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
+               disabled={!form.employeeId || !form.username || !form.password || !form.role}
+             >
+               ADD
+             </button>
             <button 
               type="button" 
               className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
