@@ -1,29 +1,56 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Properties.css';
 
 const TABS = ['Serviceable', 'Unserviceable', 'For Repair', 'Condemned'];
+const API_URLS = {
+  Serviceable: 'http://127.0.0.1:8000/pdpms/manila-city-hall/serviceable-properties/',
+  Unserviceable: 'http://127.0.0.1:8000/pdpms/manila-city-hall/unserviceable-properties/',
+  'For Repair': 'http://127.0.0.1:8000/pdpms/manila-city-hall/for-repair-properties/',
+  Condemned: 'http://127.0.0.1:8000/pdpms/manila-city-hall/condemned-properties/',
+};
 
 export default function Properties() {
   const [activeTab, setActiveTab] = useState('Serviceable');
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  // Sample data
-  const sampleData = [
-    {
-      propertyNo: 'EDP000905',
-      documentNo: 'PDID00000303',
-      parNo: 'PR0032045',
-      description: 'Lenovo Laptop Version 1B',
-      serialNo: 'SRLN0002991230000212',
-      dateAcquired: '10/23/22',
-      unitCost: '65,000.00',
-      endUser: 'Camila Alonzo',
-      estimatedLifeUse: '5 years',
-      status: 'Serviceable',
-      remarks: 'Good condition'
-    }
-  ];
+  // Fetch data when activeTab changes
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true);
+      setError(null);
+      try {
+        const response = await fetch(API_URLS[activeTab]);
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+        const result = await response.json();
+        // Map API data to match component's expected field names
+        const mappedData = result.map(item => ({
+          propertyNo: item.property_no,
+          documentNo: item.document_id,
+          parNo: item.par_no,
+          description: item.description,
+          serialNo: item.serial_no,
+          dateAcquired: item.date_acquired,
+          unitCost: item.unit_cost,
+          endUser: item.end_user,
+          estimatedLifeUse: item.estimated_life_use,
+          status: item.property_status,
+          remarks: item.remarks,
+        }));
+        setData(mappedData);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
+  }, [activeTab]);
 
   // Handle search on input change
   const handleSearch = (value) => {
@@ -39,12 +66,12 @@ export default function Properties() {
   };
 
   // Filter data based on active tab and search keyword
-  const filteredData = sampleData.filter(item => {
+  const filteredData = data.filter(item => {
     const matchesTab = item.status === activeTab;
     if (!searchKeyword) return matchesTab;
     
     return matchesTab && Object.values(item).some(
-      value => value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+      value => value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
     );
   });
 
@@ -73,46 +100,52 @@ export default function Properties() {
           </div>
         </div>
         <div className="Properties-TableWrapper">
-          <table className="Properties-Table">
-            <thead>
-              <tr>
-                <th>Property No.</th>
-                <th>Document No.</th>
-                <th>PAR No.</th>
-                <th>Description</th>
-                <th>Serial No.</th>
-                <th>Date Acquired</th>
-                <th>Unit Cost</th>
-                <th>End User</th>
-                <th>Estimated Life Use</th>
-                <th>Status</th>
-                <th>Remarks</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredData.length === 0 ? (
+          {isLoading ? (
+            <div style={{textAlign: 'center', padding: '2rem', color: '#888'}}>Loading...</div>
+          ) : (
+            <table className="Properties-Table">
+              <thead>
                 <tr>
-                  <td colSpan={11} style={{ textAlign: 'center', color: '#888' }}>No records found.</td>
+                  <th>Property No.</th>
+                  <th>Document No.</th>
+                  <th>PAR No.</th>
+                  <th>Description</th>
+                  <th>Serial No.</th>
+                  <th>Date Acquired</th>
+                  <th>Unit Cost</th>
+                  <th>End User</th>
+                  <th>Estimated Life Use</th>
+                  <th>Status</th>
+                  <th>Remarks</th>
                 </tr>
-              ) : (
-                filteredData.map((row, i) => (
-                  <tr key={i}>
-                    <td>{row.propertyNo}</td>
-                    <td>{row.documentNo}</td>
-                    <td>{row.parNo}</td>
-                    <td>{row.description}</td>
-                    <td>{row.serialNo}</td>
-                    <td>{row.dateAcquired}</td>
-                    <td>{row.unitCost}</td>
-                    <td>{row.endUser}</td>
-                    <td>{row.estimatedLifeUse}</td>
-                    <td>{row.status}</td>
-                    <td>{row.remarks}</td>
+              </thead>
+              <tbody>
+                {filteredData.length === 0 ? (
+                  <tr>
+                    <td colSpan={11} style={{ textAlign: 'center', color: '#888' }}>
+                      No records found.
+                    </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  filteredData.map((row, i) => (
+                    <tr key={i}>
+                      <td>{row.propertyNo}</td>
+                      <td>{row.documentNo}</td>
+                      <td>{row.parNo}</td>
+                      <td>{row.description}</td>
+                      <td>{row.serialNo}</td>
+                      <td>{row.dateAcquired}</td>
+                      <td>{row.unitCost}</td>
+                      <td>{row.endUser}</td>
+                      <td>{row.estimatedLifeUse}</td>
+                      <td>{row.status}</td>
+                      <td>{row.remarks}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>
