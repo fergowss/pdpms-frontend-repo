@@ -7,8 +7,6 @@ import axios from 'axios';
 
 export default function PublicDocument() {
   const [activeTab, setActiveTab] = useState('all');
-  const [allData, setAllData] = useState([]);
-  const [archivingData, setArchivingData] = useState([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -20,36 +18,96 @@ export default function PublicDocument() {
   const [addFollowUpModalOpen, setAddFollowUpModalOpen] = useState(false);
   const [addFollowUpDocId, setAddFollowUpDocId] = useState(null);
   const [showFollowUpNotif, setShowFollowUpNotif] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch documents and archived documents
+  // Data state
+  const [allData, setAllData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [validation, setValidation] = useState({
+    isOpen: false,
+    type: 'error',
+    title: '',
+    message: '',
+  });
+
+  // Fetch documents from the API
   useEffect(() => {
     setIsLoading(true);
-    Promise.all([
-      axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/documents/'),
-      axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/archived-documents/'),
-    ])
-      .then(([docsRes, archRes]) => {
-        setAllData(Array.isArray(docsRes.data) ? docsRes.data : []);
-        setArchivingData(Array.isArray(archRes.data) ? archRes.data : []);
+    axios
+      .get('http://127.0.0.1:8000/pdpms/manila-city-hall/documents/')
+      .then((response) => {
+        const fetchedData = Array.isArray(response.data)
+          ? response.data
+              .filter((item) => item && typeof item === 'object')
+              .map((item) => {
+                if (!item.document_id) return null;
+                return {
+                  id: item.document_id || '',
+                  ref: item.reference_code || '-',
+                  subject: item.subject || '',
+                  type: item.document_type || '',
+                  date: item.document_date || '',
+                  received: item.date_received || '',
+                  receivedBy: item.received_by || '',
+                  status: item.document_status || '',
+                  remarks: item.remarks || '',
+                  file: '#',
+                };
+              })
+              .filter((item) => item !== null)
+          : [];
+        setAllData(fetchedData);
         setIsLoading(false);
       })
-      .catch(error => {
-        console.error('Error fetching documents:', error);
-        setAllData([]);
-        setArchivingData([]);
+      .catch((error) => {
         setIsLoading(false);
+        setValidation({
+          isOpen: true,
+          type: 'error',
+          title: 'Fetch Error',
+          message: 'Failed to load documents. Please check your connection.',
+        });
       });
   }, []);
+
+  // Helper: check if date is more than 5 years old
+  function isOver5Years(dateString) {
+    if (!dateString) return false;
+    let docDate;
+    if (dateString.split('/').length === 3) {
+      // Accept both MM/DD/YY and YYYY-MM-DD
+      if (dateString.includes('-')) {
+        docDate = new Date(dateString);
+      } else {
+        const parts = dateString.split('/');
+        // If year is 2-digit, prefix with 20
+        let year = parts[2];
+        if (year.length === 2) {
+          year = +year < 50 ? '20' + year : '19' + year; // crude century logic
+        }
+        docDate = new Date(`${year}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
+      }
+    } else {
+      docDate = new Date(dateString);
+    }
+    const now = new Date();
+    const yearsDiff = (now - docDate) / (1000 * 60 * 60 * 24 * 365.25);
+    return yearsDiff >= 5;
+  }
+
+  // Archiving data: NOT archived and document date > 5 years ago
+  const archivingData = allData.filter(
+    (row) => row.status !== 'Archived' && isOver5Years(row.date)
+  );
 
   // Get base data based on active tab
   const baseData = activeTab === 'all' ? allData : archivingData;
 
   // Filter data based on search keyword
   const data = searchKeyword
-    ? baseData.filter(row =>
+    ? baseData.filter((row) =>
         Object.values(row).some(
-          value => value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+          (value) =>
+            value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
         )
       )
     : baseData;
@@ -63,6 +121,7 @@ export default function PublicDocument() {
     setShowUpdateNotif(false);
     setShowArchiveNotif(false);
     setShowFollowUpNotif(false);
+    setValidation({ ...validation, isOpen: false });
   };
 
   const handleAddDocument = () => {
@@ -145,6 +204,23 @@ export default function PublicDocument() {
           </div>
         </div>
       )}
+
+      {/* Validation/Error Notification */}
+      {validation.isOpen && (
+        <div className="PublicDocument-EditNotificationOverlay">
+          <div className="PublicDocument-EditNotification">
+            <h3>{validation.title}</h3>
+            <p>{validation.message}</p>
+            <button
+              onClick={() => setValidation({ ...validation, isOpen: false })}
+              style={{ padding: '5px 10px', cursor: 'pointer' }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="PublicDocument-HeaderRow">
         <div className="PublicDocument-HeaderTabs">
           <div
@@ -199,15 +275,15 @@ export default function PublicDocument() {
           </thead>
           <tbody>
             {data.map((row, i) => (
-              <tr key={row.document_id || i} onClick={() => setSelectedRow(row)}>
-                <td>{row.document_id}</td>
-                <td>{row.reference_code || '-'}</td>
+              <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
+                <td>{row.id}</td>
+                <td>{row.ref}</td>
                 <td>{row.subject}</td>
-                <td>{row.document_type}</td>
-                <td>{row.document_date}</td>
-                <td>{row.date_received}</td>
-                <td>{row.received_by}</td>
-                <td>{row.document_status}</td>
+                <td>{row.type}</td>
+                <td>{row.date}</td>
+                <td>{row.received}</td>
+                <td>{row.receivedBy}</td>
+                <td>{row.status}</td>
                 <td>{row.remarks}</td>
                 <td><a href={row.file} className="PublicDocument-PDFLink">View PDF</a></td>
               </tr>
@@ -221,7 +297,7 @@ export default function PublicDocument() {
               <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
               <div className="PublicDocument-EditNotification-Title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem' }}>
                 <span>Manage Document</span>
-                <b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.document_id}?</b>
+                <b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}?</b>
               </div>
               <div style={{ display: 'flex', gap: '0.7rem', justifyContent: 'center' }}>
                 <button className="PublicDocument-EditNotification-EditBtn" onClick={() => {
@@ -232,7 +308,7 @@ export default function PublicDocument() {
                 }}>
                   EDIT
                 </button>
-                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { setAddFollowUpDocId(selectedRow?.document_id); setSelectedRow(null); setAddFollowUpModalOpen(true); }}>
+                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { setAddFollowUpDocId(selectedRow?.id); setSelectedRow(null); setAddFollowUpModalOpen(true); }}>
                   ADD FOLLOW-UP
                 </button>
               </div>
@@ -247,7 +323,7 @@ export default function PublicDocument() {
             <div className="PublicDocument-EditNotification">
               <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
               <div className="PublicDocument-EditNotification-Title">
-                Archive Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.document_id}</b>?
+                Archive Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>?
               </div>
               <button className="PublicDocument-ArchiveBtn" onClick={() => {
                 setSelectedRow(null);
