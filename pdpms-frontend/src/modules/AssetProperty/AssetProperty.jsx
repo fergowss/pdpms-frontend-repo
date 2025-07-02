@@ -4,7 +4,7 @@ import AddPropertyModal from './AddPropertyModal';
 import EditPropertyModal from './EditPropertyModal';
 import axios from 'axios';
 
-// SVG for stack icon
+// SVG for stack icon (from user screenshot)
 const StackIcon = (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="16" width="20" height="4" rx="1" fill="#223354"/>
@@ -219,16 +219,11 @@ export default function AssetProperty() {
       {showAddNotif && (
         <div className="AssetProperty-NotificationOverlay">
           <div className="AssetProperty-NotificationBox">
-            <div
-              className="AssetProperty-NotificationContent"
-              style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center' }}
-            >
+            <div className="AssetProperty-NotificationContent" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
                 {StackIcon}
               </span>
-              <span style={{ fontSize: '0.97rem', color: '#223354', fontWeight: 400 }}>
-                New Asset Property Has Been Added.
-              </span>
+              <span style={{ fontSize: '0.97rem', color: '#223354', fontWeight: 400 }}>New Asset Property Has Been Added.</span>
             </div>
           </div>
         </div>
@@ -236,16 +231,11 @@ export default function AssetProperty() {
       {showUpdateNotif && (
         <div className="AssetProperty-NotificationOverlay">
           <div className="AssetProperty-NotificationBox">
-            <div
-              className="AssetProperty-NotificationContent"
-              style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center' }}
-            >
+            <div className="AssetProperty-NotificationContent" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
                 {StackIcon}
               </span>
-              <span style={{ fontSize: '0.97rem', color: '#223354', fontWeight: 400 }}>
-                Asset Property Has Been Updated.
-              </span>
+              <span style={{ fontSize: '0.97rem', color: '#223354', fontWeight: 400 }}>Asset Property Has Been Updated.</span>
             </div>
           </div>
         </div>
@@ -253,10 +243,7 @@ export default function AssetProperty() {
       {validation.isOpen && (
         <div className="AssetProperty-NotificationOverlay">
           <div className="AssetProperty-NotificationBox">
-            <div
-              className="AssetProperty-NotificationContent"
-              style={{ flexDirection: 'column', gap: '0.6rem', alignItems: 'center' }}
-            >
+            <div className="AssetProperty-NotificationContent" style={{ flexDirection: 'column', gap: '0.6rem', alignItems: 'center' }}>
               <h3>{validation.title}</h3>
               <p>{validation.message}</p>
               <button
