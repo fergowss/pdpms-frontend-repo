@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './UserManagement.css';
 
 // SVG for user icon
@@ -10,30 +11,46 @@ const UserIcon = (
 );
 
 export default function UserManagement() {
-  const users = [
-    { id: 'ADM00001', name: 'Maria Santos', role: 'Administrator', status: 'Activated' },
-    { id: 'DCM00002', name: 'Juan Dela Cruz', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00003', name: 'Andrea Reyes', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00004', name: 'Miguel Tan', role: 'Document Manager', status: 'Deactivated' },
-    { id: 'IA00005', name: 'Sofia Lim', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'ADM00006', name: 'Gabriel Reyes', role: 'Administrator', status: 'Activated' },
-    { id: 'IA00007', name: 'Isabella Ong', role: 'Information Access Officer', status: 'Deactivated' },
-    { id: 'DCM00008', name: 'Luis Garcia', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00009', name: 'Carmen Sy', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'IA00010', name: 'Rafael Ocampo', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00011', name: 'Patricia Chua', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00012', name: 'Eduardo Lim', role: 'Information Access Officer', status: 'Deactivated' },
-    { id: 'ADM00013', name: 'Monica Tan', role: 'Administrator', status: 'Activated' },
-    { id: 'IA00014', name: 'Ricardo Santos', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00015', name: 'Veronica Cruz', role: 'Document Manager', status: 'Deactivated' },
-    { id: 'IA00016', name: 'Fernando Reyes', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'IA00017', name: 'Maricel Tan', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00018', name: 'Roberto Sy', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00019', name: 'Lourdes Lim', role: 'Information Access Officer', status: 'Deactivated' },
-    { id: 'ADM00020', name: 'Antonio Ocampo', role: 'Administrator', status: 'Activated' }
-  ];
-  const [searchKeyword, setSearchKeyword] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [users, setUsers] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState('');
+  const [filteredUsers, setFilteredUsers] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [showAddNotif, setShowAddNotif] = useState(false);
+  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
+  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
+  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
+  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
+  const [userToDeactivate, setUserToDeactivate] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setIsLoading(true);
+        const response = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/users/');
+        // Transform API data to match expected format
+        const transformedUsers = Array.isArray(response.data) ? response.data.map(user => ({
+          id: user.employee_id,
+          name: user.username,
+          role: user.access_level,
+          status: 'Activated' // Synthetic status since API doesn't provide it
+        })) : [];
+        setUsers(transformedUsers);
+        setFilteredUsers(transformedUsers);
+      } catch (err) {
+        console.error('Failed to fetch users:', err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
 
   const handleSearch = () => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -42,12 +59,10 @@ export default function UserManagement() {
       return;
     }
     setFilteredUsers(
-      users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(keyword) ||
-          user.id.toLowerCase().includes(keyword) ||
-          user.role.toLowerCase().includes(keyword) ||
-          user.status.toLowerCase().includes(keyword)
+      users.filter(row =>
+        Object.values(row).some(
+          value => value && value.toString().toLowerCase().includes(keyword)
+        )
       )
     );
   };
@@ -57,19 +72,6 @@ export default function UserManagement() {
       handleSearch();
     }
   };
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [showAddNotif, setShowAddNotif] = useState(false);
-  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
-  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
-  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
-  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
-  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
-  const [userToDeactivate, setUserToDeactivate] = useState(null);
-  
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
 
   // Handler for when a user is added
   const handleAddUser = () => {
@@ -111,20 +113,20 @@ export default function UserManagement() {
   return (
     <div className="User-Management-Container">
       {showAddNotif && (
-  <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
-    <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
-      <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="8" r="4" fill="#223354" />
-          <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
-        </svg>
-      </span>
-      <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
-        New User Has Been Added.
-      </span>
-    </div>
-  </div>
-)}
+        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" fill="#223354" />
+                <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
+              </svg>
+            </span>
+            <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
+              New User Has Been Added.
+            </span>
+          </div>
+        </div>
+      )}
       {showUpdateNotif && (
         <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
@@ -211,94 +213,104 @@ export default function UserManagement() {
         </div>
       </div>
       <div className="UserManagement-TableOuter">
-        <div className="UserManagement-TableWrapper">
-          <table className="UserManagement-Table">
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Username</th>
-                <th>User Access</th>
-                <th>Status</th>
-                <th>Reactivate/Deactivate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user, idx) => (
-                <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
-                  <td>{user.id}</td>
-                  <td>{user.name}</td>
-                  <td>{user.role}</td>
-                  <td>
-                    <span className={`UserManagement-Status-${user.status === 'Activated' ? 'Activated' : 'Deactivated'}`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} 
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleDeactivateUser(user);
-                      }}
-                    >
-                      {user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}
-                    </button>
-                  </td>
+        {isLoading ? (
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>Loading...</div>
+        ) : (
+          <div className="UserManagement-TableWrapper">
+            <table className="UserManagement-Table">
+              <thead>
+                <tr>
+                  <th>Employee ID</th>
+                  <th>Username</th>
+                  <th>User Access</th>
+                  <th>Status</th>
+                  <th>Reactivate/Deactivate</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center', color: '#888' }}>No records found.</td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((user, idx) => (
+                    <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
+                      <td>{user.id}</td>
+                      <td>{user.name}</td>
+                      <td>{user.role}</td>
+                      <td>
+                        <span className={`UserManagement-Status-${user.status === 'Activated' ? 'Activated' : 'Deactivated'}`}>
+                          {user.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button 
+                          className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} 
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleDeactivateUser(user);
+                          }}
+                        >
+                          {user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
         <div className="UserManagement-AddUserRow">
           <button className="UserManagement-AddUser" onClick={() => setAddModalOpen(true)}>ADD USER</button>
         </div>
       </div>
     
-    <EditUserModal
-      open={editModalOpen}
-      onClose={() => setEditModalOpen(false)}
-      onUpdate={handleUpdateUser}
-      user={selectedUser}
-    />
-    <DeleteUserModal
-      open={deleteModalOpen}
-      onClose={() => setDeleteModalOpen(false)}
-      user={userToDelete}
-      onConfirm={handleDeleteUser}
-    />
+      <EditUserModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onUpdate={handleUpdateUser}
+        user={selectedUser}
+      />
+      <DeleteUserModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        user={userToDelete}
+        onConfirm={handleDeleteUser}
+      />
     
-    {/* Deactivate Confirmation Modal */}
-    {deactivateModalOpen && userToDeactivate && (
-      <div className="UserManagement-ModalOverlay" onClick={() => setDeactivateModalOpen(false)}>
-        <div className="UserManagement-DeactivateModalBox" onClick={e => e.stopPropagation()}>
-          <button 
-            className="UserManagement-DeactivateModalClose" 
-            onClick={() => setDeactivateModalOpen(false)}
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <div className="UserManagement-DeactivateModalContent">
-            <div 
-              className="UserManagement-DeactivateModalSubtext"
-              dangerouslySetInnerHTML={{
-                __html: userToDeactivate.status === 'Activated'
-                  ? `Are you sure you want to deactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
-                  : `Are you sure you want to reactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
-              }}
-            />
-          </div>
-          <div className="UserManagement-DeactivateModalActions">
+      {/* Deactivate Confirmation Modal */}
+      {deactivateModalOpen && userToDeactivate && (
+        <div className="UserManagement-ModalOverlay" onClick={() => setDeactivateModalOpen(false)}>
+          <div className="UserManagement-DeactivateModalBox" onClick={e => e.stopPropagation()}>
             <button 
-              className={`UserManagement-DeactivateModalBtn UserManagement-DeactivateModalBtn--${userToDeactivate.status === 'Activated' ? 'deactivate' : 'reactivate'}`}
-              onClick={confirmDeactivate}
+              className="UserManagement-DeactivateModalClose" 
+              onClick={() => setDeactivateModalOpen(false)}
+              aria-label="Close"
             >
-              {userToDeactivate.status === 'Activated' ? 'DEACTIVATE' : 'REACTIVATE'}
+              ×
             </button>
+            <div className="UserManagement-DeactivateModalContent">
+              <div 
+                className="UserManagement-DeactivateModalSubtext"
+                dangerouslySetInnerHTML={{
+                  __html: userToDeactivate.status === 'Activated'
+                    ? `Are you sure you want to deactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+                    : `Are you sure you want to reactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+                }}
+              />
+            </div>
+            <div className="UserManagement-DeactivateModalActions">
+              <button 
+                className={`UserManagement-DeactivateModalBtn UserManagement-DeactivateModalBtn--${userToDeactivate.status === 'Activated' ? 'deactivate' : 'reactivate'}`}
+                onClick={confirmDeactivate}
+              >
+                {userToDeactivate.status === 'Activated' ? 'DEACTIVATE' : 'REACTIVATE'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
     </div>
   );
 }
@@ -580,11 +592,11 @@ function AddUserModal({ open, onClose, onAdd }) {
   return (
     <div className="UserManagement-ModalOverlay">
       <div className="UserManagement-ModalBox">
-      <form className="UserManagement-ModalForm UserManagement-AddUserForm" onSubmit={handleSubmit} autoComplete="off" style={{          display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            gap: '1.2rem'
-          }}>
+        <form className="UserManagement-ModalForm UserManagement-AddUserForm" onSubmit={handleSubmit} autoComplete="off" style={{          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          gap: '1.2rem'
+        }}>
           <div className="UserManagement-ModalGrid" style={{
             display: 'flex',
             flexDirection: 'column',
@@ -693,12 +705,12 @@ function AddUserModal({ open, onClose, onAdd }) {
           {/* Form Actions */}
           <div className="UserManagement-ModalActions">
             <button 
-               type="submit" 
-               className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
-               disabled={!form.employeeId || !form.username || !form.password || !form.role}
-             >
-               ADD
-             </button>
+              type="submit" 
+              className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
+              disabled={!form.employeeId || !form.username || !form.password || !form.role}
+            >
+              ADD
+            </button>
             <button 
               type="button" 
               className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
