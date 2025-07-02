@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Properties.css';
 
 const TABS = ['Serviceable', 'Unserviceable', 'For Repair', 'Condemned'];
@@ -23,11 +24,8 @@ export default function Properties() {
       setIsLoading(true);
       setError(null);
       try {
-        const response = await fetch(API_URLS[activeTab]);
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const result = await response.json();
+        const response = await axios.get(API_URLS[activeTab]);
+        const result = response.data;
         // Map API data to match component's expected field names
         const mappedData = result.map(item => ({
           propertyNo: item.property_no,
