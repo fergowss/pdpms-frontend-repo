@@ -22,7 +22,7 @@ export default function AssetProperty() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
-  const [data, setData] = useState([]);
+  const [allData, setAllData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [validation, setValidation] = useState({
     isOpen: false,
@@ -68,7 +68,7 @@ export default function AssetProperty() {
               })
               .filter((item) => item !== null) // Remove invalid records
           : [];
-        setData(fetchedData);
+        setAllData(fetchedData);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -91,13 +91,13 @@ export default function AssetProperty() {
 
   // Filter data based on search keyword with defensive checks
   const filteredData = searchKeyword
-    ? data.filter((item) =>
+    ? allData.filter((item) =>
         item &&
         Object.values(item).some((val) =>
           val != null ? val.toString().toLowerCase().includes(searchKeyword.toLowerCase()) : false
         )
       )
-    : data;
+    : allData;
 
   // Handler for when a property is added
   const handleAddProperty = async (newProperty) => {
@@ -116,7 +116,7 @@ export default function AssetProperty() {
         remarks: newProperty.remarks,
       };
       const response = await axios.post(PROPERTIES_ENDPOINT, backendProperty);
-      setData((prevData) => [
+      setAllData((prevData) => [
         ...prevData,
         {
           propertyNo: response.data.property_no,
@@ -163,7 +163,7 @@ export default function AssetProperty() {
         remarks: updatedData.remarks,
       };
       await axios.put(`${PROPERTIES_ENDPOINT}${updatedData.propertyNo}/`, backendUpdate);
-      setData((prevData) =>
+      setAllData((prevData) =>
         prevData.map((item) =>
           item.propertyNo === selectedRow.propertyNo
             ? {
