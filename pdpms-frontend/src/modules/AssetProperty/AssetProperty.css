@@ -189,13 +189,13 @@
   min-width: 5rem;
 }
 
-.AssetProperty-Status.active {
+.AssetProperty-Status.serviceable {
   background-color: #e3f5e5;
   color: #00a854;
   border: 1px solid #b7eb8f;
 }
 
-.AssetProperty-Status.inactive {
+.AssetProperty-Status.unserviceable {
   background-color: #fff1f0;
   color: #f5222d;
   border: 1px solid #ffa39e;
@@ -207,7 +207,7 @@
   border: 1px solid #ffd591;
 }
 
-.AssetProperty-Status.disposed {
+.AssetProperty-Status.condemned {
   background-color: #e6f7ff;
   color: #1890ff;
   border: 1px solid #91d5ff;
