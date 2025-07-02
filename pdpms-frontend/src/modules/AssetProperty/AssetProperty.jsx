@@ -46,12 +46,9 @@ export default function AssetProperty() {
         // Map backend fields to frontend fields, with validation
         const fetchedData = Array.isArray(response.data)
           ? response.data
-              .filter((item) => item && typeof item === 'object') // Ensure item is valid
+              .filter((item) => item && typeof item === 'object')
               .map((item, index) => {
-                if (!item.property_no) {
-                  console.warn(`Invalid record at index ${index}: missing property_no`, item);
-                  return null;
-                }
+                if (!item.property_no) return null;
                 return {
                   propertyNo: item.property_no || '',
                   documentNo: item.document_id || '',
@@ -62,7 +59,7 @@ export default function AssetProperty() {
                   unitCost: item.unit_cost != null ? item.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '',
                   endUser: item.end_user || '',
                   estimatedLife: item.estimated_life_use != null ? item.estimated_life_use.toString() : '',
-                  status: item.property_status || 'Unknown', // Default to 'Unknown' if undefined
+                  status: item.property_status || 'Unknown',  // Default to 'Unknown' if undefined
                   remarks: item.remarks || '',
                 };
               })
@@ -112,7 +109,7 @@ export default function AssetProperty() {
         unit_cost: newProperty.unitCost ? parseFloat(newProperty.unitCost) : null,
         end_user: newProperty.endUser,
         estimated_life_use: newProperty.estimatedLife ? parseInt(newProperty.estimatedLife) : null,
-        property_status: newProperty.status || 'Serviceable', // Default status
+        property_status: newProperty.status || 'Serviceable',
         remarks: newProperty.remarks,
       };
       const response = await axios.post(PROPERTIES_ENDPOINT, backendProperty);
@@ -206,14 +203,6 @@ export default function AssetProperty() {
     setShowUpdateNotif(false);
   };
 
-  // Loading spinner component
-  const LoadingSpinner = () => (
-    <div className="flex justify-center items-center p-8">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      <p className="ml-4 text-gray-600">Loading properties...</p>
-    </div>
-  );
-
   return (
     <div className="AssetProperty-Container">
       {showAddNotif && (
@@ -275,7 +264,9 @@ export default function AssetProperty() {
 
       <div className="AssetProperty-TableContainer">
         {isLoading ? (
-          <LoadingSpinner />
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
+            Loading...
+          </div>
         ) : filteredData.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
             No records found.
