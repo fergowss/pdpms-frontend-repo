@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import '../../PublicDocument/PublicDocument.css'; // Reuse modal styles
 
 export default function AddEmployeeModal({ open, onClose, onAdd }) {
@@ -20,11 +21,23 @@ export default function AddEmployeeModal({ open, onClose, onAdd }) {
 
   const isFormValid = Object.values(form).every(v => v && v.trim() !== '');
 
-  const handleSubmit = e => {
+  const handleSubmit = async e => {
     e.preventDefault();
     if (!isFormValid) return;
-    if (onAdd) onAdd(form);
-    onClose();
+    try {
+      await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/employees/', {
+        employee_id: form.employeeId,
+        first_name: form.firstName,
+        last_name: form.lastName,
+        position_title: form.position,
+        contact_no: form.contact,
+        employee_status: form.status,
+      });
+      if (onAdd) onAdd(form);
+      onClose();
+    } catch (error) {
+      alert('Failed to add employee. Please try again.');
+    }
   };
 
   return (
