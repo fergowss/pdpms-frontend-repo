@@ -311,8 +311,39 @@ export default function AssetProperty() {
                   <td>{row.propertyNo}</td>
                   <td>{row.documentNo}</td>
                   <td>{row.parNo}</td>
-                  <td>{row.description}</td>
-                  <td>{row.serialNo}</td>
+                  <td className="description-cell">
+                    {row.description.includes('"ASUS POWERLOGIC') 
+                      ? row.description.replace('"ASUS POWERLOGIC', '\n"ASUS POWERLOGIC')
+                      : row.description
+                    }
+                  </td>
+                  <td className="serial-no-cell">
+                    {row.serialNo
+                      ? row.serialNo.split(',').map((part, idx, arr) => {
+                          const trimmedPart = part.trim();
+                          // If the part contains a quote, it's a component name
+                          if (trimmedPart.includes('"') && !trimmedPart.endsWith('"')) {
+                            // This is a component name, format it with the next part
+                            const nextPart = arr[idx + 1] ? arr[idx + 1].trim() : '';
+                            return (
+                              <div key={idx} style={{ marginBottom: '4px' }}>
+                                {trimmedPart.replace(/"/g, '')} {nextPart}
+                              </div>
+                            );
+                          }
+                          // Skip if this is a serial number that was already included with its component
+                          if (idx > 0 && arr[idx - 1].includes('"') && !arr[idx - 1].endsWith('"')) {
+                            return null;
+                          }
+                          // For any remaining parts that don't match the pattern
+                          return (
+                            <div key={idx} style={{ marginBottom: '4px' }}>
+                              {trimmedPart}
+                            </div>
+                          );
+                        })
+                      : ''}
+                  </td>
                   <td>{row.dateAcquired}</td>
                   <td>{row.unitCost}</td>
                   <td>{row.endUser}</td>
