@@ -25,6 +25,7 @@ export default function UserManagement() {
         // Transform API data to match table structure
         const transformed = Array.isArray(data) ? data.map(u => ({
           id: u.employee_id,
+          username: u.username,
           name: u.username,
           role: u.access_level,
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
@@ -47,6 +48,7 @@ export default function UserManagement() {
         const data = res.data;
         const transformed = Array.isArray(data) ? data.map(u => ({
           id: u.employee_id,
+          username: u.username, // <-- add this
           name: u.username,
           role: u.access_level,
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
@@ -119,10 +121,27 @@ export default function UserManagement() {
   };
 
   // Handler for when a user is updated
-  const handleUpdateUser = () => {
-    setEditModalOpen(false);
-    setShowUpdateNotif(true);
-    setTimeout(() => setShowUpdateNotif(false), 3000);
+  const handleUpdateUser = async (form) => {
+    try {
+      await axios.put(
+        `http://127.0.0.1:8000/pdpms/manila-city-hall/users/${form.username}/`,
+        {
+          username: form.username,
+          employee_id: form.employeeId,
+          current_password: form.currentPassword, // <-- send this
+          user_password: form.newPassword,
+          access_level: form.role,
+          user_status: 'Active'
+        }
+      );
+      setEditModalOpen(false);
+      setShowUpdateNotif(true);
+      fetchUsers();
+      setTimeout(() => setShowUpdateNotif(false), 3000);
+    } catch (error) {
+      console.error('Update user error:', error.response ? error.response.data : error.message);
+      alert('Failed to update user. ' + (error.response?.data?.detail || 'Please check your input and try again.'));
+    }
   };
 
   // Handler for when a user is deleted
@@ -433,7 +452,7 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
 
   const handleSubmit = e => {
     e.preventDefault();
-    if (onUpdate) onUpdate();
+    if (onUpdate) onUpdate(form);
     onClose();
   };
 
