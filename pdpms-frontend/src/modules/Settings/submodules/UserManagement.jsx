@@ -12,44 +12,32 @@ const UserIcon = (
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
-  const [searchKeyword, setSearchKeyword] = useState('');
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [searchKeyword, setSearchKeyword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [showAddNotif, setShowAddNotif] = useState(false);
-  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
-  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
-  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
-  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
-  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
-  const [userToDeactivate, setUserToDeactivate] = useState(null);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
 
+  // Fetch users from API
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setIsLoading(true);
-        const response = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/users/');
-        // Transform API data to match expected format
-        const transformedUsers = Array.isArray(response.data) ? response.data.map(user => ({
-          id: user.employee_id,
-          name: user.username,
-          role: user.access_level,
-          status: 'Activated' // Synthetic status since API doesn't provide it
+    setIsLoading(true);
+    axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/users/')
+      .then(res => {
+        const data = res.data;
+        // Transform API data to match table structure
+        const transformed = Array.isArray(data) ? data.map(u => ({
+          id: u.employee_id,
+          name: u.username,
+          role: u.access_level,
+          status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
         })) : [];
-        setUsers(transformedUsers);
-        setFilteredUsers(transformedUsers);
-      } catch (err) {
-        console.error('Failed to fetch users:', err);
-      } finally {
+        setUsers(transformed);
+        setFilteredUsers(transformed);
         setIsLoading(false);
-      }
-    };
-
-    fetchUsers();
+      })
+      .catch(err => {
+        setIsLoading(false);
+        setUsers([]);
+        setFilteredUsers([]);
+      });
   }, []);
 
   const handleSearch = () => {
@@ -59,10 +47,12 @@ export default function UserManagement() {
       return;
     }
     setFilteredUsers(
-      users.filter(row =>
-        Object.values(row).some(
-          value => value && value.toString().toLowerCase().includes(keyword)
-        )
+      users.filter(
+        (user) =>
+          user.name.toLowerCase().includes(keyword) ||
+          user.id.toLowerCase().includes(keyword) ||
+          user.role.toLowerCase().includes(keyword) ||
+          user.status.toLowerCase().includes(keyword)
       )
     );
   };
@@ -72,6 +62,19 @@ export default function UserManagement() {
       handleSearch();
     }
   };
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [showAddNotif, setShowAddNotif] = useState(false);
+  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
+  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
+  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
+  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
+  const [userToDeactivate, setUserToDeactivate] = useState(null);
+  
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
   // Handler for when a user is added
   const handleAddUser = () => {
@@ -113,20 +116,20 @@ export default function UserManagement() {
   return (
     <div className="User-Management-Container">
       {showAddNotif && (
-        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
-          <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
-            <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="8" r="4" fill="#223354" />
-                <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
-              </svg>
-            </span>
-            <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
-              New User Has Been Added.
-            </span>
-          </div>
-        </div>
-      )}
+  <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+    <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
+      <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="12" cy="8" r="4" fill="#223354" />
+          <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
+        </svg>
+      </span>
+      <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
+        New User Has Been Added.
+      </span>
+    </div>
+  </div>
+)}
       {showUpdateNotif && (
         <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
@@ -213,10 +216,10 @@ export default function UserManagement() {
         </div>
       </div>
       <div className="UserManagement-TableOuter">
-        {isLoading ? (
-          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>Loading...</div>
-        ) : (
-          <div className="UserManagement-TableWrapper">
+        <div className="UserManagement-TableWrapper">
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>Loading...</div>
+          ) : (
             <table className="UserManagement-Table">
               <thead>
                 <tr>
@@ -259,58 +262,58 @@ export default function UserManagement() {
                 )}
               </tbody>
             </table>
-          </div>
-        )}
+          )}
+        </div>
         <div className="UserManagement-AddUserRow">
           <button className="UserManagement-AddUser" onClick={() => setAddModalOpen(true)}>ADD USER</button>
         </div>
       </div>
     
-      <EditUserModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        onUpdate={handleUpdateUser}
-        user={selectedUser}
-      />
-      <DeleteUserModal
-        open={deleteModalOpen}
-        onClose={() => setDeleteModalOpen(false)}
-        user={userToDelete}
-        onConfirm={handleDeleteUser}
-      />
+    <EditUserModal
+      open={editModalOpen}
+      onClose={() => setEditModalOpen(false)}
+      onUpdate={handleUpdateUser}
+      user={selectedUser}
+    />
+    <DeleteUserModal
+      open={deleteModalOpen}
+      onClose={() => setDeleteModalOpen(false)}
+      user={userToDelete}
+      onConfirm={handleDeleteUser}
+    />
     
-      {/* Deactivate Confirmation Modal */}
-      {deactivateModalOpen && userToDeactivate && (
-        <div className="UserManagement-ModalOverlay" onClick={() => setDeactivateModalOpen(false)}>
-          <div className="UserManagement-DeactivateModalBox" onClick={e => e.stopPropagation()}>
+    {/* Deactivate Confirmation Modal */}
+    {deactivateModalOpen && userToDeactivate && (
+      <div className="UserManagement-ModalOverlay" onClick={() => setDeactivateModalOpen(false)}>
+        <div className="UserManagement-DeactivateModalBox" onClick={e => e.stopPropagation()}>
+          <button 
+            className="UserManagement-DeactivateModalClose" 
+            onClick={() => setDeactivateModalOpen(false)}
+            aria-label="Close"
+          >
+            ×
+          </button>
+          <div className="UserManagement-DeactivateModalContent">
+            <div 
+              className="UserManagement-DeactivateModalSubtext"
+              dangerouslySetInnerHTML={{
+                __html: userToDeactivate.status === 'Activated'
+                  ? `Are you sure you want to deactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+                  : `Are you sure you want to reactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+              }}
+            />
+          </div>
+          <div className="UserManagement-DeactivateModalActions">
             <button 
-              className="UserManagement-DeactivateModalClose" 
-              onClick={() => setDeactivateModalOpen(false)}
-              aria-label="Close"
+              className={`UserManagement-DeactivateModalBtn UserManagement-DeactivateModalBtn--${userToDeactivate.status === 'Activated' ? 'deactivate' : 'reactivate'}`}
+              onClick={confirmDeactivate}
             >
-              ×
+              {userToDeactivate.status === 'Activated' ? 'DEACTIVATE' : 'REACTIVATE'}
             </button>
-            <div className="UserManagement-DeactivateModalContent">
-              <div 
-                className="UserManagement-DeactivateModalSubtext"
-                dangerouslySetInnerHTML={{
-                  __html: userToDeactivate.status === 'Activated'
-                    ? `Are you sure you want to deactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
-                    : `Are you sure you want to reactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
-                }}
-              />
-            </div>
-            <div className="UserManagement-DeactivateModalActions">
-              <button 
-                className={`UserManagement-DeactivateModalBtn UserManagement-DeactivateModalBtn--${userToDeactivate.status === 'Activated' ? 'deactivate' : 'reactivate'}`}
-                onClick={confirmDeactivate}
-              >
-                {userToDeactivate.status === 'Activated' ? 'DEACTIVATE' : 'REACTIVATE'}
-              </button>
-            </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
     </div>
   );
 }
@@ -592,11 +595,11 @@ function AddUserModal({ open, onClose, onAdd }) {
   return (
     <div className="UserManagement-ModalOverlay">
       <div className="UserManagement-ModalBox">
-        <form className="UserManagement-ModalForm UserManagement-AddUserForm" onSubmit={handleSubmit} autoComplete="off" style={{          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          gap: '1.2rem'
-        }}>
+      <form className="UserManagement-ModalForm UserManagement-AddUserForm" onSubmit={handleSubmit} autoComplete="off" style={{          display: 'flex',
+            flexDirection: 'column',
+            width: '100%',
+            gap: '1.2rem'
+          }}>
           <div className="UserManagement-ModalGrid" style={{
             display: 'flex',
             flexDirection: 'column',
@@ -705,12 +708,12 @@ function AddUserModal({ open, onClose, onAdd }) {
           {/* Form Actions */}
           <div className="UserManagement-ModalActions">
             <button 
-              type="submit" 
-              className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
-              disabled={!form.employeeId || !form.username || !form.password || !form.role}
-            >
-              ADD
-            </button>
+               type="submit" 
+               className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
+               disabled={!form.employeeId || !form.username || !form.password || !form.role}
+             >
+               ADD
+             </button>
             <button 
               type="button" 
               className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
