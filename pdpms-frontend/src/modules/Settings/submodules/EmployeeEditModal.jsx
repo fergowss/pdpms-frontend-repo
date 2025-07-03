@@ -135,10 +135,12 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             <label className="EmployeeEditModal-Label">Employee Status</label>
             <select className="EmployeeEditModal-Input" name="status" value={form.status} onChange={handleChange}>
               <option value="">Select Status</option>
-              <option value="Job Order">Job Order</option>
               <option value="Active">Active</option>
-              <option value="On Leave">On Leave</option>
-              <option value="Inactive">Inactive</option>
+              <option value="Resigned">Resigned</option>
+              <option value="Maternity Leave">Maternity Leave</option>
+              <option value="Terminated">Terminated</option>
+              <option value="Vacation Leave">Vacation Leave</option>
+              <option value="Emergency Leave">Emergency Leave</option>
             </select>
           </div>
           <div className="EmployeeEditModal-Actions">
