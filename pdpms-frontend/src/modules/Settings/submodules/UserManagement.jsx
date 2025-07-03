@@ -612,7 +612,7 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                 }}
               >
                 <option value="">User Access</option>
-                <option value="Administrator">Administrator</option>
+                <option value="Admin">Admin</option>
                 <option value="Document Manager">Document Manager</option>
                 <option value="Information Access Officer">Information Access Officer</option>
               </select>
@@ -772,7 +772,7 @@ function AddUserModal({ open, onClose, onAdd }) {
                 }}
               >
                 <option value="">Select User Access</option>
-                <option value="Administrator">Administrator</option>
+                <option value="Admin">Admin</option>
                 <option value="Document Manager">Document Manager</option>
                 <option value="Information Access Officer">Information Access Officer</option>
               </select>
