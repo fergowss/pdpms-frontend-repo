@@ -159,12 +159,32 @@ export default function UserManagement() {
   };
 
   const confirmDeactivate = () => {
-    // TODO: Implement actual deactivation logic
-    const wasActivated = userToDeactivate.status === 'Activated';
-    setDeactivateModalOpen(false);
-    setDeactivateNotifMessage(wasActivated ? 'User Has Been Deactivated.' : 'User Has Been Reactivated.');
-    setShowDeactivateNotif(true);
-    setTimeout(() => setShowDeactivateNotif(false), 3000);
+    if (userToDeactivate) {
+      handleToggleUserStatus(userToDeactivate);
+    }
+  };
+
+  const handleToggleUserStatus = async (user) => {
+    const newStatus = user.status === 'Activated' ? 'Deactivated' : 'Activated';
+    try {
+      await axios.patch(
+        `http://127.0.0.1:8000/pdpms/manila-city-hall/users/${user.username}/`,
+        {
+          user_status: newStatus === 'Activated' ? 'Active' : 'Deactivated'
+        }
+      );
+      setDeactivateModalOpen(false);
+      setDeactivateNotifMessage(
+        newStatus === 'Activated'
+          ? 'User Has Been Reactivated.'
+          : 'User Has Been Deactivated.'
+      );
+      setShowDeactivateNotif(true);
+      fetchUsers();
+      setTimeout(() => setShowDeactivateNotif(false), 3000);
+    } catch (error) {
+      alert('Failed to update user status.');
+    }
   };
 
   return (
