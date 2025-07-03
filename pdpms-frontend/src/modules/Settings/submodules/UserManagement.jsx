@@ -104,13 +104,13 @@ export default function UserManagement() {
       await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/users/', {
         employee_id: form.employeeId,
         username: form.username,
-        user_password: form.password, // must match backend
+        user_password: form.password, 
         access_level: form.role,
         user_status: "Active"
       });
       setAddModalOpen(false);
       setShowAddNotif(true);
-      fetchUsers(); // <-- Add this line to refresh the table
+      fetchUsers(); 
       setTimeout(() => setShowAddNotif(false), 3000);
     } catch (error) {
       console.error('Add user error:', error.response ? error.response.data : error.message);
