@@ -48,7 +48,7 @@ export default function UserManagement() {
         const data = res.data;
         const transformed = Array.isArray(data) ? data.map(u => ({
           id: u.employee_id,
-          username: u.username, // <-- add this
+          username: u.username,
           name: u.username,
           role: u.access_level,
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
@@ -128,7 +128,7 @@ export default function UserManagement() {
         {
           username: form.username,
           employee_id: form.employeeId,
-          current_password: form.currentPassword, // <-- send this
+          current_password: form.currentPassword,
           user_password: form.newPassword,
           access_level: form.role,
           user_status: 'Active'
