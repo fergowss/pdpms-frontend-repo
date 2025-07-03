@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './EmployeeEditModal.css';
 
 export default function EmployeeEditModal({ open, employee, onClose, onUpdate }) {
@@ -43,11 +44,26 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isFormChanged()) {
-      onUpdate(form);
-      onClose();
+      try {
+        await axios.put(
+          `http://127.0.0.1:8000/pdpms/manila-city-hall/employees/${form.employeeId}/`,
+          {
+            employee_id: form.employeeId,
+            first_name: form.firstName,
+            last_name: form.lastName,
+            position_title: form.position,
+            contact_no: form.contact,
+            employee_status: form.status,
+          }
+        );
+        onUpdate(form);
+        onClose();
+      } catch (error) {
+        alert('Failed to update employee. Please try again.');
+      }
     }
   };
 
@@ -119,10 +135,12 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             <label className="EmployeeEditModal-Label">Employee Status</label>
             <select className="EmployeeEditModal-Input" name="status" value={form.status} onChange={handleChange}>
               <option value="">Select Status</option>
-              <option value="Job Order">Job Order</option>
               <option value="Active">Active</option>
-              <option value="On Leave">On Leave</option>
-              <option value="Inactive">Inactive</option>
+              <option value="Resigned">Resigned</option>
+              <option value="Maternity Leave">Maternity Leave</option>
+              <option value="Terminated">Terminated</option>
+              <option value="Vacation Leave">Vacation Leave</option>
+              <option value="Emergency Leave">Emergency Leave</option>
             </select>
           </div>
           <div className="EmployeeEditModal-Actions">

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './UserManagement.css';
 
 // SVG for user icon
@@ -10,30 +11,34 @@ const UserIcon = (
 );
 
 export default function UserManagement() {
-  const users = [
-    { id: 'ADM00001', name: 'Maria Santos', role: 'Administrator', status: 'Activated' },
-    { id: 'DCM00002', name: 'Juan Dela Cruz', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00003', name: 'Andrea Reyes', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00004', name: 'Miguel Tan', role: 'Document Manager', status: 'Deactivated' },
-    { id: 'IA00005', name: 'Sofia Lim', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'ADM00006', name: 'Gabriel Reyes', role: 'Administrator', status: 'Activated' },
-    { id: 'IA00007', name: 'Isabella Ong', role: 'Information Access Officer', status: 'Deactivated' },
-    { id: 'DCM00008', name: 'Luis Garcia', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00009', name: 'Carmen Sy', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'IA00010', name: 'Rafael Ocampo', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00011', name: 'Patricia Chua', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00012', name: 'Eduardo Lim', role: 'Information Access Officer', status: 'Deactivated' },
-    { id: 'ADM00013', name: 'Monica Tan', role: 'Administrator', status: 'Activated' },
-    { id: 'IA00014', name: 'Ricardo Santos', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00015', name: 'Veronica Cruz', role: 'Document Manager', status: 'Deactivated' },
-    { id: 'IA00016', name: 'Fernando Reyes', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'IA00017', name: 'Maricel Tan', role: 'Information Access Officer', status: 'Activated' },
-    { id: 'DCM00018', name: 'Roberto Sy', role: 'Document Manager', status: 'Activated' },
-    { id: 'IA00019', name: 'Lourdes Lim', role: 'Information Access Officer', status: 'Deactivated' },
-    { id: 'ADM00020', name: 'Antonio Ocampo', role: 'Administrator', status: 'Activated' }
-  ];
+  const [users, setUsers] = useState([]);
+  const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [filteredUsers, setFilteredUsers] = useState(users);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Fetch users from API
+  useEffect(() => {
+    setIsLoading(true);
+    axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/users/')
+      .then(res => {
+        const data = res.data;
+        // Transform API data to match table structure
+        const transformed = Array.isArray(data) ? data.map(u => ({
+          id: u.employee_id,
+          name: u.username,
+          role: u.access_level,
+          status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
+        })) : [];
+        setUsers(transformed);
+        setFilteredUsers(transformed);
+        setIsLoading(false);
+      })
+      .catch(err => {
+        setIsLoading(false);
+        setUsers([]);
+        setFilteredUsers([]);
+      });
+  }, []);
 
   const handleSearch = () => {
     const keyword = searchKeyword.trim().toLowerCase();
@@ -212,42 +217,52 @@ export default function UserManagement() {
       </div>
       <div className="UserManagement-TableOuter">
         <div className="UserManagement-TableWrapper">
-          <table className="UserManagement-Table">
-            <thead>
-              <tr>
-                <th>Employee ID</th>
-                <th>Username</th>
-                <th>User Access</th>
-                <th>Status</th>
-                <th>Reactivate/Deactivate</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredUsers.map((user, idx) => (
-                <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
-                  <td>{user.id}</td>
-                  <td>{user.name}</td>
-                  <td>{user.role}</td>
-                  <td>
-                    <span className={`UserManagement-Status-${user.status === 'Activated' ? 'Activated' : 'Deactivated'}`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td>
-                    <button 
-                      className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} 
-                      onClick={e => {
-                        e.stopPropagation();
-                        handleDeactivateUser(user);
-                      }}
-                    >
-                      {user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}
-                    </button>
-                  </td>
+          {isLoading ? (
+            <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>Loading...</div>
+          ) : (
+            <table className="UserManagement-Table">
+              <thead>
+                <tr>
+                  <th>Employee ID</th>
+                  <th>Username</th>
+                  <th>User Access</th>
+                  <th>Status</th>
+                  <th>Reactivate/Deactivate</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan={5} style={{ textAlign: 'center', color: '#888' }}>No records found.</td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((user, idx) => (
+                    <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
+                      <td>{user.id}</td>
+                      <td>{user.name}</td>
+                      <td>{user.role}</td>
+                      <td>
+                        <span className={`UserManagement-Status-${user.status === 'Activated' ? 'Activated' : 'Deactivated'}`}>
+                          {user.status}
+                        </span>
+                      </td>
+                      <td>
+                        <button 
+                          className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} 
+                          onClick={e => {
+                            e.stopPropagation();
+                            handleDeactivateUser(user);
+                          }}
+                        >
+                          {user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
         <div className="UserManagement-AddUserRow">
           <button className="UserManagement-AddUser" onClick={() => setAddModalOpen(true)}>ADD USER</button>
