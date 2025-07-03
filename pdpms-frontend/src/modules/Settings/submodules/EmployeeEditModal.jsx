@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import './EmployeeEditModal.css';
 
 export default function EmployeeEditModal({ open, employee, onClose, onUpdate }) {
@@ -43,11 +44,26 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (isFormChanged()) {
-      onUpdate(form);
-      onClose();
+      try {
+        await axios.put(
+          `http://127.0.0.1:8000/pdpms/manila-city-hall/employees/${form.employeeId}/`,
+          {
+            employee_id: form.employeeId,
+            first_name: form.firstName,
+            last_name: form.lastName,
+            position_title: form.position,
+            contact_no: form.contact,
+            employee_status: form.status,
+          }
+        );
+        onUpdate(form);
+        onClose();
+      } catch (error) {
+        alert('Failed to update employee. Please try again.');
+      }
     }
   };
 
