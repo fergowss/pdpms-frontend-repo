@@ -30,7 +30,7 @@ export default function PublicDocument() {
   });
 
   // Fetch documents from the API
-  useEffect(() => {
+  const fetchDocuments = () => {
     setIsLoading(true);
     axios
       .get('http://127.0.0.1:8000/pdpms/manila-city-hall/documents/')
@@ -71,7 +71,12 @@ export default function PublicDocument() {
           message: 'Failed to load documents. Please check your connection.',
         });
       });
-  }, []);
+  };
+
+  // Call fetchDocuments when the component mounts 
+  useEffect(() => {
+    fetchDocuments();
+    }, []);
 
   // Helper: check if date is more than 5 years old
   function isOver5Years(dateString) {
@@ -148,6 +153,7 @@ export default function PublicDocument() {
       setEditModalOpen(false);
       setSelectedRow(null);
       setShowUpdateNotif(true);
+      fetchDocuments(); // to refresh the data
       setTimeout(() => setShowUpdateNotif(false), 3000);
     })
     .catch((error) => {
