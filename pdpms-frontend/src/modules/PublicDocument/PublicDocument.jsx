@@ -135,11 +135,30 @@ export default function PublicDocument() {
   };
 
   // Handler for when a document is updated
-  const handleUpdateDocument = () => {
-    setEditModalOpen(false);
-    setSelectedRow(null);
-    setShowUpdateNotif(true);
-    setTimeout(() => setShowUpdateNotif(false), 3000);
+  const handleUpdateDocument = (updatedFields) => {
+    axios.patch(
+      `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${selectedRow.id}/`,
+      {
+        reference_code: updatedFields.referenceCode,
+        document_status: updatedFields.status,
+        remarks: updatedFields.remarks,
+      }
+    )
+    .then(() => {
+      setEditModalOpen(false);
+      setSelectedRow(null);
+      setShowUpdateNotif(true);
+      setTimeout(() => setShowUpdateNotif(false), 3000);
+    })
+    .catch((error) => {
+      setValidation({
+        isOpen: true,
+        type: 'error',
+        title: 'Update Error',
+        message: 'Failed to update document. Please try again.',
+      });
+      console.error('Update error:', error);
+    });
   };
 
   // Handle search on input change
