@@ -62,9 +62,10 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
               <label className="AssetProperty-ModalLabel">Status</label>
               <select className="AssetProperty-ModalInput AssetProperty-ModalSelect" name="status" required>
                 <option value="">Select Status</option>
-                <option>Active</option>
-                <option>Inactive</option>
-                <option>Disposed</option>
+                <option>Serviceable</option>
+                <option>Unserviceable</option>
+                <option>For Repair</option>
+                <option>Condemned</option>
               </select>
             </div>
           </div>
