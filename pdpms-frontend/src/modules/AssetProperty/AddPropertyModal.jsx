@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './AssetProperty.css';
+
+function generatePropertyNo() {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(16).substr(2, 6);
+  return `ASSE-PRPTY-${year}-${random}`;
+}
 
 export default function AddPropertyModal({ open, onClose, onAdd }) {
   const [formData, setFormData] = useState({
@@ -16,6 +22,15 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     status: ''
   });
   const [isValid, setIsValid] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setFormData(prev => ({
+        ...prev,
+        propertyNo: generatePropertyNo()
+      }));
+    }
+  }, [open]);
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
@@ -56,7 +71,7 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">Property No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="propertyNo" value={formData.propertyNo} required />
+              <input className="AssetProperty-ModalInput" type="text" name="propertyNo" value={formData.propertyNo} required readOnly />
 
               <label className="AssetProperty-ModalLabel">Document No.</label>
               <input className="AssetProperty-ModalInput" type="text" name="documentNo" value={formData.documentNo} required />
