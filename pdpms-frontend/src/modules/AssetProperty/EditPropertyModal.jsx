@@ -161,10 +161,10 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 required
               >
                 <option value="">Select Status</option>
-                <option value="Active">Active</option>
-                <option value="Inactive">Inactive</option>
+                <option value="Serviceable">Serviceable</option>
+                <option value="Unserviceable">Unserviceable</option>
                 <option value="For Repair">For Repair</option>
-                <option value="Disposed">Disposed</option>
+                <option value="Condemned">Condemned</option>
               </select>
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
