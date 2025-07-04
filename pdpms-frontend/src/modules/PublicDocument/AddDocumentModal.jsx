@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './PublicDocument.css';
 
 export default function AddDocumentModal({ open, onClose, onAdd }) {
@@ -9,11 +10,12 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
     date: '',
     dateReceived: '',
     status: '',
-        remarks: '',
+    remarks: '',
     file: null
   });
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     // Check if all required fields are filled
@@ -24,7 +26,7 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
       'date',
       'dateReceived',
       'status',
-       'remarks',
+      'remarks',
       'file'
     ];
 
@@ -70,9 +72,9 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate all fields on submit
     const newErrors = {};
     Object.keys(formData).forEach(key => {
@@ -83,22 +85,81 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 && onAdd) {
-      onAdd(formData);
-      // Reset form
-      setFormData({
-        referenceCode: '',
-        subject: '',
-        documentType: '',
-        date: '',
-        dateReceived: '',
-        status: '',
-        remarks: '',
-        remarks: '',
-        file: null
-      });
-      onClose();
+      setIsSubmitting(true);
+      const data = new FormData();
+      const documentId = generateDocumentId();
+
+      // Map frontend fields to Django backend fields
+      data.append('document_id', documentId);
+      data.append('reference_code', formData.referenceCode);
+      data.append('subject', formData.subject);
+      data.append('document_type', formData.documentType);
+      data.append('document_date', formData.date);
+      data.append('date_received', formData.dateReceived);
+      data.append('received_by', "Herson Fergus Arcanghel");
+      data.append('document_status', formData.status);
+      data.append('remarks', formData.remarks);
+      
+      // Add the file
+      if (formData.file) {
+        data.append('pdf_file', formData.file);
+      }
+
+      // Debug: log all FormData entries
+      for (let pair of data.entries()) {
+        console.log(pair[0] + ':', pair[1]);
+      }
+
+      try {
+        const response = await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/documents/', data, {
+          headers: { 
+            'Content-Type': 'multipart/form-data',
+            // Remove any Authorization header if you're not using authentication yet
+          }
+        });
+        
+        console.log('Document added successfully:', response.data);
+        onAdd({ ...formData, document_id: documentId });
+        
+        // Reset form
+        setFormData({
+          referenceCode: '',
+          subject: '',
+          documentType: '',
+          date: '',
+          dateReceived: '',
+          status: '',
+          remarks: '',
+          file: null
+        });
+        
+        // Reset file input
+        const fileInput = document.querySelector('input[type="file"]');
+        if (fileInput) fileInput.value = '';
+        
+        onClose();
+      } catch (error) {
+        console.error('Error adding document:', error);
+        let errorMessage = 'Failed to add document. Please try again.';
+        
+        if (error.response) {
+          console.error('Error response:', error.response.data);
+          errorMessage = error.response.data.detail || errorMessage;
+        }
+        
+        setErrors({ ...errors, submit: errorMessage });
+        setIsFormValid(true);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
+
+  function generateDocumentId() {
+    const year = new Date().getFullYear();
+    const random = Math.random().toString(16).substr(2, 6);
+    return `PUBL-DOCU-${year}-${random}`;
+  }
 
   if (!open) return null;
 
@@ -137,7 +198,7 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
                 onBlur={handleBlur}
               >
                 <option value="">Select Document Type</option>
-                <option value="Endorsement">Endorsement</option>
+                <option value="Endorsements">Endorsements</option>
                 <option value="Memorandum">Memorandum</option>
                 <option value="Certification">Certification</option>
                 <option value="Application">Application</option>
@@ -168,7 +229,8 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
             </div>
             <div>
               <label className="PublicDocument-ModalLabel">Received by</label>
-              <input className="PublicDocument-ModalInput" type="text" disabled style={{background:'#e8eef7'}} value="Herson Fergus Arcanghel" />
+              <input className="PublicDocument-ModalInput" type="text" disabled readOnly style={{background:'#e8eef7'}} value="Herson Fergus Arcanghel" />
+              
               <label className="PublicDocument-ModalLabel">Status</label>
               <select 
                 className={`PublicDocument-ModalInput ${errors.status ? 'PublicDocument-InputError' : ''}`}
@@ -178,7 +240,7 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
                 onBlur={handleBlur}
               >
                 <option value="">Select Status</option>
-                <option value="On Going">On Going</option>
+                <option value="Ongoing">Ongoing</option>
                 <option value="Completed">Completed</option>
               </select>
               
@@ -206,6 +268,13 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
               </div>
             </div>
           </div>
+          
+          {errors.submit && (
+            <div className="PublicDocument-FormCenterError" style={{ color: 'red', textAlign: 'center', margin: '10px 0' }}>
+              {errors.submit}
+            </div>
+          )}
+          
           <div style={{ marginTop: '0.5rem' }}>
             {(() => {
               const requiredFields = [
@@ -219,22 +288,22 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
                 'file',
               ];
               const missingFields = requiredFields.filter(field => !formData[field] || formData[field].toString().trim() === '');
-              return missingFields.length === 1 ? (
+              return missingFields.length > 0 ? (
                 <div className="PublicDocument-FormCenterError">All fields are required.</div>
               ) : null;
             })()}
             <div className="PublicDocument-ModalActions">
-            <button 
-              type="submit" 
-              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary"
-              disabled={!isFormValid}
-              style={{
-                opacity: isFormValid ? 1 : 0.6,
-                cursor: isFormValid ? 'pointer' : 'not-allowed'
-              }}
-            >
-              ADD
-            </button>
+              <button 
+                type="submit" 
+                className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary"
+                disabled={!isFormValid || isSubmitting}
+                style={{
+                  opacity: (isFormValid && !isSubmitting) ? 1 : 0.6,
+                  cursor: (isFormValid && !isSubmitting) ? 'pointer' : 'not-allowed'
+                }}
+              >
+                {isSubmitting ? 'ADDING...' : 'ADD'}
+              </button>
               <button type="button" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
             </div>
           </div>
