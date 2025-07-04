@@ -3,9 +3,14 @@ import './AssetProperty.css';
 
 export default function AddPropertyModal({ open, onClose, onAdd }) {
   const [formData, setFormData] = useState({
-    endUser: '',
+    propertyNo: '',
+    documentNo: '',
+    parNo: '',
+    description: '',
+    serialNo: '',
     dateAcquired: '',
     unitCost: '',
+    endUser: '',
     estimatedLife: '',
     remarks: '',
     status: ''
@@ -18,14 +23,30 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
       ...prev,
       [name]: value
     }));
-    // Update validity state whenever any input changes
-    setIsValid(e.currentTarget.checkValidity());
+    setTimeout(() => {
+      const requiredFields = [
+        'propertyNo',
+        'documentNo',
+        'parNo',
+        'description',
+        'serialNo',
+        'dateAcquired',
+        'unitCost',
+        'endUser',
+        'estimatedLife',
+        'remarks',
+        'status'
+      ];
+      const missing = requiredFields.some(field => !formData[field] || formData[field].toString().trim() === '');
+      setIsValid(!missing);
+    }, 0);
   };
+
   if (!open) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (onAdd) onAdd();
+    if (isValid && onAdd) onAdd(formData);
   };
 
   return (
@@ -34,33 +55,39 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
         <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} onChange={handleFormChange} noValidate>
           <div className="AssetProperty-ModalGrid">
             <div>
+              <label className="AssetProperty-ModalLabel">Property No.</label>
+              <input className="AssetProperty-ModalInput" type="text" name="propertyNo" value={formData.propertyNo} required />
+
+              <label className="AssetProperty-ModalLabel">Document No.</label>
+              <input className="AssetProperty-ModalInput" type="text" name="documentNo" value={formData.documentNo} required />
+
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="parNo" required />
+              <input className="AssetProperty-ModalInput" type="text" name="parNo" value={formData.parNo} required />
 
               <label className="AssetProperty-ModalLabel">Description</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="description" required />
+              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="description" value={formData.description} required />
 
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="serialNo" required />
+              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="serialNo" value={formData.serialNo} required />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
-              <input className="AssetProperty-ModalInput" type="date" name="dateAcquired" required />
+              <input className="AssetProperty-ModalInput" type="date" name="dateAcquired" value={formData.dateAcquired} required />
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
-              <input className="AssetProperty-ModalInput" type="number" step="0.01" name="unitCost" required />
+              <input className="AssetProperty-ModalInput" type="number" step="0.01" name="unitCost" value={formData.unitCost} required />
 
               <label className="AssetProperty-ModalLabel">End User</label>
-              <input className="AssetProperty-ModalInput" type="text" name="endUser" required />
+              <input className="AssetProperty-ModalInput" type="text" name="endUser" value={formData.endUser} required />
 
               <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
-              <input className="AssetProperty-ModalInput" type="text" name="estimatedLife" placeholder="0 Years" required />
+              <input className="AssetProperty-ModalInput" type="text" name="estimatedLife" value={formData.estimatedLife} placeholder="0 Years" required />
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="remarks" required />
+              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="remarks" value={formData.remarks} required />
 
               <label className="AssetProperty-ModalLabel">Status</label>
-              <select className="AssetProperty-ModalInput AssetProperty-ModalSelect" name="status" required>
+              <select className="AssetProperty-ModalInput AssetProperty-ModalSelect" name="status" value={formData.status} required>
                 <option value="">Select Status</option>
                 <option>Serviceable</option>
                 <option>Unserviceable</option>
@@ -70,24 +97,29 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
             </div>
           </div>
           {(() => {
-  const requiredFields = [
-    'endUser',
-    'dateAcquired',
-    'unitCost',
-    'estimatedLife',
-    'remarks',
-    'status'
-  ];
-  const missingFields = requiredFields.filter(field => 
-    !formData[field] || formData[field].toString().trim() === ''
-  );
-  return missingFields.length === 1 ? (
-    <div className="PublicDocument-FormCenterError">All fields are required.</div>
-  ) : null;
-})()}
-<div className="AssetProperty-ModalActions">
-            <button 
-              type="submit" 
+            const requiredFields = [
+              'propertyNo',
+              'documentNo',
+              'parNo',
+              'description',
+              'serialNo',
+              'dateAcquired',
+              'unitCost',
+              'endUser',
+              'estimatedLife',
+              'remarks',
+              'status'
+            ];
+            const missingFields = requiredFields.filter(field =>
+              !formData[field] || formData[field].toString().trim() === ''
+            );
+            return missingFields.length > 0 ? (
+              <div className="PublicDocument-FormCenterError">All fields are required.</div>
+            ) : null;
+          })()}
+          <div className="AssetProperty-ModalActions">
+            <button
+              type="submit"
               className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary"
               disabled={!isValid}
               style={{ opacity: isValid ? 1 : 0.6, cursor: isValid ? 'pointer' : 'not-allowed' }}
