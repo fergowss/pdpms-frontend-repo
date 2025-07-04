@@ -3,6 +3,9 @@ import './AssetProperty.css';
 
 export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   const [formData, setFormData] = useState({
+    propertyNo: '',
+    documentNo: '',
+    parNo: '',
     serialNo: '',
     dateAcquired: '',
     unitCost: '',
@@ -19,12 +22,15 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   useEffect(() => {
     if (row) {
       const newData = {
+        propertyNo: row.propertyNo || '',
+        documentNo: row.documentNo || '',
+        parNo: row.parNo || '',
         serialNo: row.serialNo || '',
         dateAcquired: row.dateAcquired || '',
         unitCost: row.unitCost || '',
         endUser: row.endUser || '',
         estimatedLife: row.estimatedLife || '',
-        status: row.status || 'Active',
+        status: row.status || 'Serviceable',
         remarks: row.remarks || '',
         description: row.description || ''
       };
@@ -41,17 +47,18 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
       ...prev,
       [name]: value
     }));
-    
+
     if (initialData) {
-      const changed = (
+      // Check if any editable field has changed
+      const changed =
         (name === 'endUser' ? value : formData.endUser) !== initialData.endUser ||
         (name === 'status' ? value : formData.status) !== initialData.status ||
-        (name === 'remarks' ? value : formData.remarks) !== initialData.remarks
-      );
+        (name === 'remarks' ? value : formData.remarks) !== initialData.remarks;
       setHasChanges(changed);
       setFormValid(true);
     }
   };
+
   if (!open || !row) return null;
 
   const handleSubmit = (e) => {
@@ -68,10 +75,10 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">Property No.</label>
-              <input className="AssetProperty-ModalInput" type="text" value={row.propertyNo || ''} disabled style={{background:'#e8eef7'}} />
+              <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">Document No.</label>
-              <input className="AssetProperty-ModalInput" type="text" value={row.documentNo || ''} disabled style={{background:'#e8eef7'}} />
+              <input className="AssetProperty-ModalInput" type="text" value={formData.documentNo} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
               <input 
