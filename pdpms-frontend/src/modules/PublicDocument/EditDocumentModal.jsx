@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import './PublicDocument.css';
 
+const getFileName = (fileUrl) => {
+  if (!fileUrl || fileUrl === '#') return '';
+  return fileUrl.split('/').pop();
+};
+
 export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
   const [formData, setFormData] = useState({
     referenceCode: '',
@@ -173,7 +178,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               />
               
               <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only)</span></label>
-              <input className="PublicDocument-ModalInput" type="text" value={doc.fileName || 'PubDoc2121.pdf'} disabled style={{background:'#f2f4f8'}} />
+              <input className="PublicDocument-ModalInput" type="text" value={getFileName(doc.file)} disabled style={{background:'#f2f4f8'}} />
             </div>
           </div>
           <div className="PublicDocument-ModalActions">
