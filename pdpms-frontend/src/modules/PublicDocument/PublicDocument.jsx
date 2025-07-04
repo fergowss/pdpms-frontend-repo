@@ -35,6 +35,7 @@ export default function PublicDocument() {
     axios
       .get('http://127.0.0.1:8000/pdpms/manila-city-hall/documents/')
       .then((response) => {
+        console.log('API response:', response.data); // Debug
         const fetchedData = Array.isArray(response.data)
           ? response.data
               .filter((item) => item && typeof item === 'object')
@@ -50,7 +51,10 @@ export default function PublicDocument() {
                   receivedBy: item.received_by || '',
                   status: item.document_status || '',
                   remarks: item.remarks || '',
-                  file: '#',
+                  file: item.pdf_file ? item.pdf_file.startsWith('http') 
+                    ? item.pdf_file // Use absolute URL as-is
+                    : `http://127.0.0.1:8000${item.pdf_file}` // Prepend only for relative URLs
+                    : '#',
                 };
               })
               .filter((item) => item !== null)
@@ -285,7 +289,26 @@ export default function PublicDocument() {
                 <td>{row.receivedBy}</td>
                 <td>{row.status}</td>
                 <td>{row.remarks}</td>
-                <td><a href={row.file} className="PublicDocument-PDFLink">View PDF</a></td>
+                <td>{row.file && row.file !== '#' ? ( 
+                <>
+                  {console.log('Rendering link for:', row.id, row.file)} {/* Debug */}
+                  <button
+                    className="PublicDocument-PDFLink"
+                    onClick={() => {
+                      try {
+                        window.open(row.file, '_blank', 'noopener,noreferrer');
+                        } catch (e) {
+                          console.error('Failed to open PDF:', e, row.file);
+                        }        
+                        }}
+                  >
+                    View PDF
+                  </button>
+                </>
+                ) : (
+                  <span className="PublicDocument-NoPDF">No PDF</span>
+                )}
+                </td>
               </tr>
             ))}
           </tbody>
