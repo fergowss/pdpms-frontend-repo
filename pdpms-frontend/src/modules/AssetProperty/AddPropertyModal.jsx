@@ -61,7 +61,23 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isValid && onAdd) onAdd(formData);
+    if (isValid && onAdd) {
+      onAdd(formData);
+      setFormData({
+        propertyNo: generatePropertyNo(), // generate a new property number
+        documentNo: '',
+        parNo: '',
+        description: '',
+        serialNo: '',
+        dateAcquired: '',
+        unitCost: '',
+        endUser: '',
+        estimatedLife: '',
+        remarks: '',
+        status: ''
+      });
+      setIsValid(false); // reset validation
+    }
   };
 
   return (
