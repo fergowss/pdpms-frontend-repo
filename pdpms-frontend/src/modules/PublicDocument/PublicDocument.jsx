@@ -136,6 +136,7 @@ export default function PublicDocument() {
   const handleAddDocument = () => {
     closeAll();
     setShowAddNotif(true);
+    fetchDocuments(); // Refresh the data after adding
     setTimeout(() => setShowAddNotif(false), 3000);
   };
 
