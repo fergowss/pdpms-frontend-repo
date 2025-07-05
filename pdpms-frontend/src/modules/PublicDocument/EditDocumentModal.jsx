@@ -163,8 +163,9 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
                 onBlur={handleBlur}
               >
                 <option value="">Select Status</option>
-                <option value="On Going">On Going</option>
+                <option value="Ongoing">Ongoing</option>
                 <option value="Completed">Completed</option>
+                <option value="Archived">Archived</option>
               </select>
               {errors.status && <div className="PublicDocument-ErrorText">{errors.status}</div>}
               
