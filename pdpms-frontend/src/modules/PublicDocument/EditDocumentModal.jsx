@@ -121,13 +121,15 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               <input className="PublicDocument-ModalInput PublicDocument-ModalInput--large" type="text" value={doc.subject || 'Intern Application'} disabled style={{background:'#e8eef7'}} />
               
               <label className="PublicDocument-ModalLabel">Document Type</label>
-              <select className="PublicDocument-ModalInput" value={doc.type || 'Memorandum'} disabled style={{background:'#e8eef7'}}>
-                <option>Endorsement</option>
-                <option>Memorandum</option>
-                <option>Certification</option>
-                <option>Application</option>
-                <option>Request</option>
-                <option>Report</option>
+              <select className="PublicDocument-ModalInput" value={doc.type || ''} disabled style={{background:'#e8eef7'}}>
+                <option>Endorsements</option>
+                <option>Memorandums</option>
+                <option>Dispositions</option>
+                <option>Special Orders</option>
+                <option>Request Letters</option>
+                <option>Employee Documents</option>
+                <option>Property Records</option>
+                <option>Others</option>
               </select>
               
               <label className="PublicDocument-ModalLabel">Date</label>
