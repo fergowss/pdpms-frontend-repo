@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './PublicDocument.css';
 
 export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }) {
@@ -16,8 +16,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Check if all required fields are filled
-  React.useEffect(() => {
+  useEffect(() => {
     const requiredFields = [
       'referenceCode',
       'subject',
@@ -26,8 +25,6 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
       'dateReceived',
       'receivedBy',
       'status',
-      'remarks',
-      'file',
     ];
     const allFieldsFilled = requiredFields.every(
       field => formData[field] && formData[field].toString().trim() !== ''
@@ -44,20 +41,33 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
       ...prev,
       [name]: name === 'file' ? files[0] : value
     }));
-    if (errors[name]) {
+    if (name === 'date' || name === 'dateReceived') {
+      const isValidDate = value.match(/^\d{4}-\d{2}-\d{2}$/);
+      setErrors(prev => ({
+        ...prev,
+        [name]: isValidDate ? '' : 'Invalid date format (YYYY-MM-DD)',
+      }));
+    } else if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Simple required validation (except remarks)
     const newErrors = {};
-    Object.keys(formData).forEach(key => {
-      if (key !== 'remarks' && !formData[key]) newErrors[key] = 'This field is required';
+    ['referenceCode', 'subject', 'documentType', 'date', 'dateReceived', 'receivedBy', 'status'].forEach(key => {
+      if (!formData[key] || formData[key].toString().trim() === '') {
+        newErrors[key] = 'This field is required';
+      }
     });
+    if (formData.date && !formData.date.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      newErrors.date = 'Invalid date format (YYYY-MM-DD)';
+    }
+    if (formData.dateReceived && !formData.dateReceived.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      newErrors.dateReceived = 'Invalid date format (YYYY-MM-DD)';
+    }
     setErrors(newErrors);
-    if (Object.keys(newErrors).length === 0 && onAddFollowUp) {
+    if (Object.keys(newErrors).length === 0) {
       onAddFollowUp(formData);
       onClose();
     }
@@ -91,6 +101,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
+              {errors.referenceCode && <span className="PublicDocument-ErrorText">{errors.referenceCode}</span>}
               <label className="PublicDocument-ModalLabel">Subject</label>
               <textarea
                 className={`PublicDocument-ModalInput ${errors.subject ? 'PublicDocument-InputError' : ''}`}
@@ -99,6 +110,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ minHeight: '5.5rem', resize: 'none', maxWidth: '100%', boxSizing: 'border-box' }}
               />
+              {errors.subject && <span className="PublicDocument-ErrorText">{errors.subject}</span>}
               <label className="PublicDocument-ModalLabel">Document Type</label>
               <select
                 className={`PublicDocument-ModalInput ${errors.documentType ? 'PublicDocument-InputError' : ''}`}
@@ -114,6 +126,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 <option value="Request">Request</option>
                 <option value="Report">Report</option>
               </select>
+              {errors.documentType && <span className="PublicDocument-ErrorText">{errors.documentType}</span>}
               <label className="PublicDocument-ModalLabel">Date</label>
               <input
                 className={`PublicDocument-ModalInput ${errors.date ? 'PublicDocument-InputError' : ''}`}
@@ -123,6 +136,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
+              {errors.date && <span className="PublicDocument-ErrorText">{errors.date}</span>}
             </div>
             <div style={{ maxWidth: '100%' }}>
               <label className="PublicDocument-ModalLabel">Date Received</label>
@@ -134,6 +148,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
+              {errors.dateReceived && <span className="PublicDocument-ErrorText">{errors.dateReceived}</span>}
               <label className="PublicDocument-ModalLabel">Received by</label>
               <input
                 className={`PublicDocument-ModalInput ${errors.receivedBy ? 'PublicDocument-InputError' : ''}`}
@@ -143,6 +158,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
+              {errors.receivedBy && <span className="PublicDocument-ErrorText">{errors.receivedBy}</span>}
               <label className="PublicDocument-ModalLabel">Status</label>
               <select
                 className={`PublicDocument-ModalInput ${errors.status ? 'PublicDocument-InputError' : ''}`}
@@ -156,6 +172,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 <option value="On Going">On Going</option>
                 <option value="Pending">Pending</option>
               </select>
+              {errors.status && <span className="PublicDocument-ErrorText">{errors.status}</span>}
               <label className="PublicDocument-ModalLabel">Remarks</label>
               <textarea
                 className={`PublicDocument-ModalInput ${errors.remarks ? 'PublicDocument-InputError' : ''}`}
@@ -164,7 +181,8 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ minHeight: '5.5rem', resize: 'none', maxWidth: '100%', boxSizing: 'border-box' }}
               />
-              <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only)</span></label>
+              {errors.remarks && <span className="PublicDocument-ErrorText">{errors.remarks}</span>}
+              <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only, Optional)</span></label>
               <div style={{ width: '100%', overflow: 'hidden' }}>
                 <input
                   className={`PublicDocument-ModalInput ${errors.file ? 'PublicDocument-InputError' : ''}`}
@@ -174,6 +192,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                   onChange={handleChange}
                   style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }}
                 />
+                {errors.file && <span className="PublicDocument-ErrorText">{errors.file}</span>}
               </div>
             </div>
           </div>
