@@ -240,8 +240,8 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
                 onBlur={handleBlur}
               >
                 <option value="">Select Status</option>
-                <option value="Ongoing">Ongoing</option>
                 <option value="Completed">Completed</option>
+                <option value="Ongoing">Ongoing</option>       
                 <option value="Archived">Archived</option>
               </select>
               
