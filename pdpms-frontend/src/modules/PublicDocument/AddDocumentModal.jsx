@@ -199,11 +199,13 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
               >
                 <option value="">Select Document Type</option>
                 <option value="Endorsements">Endorsements</option>
-                <option value="Memorandum">Memorandum</option>
-                <option value="Certification">Certification</option>
-                <option value="Application">Application</option>
-                <option value="Request">Request</option>
-                <option value="Report">Report</option>
+                <option value="Memorandums">Memorandums</option>
+                <option value="Dispositions">Dispositions</option>
+                <option value="Special Orders">Special Orders</option>
+                <option value="Request Letters">Request Letters</option>
+                <option value="Employee Documents">Employee Documents</option>
+                <option value="Property Records">Property Records</option>
+                <option value="Others">Others</option>
               </select>
               
               <label className="PublicDocument-ModalLabel">Date *</label>
