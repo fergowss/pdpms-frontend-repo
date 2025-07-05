@@ -242,6 +242,7 @@ export default function AddDocumentModal({ open, onClose, onAdd }) {
                 <option value="">Select Status</option>
                 <option value="Ongoing">Ongoing</option>
                 <option value="Completed">Completed</option>
+                <option value="Archived">Archived</option>
               </select>
               
               <label className="PublicDocument-ModalLabel">Remarks *</label>
