@@ -169,8 +169,8 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
               >
                 <option value="">Select Status</option>
                 <option value="Completed">Completed</option>
-                <option value="On Going">On Going</option>
-                <option value="Pending">Pending</option>
+                <option value="Ongoing">Ongoing</option>
+                <option value="Archived">Archived</option>
               </select>
               {errors.status && <span className="PublicDocument-ErrorText">{errors.status}</span>}
               <label className="PublicDocument-ModalLabel">Remarks</label>
