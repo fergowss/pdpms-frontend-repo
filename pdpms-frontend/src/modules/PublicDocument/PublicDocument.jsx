@@ -55,6 +55,7 @@ export default function PublicDocument() {
                     ? item.pdf_file // Use absolute URL as-is
                     : `http://127.0.0.1:8000${item.pdf_file}` // Prepend only for relative URLs
                     : '#',
+                    base_document_id: item.base_document_id || '', // New field
                 };
               })
               .filter((item) => item !== null)
@@ -167,6 +168,66 @@ export default function PublicDocument() {
       console.error('Update error:', error);
     });
   };
+
+const handleAddFollowUp = async (formData) => {
+  if (!addFollowUpDocId) return;
+
+  const baseId = addFollowUpDocId;
+  const submissionData = new FormData();
+
+  // Format dates to YYYY-MM-DD
+  const formatDate = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return isNaN(d) ? '' : d.toISOString().split('T')[0];
+  };
+
+  // Log formData for debugging
+  console.log('FormData:', {
+    base_document_id: baseId,
+    reference_code: formData.referenceCode,
+    subject: formData.subject,
+    document_type: formData.documentType,
+    document_date: formData.date,
+    date_received: formData.dateReceived,
+    received_by: formData.receivedBy,
+    document_status: formData.status,
+    remarks: formData.remarks,
+    pdf_file: formData.file
+  });
+
+  submissionData.append('base_document_id', baseId);
+  submissionData.append('reference_code', formData.referenceCode || '');
+  submissionData.append('subject', formData.subject || '');
+  submissionData.append('document_type', formData.documentType || '');
+  submissionData.append('document_date', formatDate(formData.date));
+  submissionData.append('date_received', formatDate(formData.dateReceived));
+  submissionData.append('received_by', formData.receivedBy || '');
+  submissionData.append('document_status', formData.status || '');
+  submissionData.append('remarks', formData.remarks || '');
+  if (formData.file) submissionData.append('pdf_file', formData.file);
+
+  try {
+    const response = await axios.post(
+      'http://127.0.0.1:8000/pdpms/manila-city-hall/documents/',
+      submissionData,
+      { headers: { 'Content-Type': 'multipart/form-data' } }
+    );
+    console.log('Created document ID:', response.data.document_id);
+    setShowFollowUpNotif(true);
+    fetchDocuments();
+    setTimeout(() => setShowFollowUpNotif(false), 3000);
+  } catch (err) {
+    console.error('Follow-up creation error:', err);
+    console.error('Server response:', err.response?.data);
+    setValidation({
+      isOpen: true,
+      type: 'error',
+      title: 'Follow-Up Error',
+      message: err.response?.data?.message || JSON.stringify(err.response?.data) || 'Failed to add follow-up document.',
+    });
+  }
+};
 
   // Handle search on input change
   const handleSearch = (value) => {
@@ -357,7 +418,7 @@ export default function PublicDocument() {
                 }}>
                   EDIT
                 </button>
-                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { setAddFollowUpDocId(selectedRow?.id); setSelectedRow(null); setAddFollowUpModalOpen(true); }}>
+                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { const baseId = selectedRow?.id.includes('-') ? selectedRow.id.split('-').slice(0, 4).join('-'): selectedRow.id; setAddFollowUpDocId(baseId); setSelectedRow(null); setAddFollowUpModalOpen(true); }}>
                   ADD FOLLOW-UP
                 </button>
               </div>
@@ -388,8 +449,9 @@ export default function PublicDocument() {
       <AddFollowUpModal
         open={addFollowUpModalOpen}
         onClose={() => setAddFollowUpModalOpen(false)}
-        onAddFollowUp={(data) => { 
+        onAddFollowUp={async (data) => {
           setAddFollowUpModalOpen(false);
+          await handleAddFollowUp(data);
           setShowFollowUpNotif(true);
           setTimeout(() => setShowFollowUpNotif(false), 3000);
         }}
