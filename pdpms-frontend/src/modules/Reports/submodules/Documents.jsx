@@ -20,6 +20,38 @@ export default function Documents() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Helper function to process fetched document items
+  const processDocumentItem = (item) => {
+    if (!item || typeof item !== 'object') return null;
+
+    // Use document_id as primary key if available, fallback to id if the view returns it differently
+    const id = item.document_id || item.id || ''; 
+    if (!id) return null; // Ensure there's an ID
+
+    // Construct the full PDF file URL similarly to PublicDocument
+    let fileUrl = '#';
+    if (item.pdf_file) {
+      if (item.pdf_file.startsWith('http')) {
+        fileUrl = item.pdf_file; // Use absolute URL as-is
+      } else {
+        fileUrl = `http://127.0.0.1:8000${item.pdf_file}`; // Prepend for relative URLs
+      }
+    }
+
+    return {
+      id: id,
+      ref: item.reference_code || item.ref || '-',
+      subject: item.subject || '',
+      type: item.document_type || item.type || '',
+      date: item.document_date || item.date || '',
+      received: item.date_received || item.received || '',
+      receivedBy: item.received_by || item.by || '',
+      status: item.document_status || item.status || '',
+      remarks: item.remarks || '',
+      file: fileUrl, // This will be the prepared URL for the PDF
+    };
+  };
+
   // Fetch data for all tabs on mount
   useEffect(() => {
     setIsLoading(true);
@@ -28,14 +60,16 @@ export default function Documents() {
     )
       .then(([ongoingRes, completedRes, archivedRes]) => {
         setData({
-          'On Going': ongoingRes.data || [],
-          'Completed': completedRes.data || [],
-          'Archived': archivedRes.data || [],
+          'On Going': Array.isArray(ongoingRes.data) ? ongoingRes.data.map(processDocumentItem).filter(Boolean) : [],
+          'Completed': Array.isArray(completedRes.data) ? completedRes.data.map(processDocumentItem).filter(Boolean) : [],
+          'Archived': Array.isArray(archivedRes.data) ? archivedRes.data.map(processDocumentItem).filter(Boolean) : [],
         });
         setIsLoading(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error("Error fetching documents for Documents component:", error);
         setIsLoading(false);
+        // Optionally add a user-facing error message here
       });
   }, []);
 
@@ -53,7 +87,8 @@ export default function Documents() {
 
   // Filter data according to active tab and search keyword
   const filteredData = (data[activeTab] || []).filter(row => {
-    const matchesTab = row.status === activeTab;
+    const matchesTab = row.status === activeTab; 
+    
     if (!searchKeyword) return true;
 
     return Object.values(row).some(
@@ -112,17 +147,45 @@ export default function Documents() {
                   </tr>
                 ) : (
                   filteredData.map((row, i) => (
-                    <tr key={row.id || row.document_id || i}>
-                      <td>{row.id || row.document_id}</td>
-                      <td>{row.ref || row.reference_code}</td>
+                    <tr key={row.id || i}> {/* Use row.id for key after processing */}
+                      <td>{row.id}</td>
+                      <td>{row.ref}</td>
                       <td>{row.subject}</td>
-                      <td>{row.type || row.document_type}</td>
-                      <td>{row.date || row.document_date}</td>
-                      <td>{row.received || row.date_received}</td>
-                      <td>{row.by || row.received_by}</td>
-                      <td>{row.status || row.document_status}</td>
+                      <td>{row.type}</td>
+                      <td>{row.date}</td>
+                      <td>{row.received}</td>
+                      <td>{row.receivedBy}</td>
+                      <td>{row.status}</td>
                       <td>{row.remarks}</td>
-                      <td><a href={row.file_url || "#"} style={{ color: '#2951a3', fontWeight: 500, textDecoration: 'underline' }}>{row.file || "View PDF"}</a></td>
+                      <td>
+                        {row.file && row.file !== '#' ? ( 
+                          <button
+                            className="Documents-PDFLink" // You might need to define this class in Documents.css
+                            onClick={() => {
+                              try {
+                                window.open(row.file, '_blank', 'noopener,noreferrer');
+                              } catch (e) {
+                                console.error('Failed to open PDF:', e, row.file);
+                              }         
+                            }}
+                            style={{ // Inline style for quick visual
+                              background: 'none',
+                              border: 'none',
+                              color: '#2951a3',
+                              fontWeight: 500,
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                              padding: 0,
+                              fontFamily: 'inherit',
+                              fontSize: 'inherit'
+                            }}
+                          >
+                            View PDF
+                          </button>
+                        ) : (
+                          <span className="Documents-NoPDF">No PDF</span> // You might need to define this class
+                        )}
+                      </td>
                     </tr>
                   ))
                 )}
