@@ -55,7 +55,7 @@ export default function PublicDocument() {
                     ? item.pdf_file // Use absolute URL as-is
                     : `http://127.0.0.1:8000${item.pdf_file}` // Prepend only for relative URLs
                     : '#',
-                    base_document_id: item.base_document_id || '', // New field
+                  base_document_id: item.base_document_id || '', // New field
                 };
               })
               .filter((item) => item !== null)
@@ -83,24 +83,27 @@ export default function PublicDocument() {
   function isOver5Years(dateString) {
     if (!dateString) return false;
     let docDate;
-    if (dateString.split('/').length === 3) {
-      // Accept both MM/DD/YY and YYYY-MM-DD
-      if (dateString.includes('-')) {
+    if (dateString.includes('-')) { // Assuming YYYY-MM-DD
         docDate = new Date(dateString);
-      } else {
+    } else if (dateString.split('/').length === 3) { // Assuming MM/DD/YY or MM/DD/YYYY
         const parts = dateString.split('/');
-        // If year is 2-digit, prefix with 20
         let year = parts[2];
         if (year.length === 2) {
-          year = +year < 50 ? '20' + year : '19' + year; // crude century logic
+            year = +year < 50 ? '20' + year : '19' + year; 
         }
         docDate = new Date(`${year}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
-      }
     } else {
-      docDate = new Date(dateString);
+        docDate = new Date(dateString); // Fallback for other formats Date constructor might handle
     }
+
+    // Check for invalid date
+    if (isNaN(docDate.getTime())) {
+        console.warn(`Invalid date format for: ${dateString}`);
+        return false; 
+    }
+
     const now = new Date();
-    const yearsDiff = (now - docDate) / (1000 * 60 * 60 * 24 * 365.25);
+    const yearsDiff = (now - docDate) / (1000 * 60 * 60 * 24 * 365.25); // Account for leap years
     return yearsDiff >= 5;
   }
 
@@ -172,54 +175,20 @@ export default function PublicDocument() {
   // Handler for archiving a document
   const handleArchiveDocument = async (docId) => {
     try {
-      const docToArchive = allData.find((doc) => doc.id === docId);
-      if (!docToArchive) {
-        throw new Error('Document not found in local data');
-      }
+      console.log(`Attempting to archive document by status change: ${docId}`);
 
-      // Ensure document_id is a string and handle potential array if it's coming from an inconsistent source
-      let documentId = docToArchive.id;
-      if (Array.isArray(docToArchive.id)) {
-        documentId = docToArchive.id[0]; // Take first element if array
-      } else if (typeof docToArchive.id !== 'string') {
-        documentId = String(docToArchive.id); // Coerce to string
-      }
-
-      // Prepare payload for archiving
-      const archivePayload = {
-        document_id: documentId, // This needs to be unique in the archived collection
-        reference_code: docToArchive.ref || '',
-        subject: docToArchive.subject || '',
-        document_type: docToArchive.type || '',
-        document_date: docToArchive.date || '',
-        date_received: docToArchive.received || '',
-        received_by: docToArchive.receivedBy || '',
-        document_status: 'Archived', // Ensure status is 'Archived' when moving
-        remarks: docToArchive.remarks || '',
-      };
-
-      console.log('📤 Archive payload:', archivePayload);
-
-      // 1. Send the document to the archived endpoint
-      await axios.post(
-        'http://127.0.0.1:8000/pdpms/manila-city-hall/archived-documents/',
-        archivePayload,
+      // Perform a PATCH request to update the document_status to 'Archived'
+      await axios.patch(
+        `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${docId}/`,
         {
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          document_status: 'Archived', // This is the only change needed
         }
       );
 
-      // 2. If successfully archived, then delete from the main documents endpoint
-      await axios.delete(
-        `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${docId}/`
-      );
-
       // Close modal and show success notification
-      setSelectedRow(null);
+      setSelectedRow(null); // Clear selected row after action
       setShowArchiveNotif(true);
-      fetchDocuments(); // Refresh the data to reflect the changes (document removed from main list)
+      fetchDocuments(); // Re-fetch all documents to reflect the status change
       setTimeout(() => setShowArchiveNotif(false), 3000);
     } catch (error) {
       console.error('Archive error:', error);
@@ -229,14 +198,14 @@ export default function PublicDocument() {
         type: 'error',
         title: 'Archive Error',
         message:
-          error.response?.data?.document_id?.[0] ||
+          error.response?.data?.detail || // Common for Django REST Framework generic errors
           error.response?.data?.message ||
           JSON.stringify(error.response?.data, null, 2) ||
           'Failed to archive document. Please try again.',
       });
     }
   };
-  
+
 const handleAddFollowUp = async (formData) => {
   if (!addFollowUpDocId) return;
 
@@ -454,7 +423,7 @@ const handleAddFollowUp = async (formData) => {
                         window.open(row.file, '_blank', 'noopener,noreferrer');
                         } catch (e) {
                           console.error('Failed to open PDF:', e, row.file);
-                        }        
+                        }         
                         }}
                   >
                     View PDF
@@ -505,9 +474,10 @@ const handleAddFollowUp = async (formData) => {
               </div>
               <button className="PublicDocument-ArchiveBtn" onClick={() => {
                 handleArchiveDocument(selectedRow.id);
-                setSelectedRow(null);
-                setShowArchiveNotif(true);
-                setTimeout(() => setShowArchiveNotif(false), 3000);
+                // No longer show notification here directly, it's handled in handleArchiveDocument
+                // setSelectedRow(null); // Already handled in handleArchiveDocument
+                // setShowArchiveNotif(true); // Handled in handleArchiveDocument
+                // setTimeout(() => setShowArchiveNotif(false), 3000); // Handled in handleArchiveDocument
               }}>
                 ARCHIVE
               </button>
