@@ -169,6 +169,74 @@ export default function PublicDocument() {
     });
   };
 
+  // Handler for archiving a document
+  const handleArchiveDocument = async (docId) => {
+    try {
+      const docToArchive = allData.find((doc) => doc.id === docId);
+      if (!docToArchive) {
+        throw new Error('Document not found in local data');
+      }
+
+      // Ensure document_id is a string and handle potential array if it's coming from an inconsistent source
+      let documentId = docToArchive.id;
+      if (Array.isArray(docToArchive.id)) {
+        documentId = docToArchive.id[0]; // Take first element if array
+      } else if (typeof docToArchive.id !== 'string') {
+        documentId = String(docToArchive.id); // Coerce to string
+      }
+
+      // Prepare payload for archiving
+      const archivePayload = {
+        document_id: documentId, // This needs to be unique in the archived collection
+        reference_code: docToArchive.ref || '',
+        subject: docToArchive.subject || '',
+        document_type: docToArchive.type || '',
+        document_date: docToArchive.date || '',
+        date_received: docToArchive.received || '',
+        received_by: docToArchive.receivedBy || '',
+        document_status: 'Archived', // Ensure status is 'Archived' when moving
+        remarks: docToArchive.remarks || '',
+      };
+
+      console.log('📤 Archive payload:', archivePayload);
+
+      // 1. Send the document to the archived endpoint
+      await axios.post(
+        'http://127.0.0.1:8000/pdpms/manila-city-hall/archived-documents/',
+        archivePayload,
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      // 2. If successfully archived, then delete from the main documents endpoint
+      await axios.delete(
+        `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${docId}/`
+      );
+
+      // Close modal and show success notification
+      setSelectedRow(null);
+      setShowArchiveNotif(true);
+      fetchDocuments(); // Refresh the data to reflect the changes (document removed from main list)
+      setTimeout(() => setShowArchiveNotif(false), 3000);
+    } catch (error) {
+      console.error('Archive error:', error);
+      console.error('📥 Server response:', error.response?.data);
+      setValidation({
+        isOpen: true,
+        type: 'error',
+        title: 'Archive Error',
+        message:
+          error.response?.data?.document_id?.[0] ||
+          error.response?.data?.message ||
+          JSON.stringify(error.response?.data, null, 2) ||
+          'Failed to archive document. Please try again.',
+      });
+    }
+  };
+  
 const handleAddFollowUp = async (formData) => {
   if (!addFollowUpDocId) return;
 
@@ -436,6 +504,7 @@ const handleAddFollowUp = async (formData) => {
                 Archive Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>?
               </div>
               <button className="PublicDocument-ArchiveBtn" onClick={() => {
+                handleArchiveDocument(selectedRow.id);
                 setSelectedRow(null);
                 setShowArchiveNotif(true);
                 setTimeout(() => setShowArchiveNotif(false), 3000);
