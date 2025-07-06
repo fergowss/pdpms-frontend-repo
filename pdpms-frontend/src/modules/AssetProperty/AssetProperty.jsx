@@ -69,13 +69,6 @@ export default function AssetProperty() {
         setIsLoading(false);
       })
       .catch((error) => {
-        console.error('Error fetching properties:', error.response ? error.response.data : error);
-        setValidation({
-          isOpen: true,
-          type: 'error',
-          title: 'Fetch Error',
-          message: 'Failed to load properties. Please check your connection or backend server.',
-        });
         setIsLoading(false);
       });
   }, []);
