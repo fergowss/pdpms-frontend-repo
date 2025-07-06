@@ -65,12 +65,6 @@ export default function PublicDocument() {
       })
       .catch((error) => {
         setIsLoading(false);
-        setValidation({
-          isOpen: true,
-          type: 'error',
-          title: 'Fetch Error',
-          message: 'Failed to load documents. Please check your connection.',
-        });
       });
   };
 
