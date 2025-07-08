@@ -50,4 +50,5 @@ Tailwind and its peer dependencies are already listed as **devDependencies** but
 1. Install dependencies:
    ```bash
    npm install recharts
-  
+   ```
+   npm install react-icons
