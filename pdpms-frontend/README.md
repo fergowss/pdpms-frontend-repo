@@ -46,3 +46,8 @@ Tailwind and its peer dependencies are already listed as **devDependencies** but
    ```jsx
    import './index.css';
    ```
+
+1. Install dependencies:
+   ```bash
+   npm install recharts
+  
