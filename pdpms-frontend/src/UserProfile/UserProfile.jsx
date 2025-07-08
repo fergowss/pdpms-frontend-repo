@@ -5,7 +5,10 @@ import './UserProfile.css';
 
 export default function UserProfile({ user, onLogout }) {
   const [showChangePwd, setShowChangePwd] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(() => {
+    // Load avatar URL from localStorage when component mounts
+    return localStorage.getItem(`user_${user?.username}_avatar`) || null;
+  });
   const fileInputRef = useRef(null);
   const [currentPwd, setCurrentPwd] = useState('');
   const [newPwd, setNewPwd] = useState('');
@@ -111,12 +114,37 @@ export default function UserProfile({ user, onLogout }) {
   // Function to handle avatar change (simple client-side preview for now)
   const handleAvatarChange = (e) => {
     if (e.target.files && e.target.files[0]) {
-      const url = URL.createObjectURL(e.target.files[0]);
-      setAvatarUrl(url);
-      // In a real app, you'd upload this file to your backend here
-      // const formData = new FormData();
-      // formData.append('avatar', e.target.files[0]);
-      // axios.post('/api/upload-avatar', formData)...
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onloadend = () => {
+        const url = reader.result;
+        console.log('Avatar selected, URL generated');
+        setAvatarUrl(url);
+        
+        // Save the data URL to localStorage
+        const avatarKey = `user_${user.username}_avatar`;
+        console.log('Saving avatar to localStorage with key:', avatarKey);
+        localStorage.setItem(avatarKey, url);
+        
+        // Verify it was saved
+        const savedAvatar = localStorage.getItem(avatarKey);
+        console.log('Avatar saved successfully:', !!savedAvatar);
+        
+        // Notify parent component to update the avatar in the user badge
+        if (window.updateUserAvatar) {
+          console.log('Notifying parent component of avatar update');
+          window.updateUserAvatar(url);
+        } else {
+          console.warn('updateUserAvatar function not available on window');
+        }
+      };
+      
+      reader.onerror = (error) => {
+        console.error('Error reading file:', error);
+      };
+      
+      reader.readAsDataURL(file);
     }
   };
 

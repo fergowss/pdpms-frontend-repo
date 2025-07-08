@@ -47,6 +47,7 @@ const modules = [
 export default function App() {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState(null);
+  const [avatarUrl, setAvatarUrl] = useState(null);
   const [activityLogRefreshKey, setActivityLogRefreshKey] = useState(0);
   const [activeModule, setActiveModule] = useState('Dashboard');
   const [activeSub, setActiveSub] = useState(null);
@@ -54,26 +55,86 @@ export default function App() {
   const [profileOpen, setProfileOpen] = useState(false);
 
   useEffect(() => {
+    console.log('App mounted, checking auth...');
     const storedAuth = localStorage.getItem('pdpms_auth');
     const storedUser = localStorage.getItem('pdpms_user');
 
     if (storedAuth === 'true' && storedUser) {
       try {
-        setUser(JSON.parse(storedUser));
+        const userObj = JSON.parse(storedUser);
+        console.log('User found:', userObj.username);
         setIsAuth(true);
+        setUser(userObj);
+
+        // Load avatar URL from localStorage when component mounts
+        const avatarKey = `user_${userObj.username}_avatar`;
+        const savedAvatar = localStorage.getItem(avatarKey);
+        console.log('Loading avatar for key:', avatarKey, 'Found:', !!savedAvatar);
+        
+        if (savedAvatar) {
+          console.log('Setting avatar URL from localStorage');
+          setAvatarUrl(savedAvatar);
+        } else {
+          console.log('No saved avatar found for user:', userObj.username);
+        }
       } catch (e) {
         console.error('Error parsing stored user:', e);
         localStorage.removeItem('pdpms_auth');
         localStorage.removeItem('pdpms_user');
       }
+    } else {
+      console.log('No stored auth or user found');
     }
+
+    // Set up global function to update avatar from child components
+    window.updateUserAvatar = (url) => {
+      setAvatarUrl(url);
+    };
+
+    // Clean up the global function when component unmounts
+    return () => {
+      window.updateUserAvatar = null;
+    };
   }, []);
 
   const handleLogin = async (userData) => {
-    localStorage.setItem('pdpms_auth', 'true');
-    localStorage.setItem('pdpms_user', JSON.stringify(userData));
-    setIsAuth(true);
-    setUser(userData);
+    // First, get the employee details to get the full name
+    try {
+      const employeeRes = await axios.get(`http://127.0.0.1:8000/pdpms/manila-city-hall/employees/${userData.employee_id}/`);
+      const employee = employeeRes.data;
+      // Create a new user object with the full name
+      const userWithFullName = {
+        ...userData,
+        full_name: `${employee.first_name} ${employee.last_name}`.trim()
+      };
+      
+      localStorage.setItem('pdpms_auth', 'true');
+      localStorage.setItem('pdpms_user', JSON.stringify(userWithFullName));
+      
+      // Load avatar for the user after login
+      const avatarKey = `user_${userData.username}_avatar`;
+      const savedAvatar = localStorage.getItem(avatarKey);
+      console.log('Login - Loading avatar for key:', avatarKey, 'Found:', !!savedAvatar);
+      
+      setIsAuth(true);
+      setUser(userWithFullName);
+      
+      if (savedAvatar) {
+        console.log('Login - Setting avatar URL from localStorage');
+        setAvatarUrl(savedAvatar);
+      }
+    } catch (error) {
+      console.error('Error fetching employee details:', error);
+      // If we can't get employee details, use the username as fallback
+      const userWithUsername = {
+        ...userData,
+        full_name: userData.username
+      };
+      localStorage.setItem('pdpms_auth', 'true');
+      localStorage.setItem('pdpms_user', JSON.stringify(userWithUsername));
+      setIsAuth(true);
+      setUser(userWithUsername);
+    }
 
     const login_log_id = `LOG-USER-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const timestamp = new Date().toISOString();
@@ -95,11 +156,12 @@ export default function App() {
   const handleLogout = async () => {
     const logout_log_id = `LOG-USER-${new Date().getFullYear()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
     const timestamp = new Date().toISOString();
+    const currentUsername = user?.username;
 
     try {
       await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/activity-logs/', {
         log_id: logout_log_id,
-        username: user?.username || 'unknown',
+        username: currentUsername || 'unknown',
         action_log: 'Logged out',
         timestamp,
       });
@@ -109,12 +171,22 @@ export default function App() {
       console.error('Logout log error:', err.response?.data || err.message);
     }
 
-    localStorage.removeItem('pdpms_auth');
-    localStorage.removeItem('pdpms_user');
+    // Only remove auth-related items from localStorage
+    const avatarKey = currentUsername ? `user_${currentUsername}_avatar` : null;
+    const avatarUrl = avatarKey ? localStorage.getItem(avatarKey) : null;
+    
+    // Clear all localStorage items
+    localStorage.clear();
+    
+    // Restore the avatar URL if it exists
+    if (avatarKey && avatarUrl) {
+      localStorage.setItem(avatarKey, avatarUrl);
+    }
+
     setIsAuth(false);
     setUser(null);
     setProfileOpen(false);
-    window.location.reload();
+    window.location.href = '/login';
   };
 
   const openSidebarIfCollapsed = () => {
@@ -129,9 +201,19 @@ export default function App() {
     <>
       {profileOpen && <UserProfile user={user} onLogout={handleLogout} />}
       <div className="user-badge" onClick={() => setProfileOpen(prev => !prev)}>
-        <div className="user-badge-circle">{user?.username?.charAt(0).toUpperCase() || 'U'}</div>
+        <div 
+          className="user-badge-circle" 
+          style={avatarUrl ? { 
+            backgroundImage: `url(${avatarUrl})`, 
+            backgroundSize: 'cover', 
+            backgroundPosition: 'center',
+            color: 'transparent'
+          } : {}}
+        >
+          {!avatarUrl && (user?.username?.charAt(0).toUpperCase() || 'U')}
+        </div>
         <span className="user-badge-name">
-          {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1).toLowerCase() : 'User'}
+          {user?.full_name || (user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1).toLowerCase() : 'User')}
         </span>
       </div>
 
@@ -213,7 +295,7 @@ export default function App() {
               }[activeSub] || <p>Start building {activeSub} module.</p>
             ) : (
               {
-                'Dashboard': <Dashboard />,
+                'Dashboard': <Dashboard user={user} />,
                 'Public Document': <PublicDocument />,
                 'Asset Property': <AssetProperty />,
                 'Reports': <Reports />,

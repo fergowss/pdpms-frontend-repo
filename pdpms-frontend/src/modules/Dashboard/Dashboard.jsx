@@ -44,7 +44,9 @@ const DOCUMENT_STATUS_CONFIG = [
   { label: 'Archived', key: 'archived', color: '#31456A' }
 ];
 
-export default function Dashboard() {
+export default function Dashboard({ user }) {
+  // Extract first name from full_name or use first part of username
+  const firstName = user?.full_name ? user.full_name.split(' ')[0] : (user?.username || '');
   const [documentStatus, setDocumentStatus] = useState({
     complete: 0,
     inProgress: 0,
@@ -129,7 +131,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
-        <h1>Welcome back, Herson!</h1>
+        <h1>Welcome back, {firstName || 'User'}!</h1>
       </div>
 
       <div className="dashboard-main">
