@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import axios from 'axios';
 import './Login.css';
 import logo from '../images/pdpms_long.png';
 
@@ -8,18 +9,45 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState('');
   const [showPwd, setShowPwd] = useState(false);
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+    setIsSubmitting(true);
+
     if (!username.trim() || !password.trim()) {
       setError('Both Username and Password are required.');
+      setIsSubmitting(false);
       return;
     }
-    if (username.trim() !== 'admin' || password !== 'admin123') {
-      setError('Invalid Credentials! Please enter valid username and password.');
-      return;
+
+    try {
+      // Fetch users from backend (this approach assumes user_password is sent back for client-side comparison,
+      // which is NOT recommended for production. Ideally, you'd send username/password to a /login endpoint
+      // and the backend would authenticate and return a token/user data).
+      const res = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/users/');
+      const users = res.data;
+
+      // Find matching user
+      const user = users.find(
+        u => u.username === username && u.user_password === password
+      );
+
+      if (!user) {
+        setError('Invalid Credentials! Please enter a valid username and password.');
+        setIsSubmitting(false);
+        return;
+      }
+
+      // Pass user info to parent (App.jsx)
+      if (onLogin) onLogin(user);
+
+    } catch (err) {
+      setError('Failed to connect to server or retrieve user data.');
+      console.error(err);
     }
-    if (onLogin) onLogin({ username });
+    setIsSubmitting(false);
   };
 
   return (
@@ -30,9 +58,9 @@ export default function Login({ onLogin }) {
         <input
           type="text"
           className="login-input"
-          placeholder="admin"
+          placeholder="Enter your username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={e => setUsername(e.target.value)}
           required
         />
 
@@ -42,16 +70,18 @@ export default function Login({ onLogin }) {
             type={showPwd ? 'text' : 'password'}
             className="login-input"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={e => setPassword(e.target.value)}
             required
           />
-          <span className="login-eye" onClick={() => setShowPwd((prev) => !prev)}>
+          <span className="login-eye" onClick={() => setShowPwd(prev => !prev)}>
             {showPwd ? <FiEyeOff /> : <FiEye />}
           </span>
         </div>
         {error && <div className="login-error">{error}</div>}
         <a href="#" className="login-forgot">Forgot Password? <span>Contact Admin.</span></a>
-        <button type="submit" className="login-btn">Sign In</button>
+        <button type="submit" className="login-btn" disabled={isSubmitting}>
+          {isSubmitting ? 'Signing In...' : 'Sign In'}
+        </button>
       </form>
     </div>
   );
