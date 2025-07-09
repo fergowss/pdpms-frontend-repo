@@ -220,41 +220,6 @@
   transition: background 0.18s;
 }
 
-.AssetProperty-Status {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: capitalize;
-  text-align: center;
-  min-width: 5rem;
-}
-
-.AssetProperty-Status.serviceable {
-  background-color: #e3f5e5;
-  color: #00a854;
-  border: 1px solid #b7eb8f;
-}
-
-.AssetProperty-Status.unserviceable {
-  background-color: #fff1f0;
-  color: #f5222d;
-  border: 1px solid #ffa39e;
-}
-
-.AssetProperty-Status.forrepair {
-  background-color: #fff7e6;
-  color: #fa8c16;
-  border: 1px solid #ffd591;
-}
-
-.AssetProperty-Status.condemned {
-  background-color: #e6f7ff;
-  color: #1890ff;
-  border: 1px solid #91d5ff;
-}
-
 /* Scrollbar Styling */
 .AssetProperty-TableContainer::-webkit-scrollbar {
   width: 10px;
