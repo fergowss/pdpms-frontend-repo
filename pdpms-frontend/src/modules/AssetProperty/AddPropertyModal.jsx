@@ -1,15 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import './AssetProperty.css';
 
-function generatePropertyNo() {
-  const year = new Date().getFullYear();
-  const random = Math.random().toString(16).substr(2, 6);
-  return `ASSE-PRPTY-${year}-${random}`;
-}
-
 export default function AddPropertyModal({ open, onClose, onAdd }) {
-  const [formData, setFormData] = useState({
-    propertyNo: '',
+  const initialFormData = {
     documentNo: '',
     parNo: '',
     description: '',
@@ -20,15 +13,12 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     estimatedLife: '',
     remarks: '',
     status: ''
-  });
-  const [isValid, setIsValid] = useState(false);
+  };
+  const [formData, setFormData] = useState(initialFormData);
 
   useEffect(() => {
     if (open) {
-      setFormData(prev => ({
-        ...prev,
-        propertyNo: generatePropertyNo()
-      }));
+      setFormData(initialFormData);
     }
   }, [open]);
 
@@ -38,124 +28,140 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
       ...prev,
       [name]: value
     }));
-    setTimeout(() => {
-      const requiredFields = [
-        'propertyNo',
-        'documentNo',
-        'parNo',
-        'description',
-        'serialNo',
-        'dateAcquired',
-        'unitCost',
-        'endUser',
-        'estimatedLife',
-        'remarks',
-        'status'
-      ];
-      const missing = requiredFields.some(field => !formData[field] || formData[field].toString().trim() === '');
-      setIsValid(!missing);
-    }, 0);
+    console.log('Form data updated:', { ...formData, [name]: value });
   };
 
   if (!open) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isValid && onAdd) {
+    if (onAdd) {
+      console.log('Submitting formData:', formData);
       onAdd(formData);
-      setFormData({
-        propertyNo: generatePropertyNo(), // generate a new property number
-        documentNo: '',
-        parNo: '',
-        description: '',
-        serialNo: '',
-        dateAcquired: '',
-        unitCost: '',
-        endUser: '',
-        estimatedLife: '',
-        remarks: '',
-        status: ''
-      });
-      setIsValid(false); // reset validation
+      setFormData(initialFormData);
     }
+  };
+
+  const handleClose = () => {
+    setFormData(initialFormData);
+    onClose();
   };
 
   return (
     <div className="AssetProperty-AddModalOverlay">
       <div className="AssetProperty-AddModalBox">
-        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} onChange={handleFormChange} noValidate>
+        <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} noValidate>
           <div className="AssetProperty-ModalGrid">
             <div>
-              <label className="AssetProperty-ModalLabel">Property No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="propertyNo" value={formData.propertyNo} required readOnly />
-
               <label className="AssetProperty-ModalLabel">Document No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="documentNo" value={formData.documentNo} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="documentNo" 
+                value={formData.documentNo} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input className="AssetProperty-ModalInput" type="text" name="parNo" value={formData.parNo} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="parNo" 
+                value={formData.parNo} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">Description</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="description" value={formData.description} required />
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                rows={3} 
+                name="description" 
+                value={formData.description} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="serialNo" value={formData.serialNo} required />
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                rows={3} 
+                name="serialNo" 
+                value={formData.serialNo} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
-              <input className="AssetProperty-ModalInput" type="date" name="dateAcquired" value={formData.dateAcquired} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="date" 
+                name="dateAcquired" 
+                value={formData.dateAcquired} 
+                onChange={handleFormChange} 
+              />
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
-              <input className="AssetProperty-ModalInput" type="number" step="0.01" name="unitCost" value={formData.unitCost} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="number" 
+                step="0.01" 
+                name="unitCost" 
+                value={formData.unitCost} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">End User</label>
-              <input className="AssetProperty-ModalInput" type="text" name="endUser" value={formData.endUser} required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="endUser" 
+                value={formData.endUser} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
-              <input className="AssetProperty-ModalInput" type="text" name="estimatedLife" value={formData.estimatedLife} placeholder="0 Years" required />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="estimatedLife" 
+                value={formData.estimatedLife} 
+                onChange={handleFormChange} 
+                placeholder="0 Years" 
+              />
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} name="remarks" value={formData.remarks} required />
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                rows={3} 
+                name="remarks" 
+                value={formData.remarks} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">Status</label>
-              <select className="AssetProperty-ModalInput AssetProperty-ModalSelect" name="status" value={formData.status} required>
+              <select 
+                className="AssetProperty-ModalInput AssetProperty-ModalSelect" 
+                name="status" 
+                value={formData.status} 
+                onChange={handleFormChange}
+              >
                 <option value="">Select Status</option>
-                <option>Serviceable</option>
-                <option>Unserviceable</option>
-                <option>For Repair</option>
-                <option>Condemned</option>
+                <option value="Serviceable">Serviceable</option>
+                <option value="Unserviceable">Unserviceable</option>
+                <option value="For Repair">For Repair</option>
+                <option value="Condemned">Condemned</option>
               </select>
             </div>
           </div>
-          {(() => {
-            const requiredFields = [
-              'propertyNo',
-              'documentNo',
-              'parNo',
-              'description',
-              'serialNo',
-              'dateAcquired',
-              'unitCost',
-              'endUser',
-              'estimatedLife',
-              'remarks',
-              'status'
-            ];
-            const missingFields = requiredFields.filter(field =>
-              !formData[field] || formData[field].toString().trim() === ''
-            );
-            return missingFields.length > 0 ? (
-              <div className="PublicDocument-FormCenterError">All fields are required.</div>
-            ) : null;
-          })()}
           <div className="AssetProperty-ModalActions">
             <button
               type="submit"
               className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary"
-              disabled={!isValid}
-              style={{ opacity: isValid ? 1 : 0.6, cursor: isValid ? 'pointer' : 'not-allowed' }}
             >ADD</button>
-            <button type="button" className="AssetProperty-ModalBtn AssetProperty-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+            <button 
+              type="button" 
+              className="AssetProperty-ModalBtn AssetProperty-ModalBtn--secondary" 
+              onClick={handleClose}
+            >CANCEL</button>
           </div>
         </form>
       </div>
