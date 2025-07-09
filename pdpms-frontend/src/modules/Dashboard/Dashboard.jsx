@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Dashboard.css';
 import { dashboardAPI } from '../../services/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -75,19 +75,15 @@ export default function Dashboard({ user }) {
           dashboardAPI.getPropertyStatus()
         ]);
 
-        if (docStatusRes.data) {
-          setDocumentStatus(prev => ({
-            ...prev,
+        setDocumentStatus({
             complete: docStatusRes.data.complete || 0,
             inProgress: docStatusRes.data.inProgress || 0,
             archived: docStatusRes.data.archived || 0,
             total: docStatusRes.data.total || 0
-          }));
-        }
+          });
 
-        if (propertyStatusRes.data) {
-          setPropertyStatus(prev => 
-            prev.map(item => {
+        setPropertyStatus(
+            propertyStatus.map(item => {
               const apiItem = propertyStatusRes.data.find(api => api.status === item.name);
               return {
                 ...item,
@@ -95,7 +91,6 @@ export default function Dashboard({ user }) {
               };
             })
           );
-        }
         
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -162,18 +157,17 @@ export default function Dashboard({ user }) {
         <div className="property-status-section">
           <div className="donut-container">
             <ErrorBoundary>
-              <ResponsiveContainer width="100%" height={290}>
+              <ResponsiveContainer width="100%" height="100%">
                 <PieChart
-                  onMouseEnter={() => {}}
-                  onMouseLeave={() => {}}
+                
                 >
                   <Pie
                     isAnimationActive={false}
                     data={propertyStatus}
                     cx="50%"
                     cy="50%"
-                    innerRadius="50%"
-                    outerRadius="95%"
+                    innerRadius="40%"
+                    outerRadius="85%"
                     paddingAngle={0}
                     dataKey="value"
                     nameKey="name"
@@ -185,7 +179,7 @@ export default function Dashboard({ user }) {
                         key={`cell-${index}`} 
                         fill={entry.color} 
                         stroke="#fff" 
-                        strokeWidth={1}
+                        strokeWidth={2}
                         onMouseEnter={() => {}}
                         onMouseLeave={() => {}}
                       />
@@ -196,8 +190,8 @@ export default function Dashboard({ user }) {
                     contentStyle={{
                       backgroundColor: '#fff',
                       border: '1px solid #e0e0e0',
-                      borderRadius: '4px',
-                      boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
                     }}
                     itemStyle={{ color: '#333' }}
                     labelStyle={{ fontWeight: 'bold' }}
@@ -241,7 +235,7 @@ function StatusBar({ label, count, percentage, color }) {
           style={{ 
             width: `${percentage}%`,
             backgroundColor: color,
-            boxShadow: `0 0 8px ${color}80`
+            boxShadow: `0 0 6px ${color}60`
           }}
           aria-valuenow={percentage}
           aria-valuemin="0"
@@ -259,8 +253,8 @@ function StatusBar({ label, count, percentage, color }) {
 // Helper function to render pie chart labels
 function renderPieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value }) {
   try {
-    // Skip rendering if values are invalid
-    if (!cx || !cy || value <= 0 || percent < 0.05) return null;
+    // Skip rendering if values are invalid or percentage is too small
+    if (!cx || !cy || value <= 0 || percent < 0.06) return null;
     
     const RADIAN = Math.PI / 180;
     const radius = 20 + (innerRadius || 0) + ((outerRadius || 0) - (innerRadius || 0));
@@ -278,12 +272,12 @@ function renderPieLabel({ cx, cy, midAngle, innerRadius, outerRadius, percent, i
         textAnchor={x > cx ? 'start' : 'end'}
         dominantBaseline="central"
         style={{
-          fontSize: '12px',
+          fontSize: '11px',
           fontWeight: 600,
           textTransform: 'uppercase',
-          letterSpacing: '0.5px',
+          letterSpacing: '0.3px',
           pointerEvents: 'none',
-          textShadow: '0 0 3px white, 0 0 3px white, 0 0 3px white, 0 0 3px white',
+          textShadow: '0 0 3px white, 0 0 3px white, 0 0 3px white',
           opacity: 1
         }}
       >
