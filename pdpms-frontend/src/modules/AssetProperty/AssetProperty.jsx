@@ -41,13 +41,11 @@ export default function AssetProperty() {
     axios
       .get(PROPERTIES_ENDPOINT)
       .then((response) => {
-        // Log the full response to debug
-        console.log('Fetched properties:', response.data);
-        // Map backend fields to frontend fields, with validation
+        console.log('Raw API response:', response.data);
         const fetchedData = Array.isArray(response.data)
           ? response.data
               .filter((item) => item && typeof item === 'object')
-              .map((item, index) => {
+              .map((item) => {
                 if (!item.property_no) return null;
                 return {
                   propertyNo: item.property_no || '',
@@ -56,19 +54,21 @@ export default function AssetProperty() {
                   description: item.description || '',
                   serialNo: item.serial_no || '',
                   dateAcquired: item.date_acquired || '',
-                  unitCost: item.unit_cost != null ? item.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '',
+                  unitCost: item.unit_cost != null ? item.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 0 }) : '',
                   endUser: item.end_user || '',
                   estimatedLife: item.estimated_life_use != null ? item.estimated_life_use.toString() : '',
-                  status: item.property_status || 'Unknown',  // Default to 'Unknown' if undefined
+                  status: item.property_status || 'Unknown',
                   remarks: item.remarks || '',
                 };
               })
-              .filter((item) => item !== null) // Remove invalid records
+              .filter((item) => item !== null)
           : [];
+        console.log('Processed allData:', fetchedData);
         setAllData(fetchedData);
         setIsLoading(false);
       })
       .catch((error) => {
+        console.error('Error fetching properties:', error);
         setIsLoading(false);
       });
   }, []);
@@ -89,15 +89,14 @@ export default function AssetProperty() {
       )
     : allData;
 
-  // Handler for when a property is added
+  // Handler for adding a property
   const handleAddProperty = async (newProperty) => {
     try {
       const backendProperty = {
-        property_no: newProperty.propertyNo,
         document_id: newProperty.documentNo,
         par_no: newProperty.parNo,
         description: newProperty.description,
-        serial_no: newProperty.serialNo,
+        serial_no: newProperty.serialNo || null,
         date_acquired: newProperty.dateAcquired,
         unit_cost: newProperty.unitCost ? parseFloat(newProperty.unitCost) : null,
         end_user: newProperty.endUser,
@@ -105,17 +104,19 @@ export default function AssetProperty() {
         property_status: newProperty.status || 'Serviceable',
         remarks: newProperty.remarks,
       };
+      console.log('Adding property with payload:', backendProperty);
       const response = await axios.post(PROPERTIES_ENDPOINT, backendProperty);
+      console.log('Backend response:', response.data);
       setAllData((prevData) => [
         ...prevData,
         {
-          propertyNo: response.data.property_no,
+          propertyNo: response.data.property_no, // Use backend-generated property_no
           documentNo: response.data.document_id,
           parNo: response.data.par_no,
           description: response.data.description,
-          serialNo: response.data.serial_no,
+          serialNo: response.data.serial_no || '',
           dateAcquired: response.data.date_acquired,
-          unitCost: response.data.unit_cost != null ? response.data.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '',
+          unitCost: response.data.unit_cost != null ? response.data.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 0 }) : '',
           endUser: response.data.end_user,
           estimatedLife: response.data.estimated_life_use != null ? response.data.estimated_life_use.toString() : '',
           status: response.data.property_status || 'Unknown',
@@ -125,45 +126,96 @@ export default function AssetProperty() {
       closeAll();
       setShowAddNotif(true);
       setTimeout(() => setShowAddNotif(false), 3000);
+      // Refetch properties to ensure sync
+      axios.get(PROPERTIES_ENDPOINT)
+        .then((response) => {
+          const fetchedData = Array.isArray(response.data)
+            ? response.data
+                .filter((item) => item && typeof item === 'object')
+                .map((item) => {
+                  if (!item.property_no) return null;
+                  return {
+                    propertyNo: item.property_no || '',
+                    documentNo: item.document_id || '',
+                    parNo: item.par_no || '',
+                    description: item.description || '',
+                    serialNo: item.serial_no || '',
+                    dateAcquired: item.date_acquired || '',
+                    unitCost: item.unit_cost != null ? item.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 0 }) : '',
+                    endUser: item.end_user || '',
+                    estimatedLife: item.estimated_life_use != null ? item.estimated_life_use.toString() : '',
+                    status: item.property_status || 'Unknown',
+                    remarks: item.remarks || '',
+                  };
+                })
+                .filter((item) => item !== null)
+            : [];
+          setAllData(fetchedData);
+        })
+        .catch((fetchError) => console.error('Error refetching properties:', fetchError));
     } catch (error) {
       console.error('Error adding property:', error.response ? error.response.data : error);
-      setValidation({
-        isOpen: true,
-        type: 'error',
-        title: 'Add Property Error',
-        message: error.response?.data?.detail || 'Failed to add property. Please try again.',
-      });
+
+      // Refetch properties to sync frontend with backend
+      axios.get(PROPERTIES_ENDPOINT)
+        .then((response) => {
+          const fetchedData = Array.isArray(response.data)
+            ? response.data
+                .filter((item) => item && typeof item === 'object')
+                .map((item) => {
+                  if (!item.property_no) return null;
+                  return {
+                    propertyNo: item.property_no || '',
+                    documentNo: item.document_id || '',
+                    parNo: item.par_no || '',
+                    description: item.description || '',
+                    serialNo: item.serial_no || '',
+                    dateAcquired: item.date_acquired || '',
+                    unitCost: item.unit_cost != null ? item.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 0 }) : '',
+                    endUser: item.end_user || '',
+                    estimatedLife: item.estimated_life_use != null ? item.estimated_life_use.toString() : '',
+                    status: item.property_status || 'Unknown',
+                    remarks: item.remarks || '',
+                  };
+                })
+                .filter((item) => item !== null)
+            : [];
+          setAllData(fetchedData);
+        })
+        .catch((fetchError) => console.error('Error refetching properties:', fetchError));
     }
   };
 
-  // Handler for when a property is updated
+  // Handler for updating property
   const handleUpdateProperty = async (updatedData) => {
     try {
+      console.log('Updating property with propertyNo:', updatedData.propertyNo);
+      const response = await axios.get(`${PROPERTIES_ENDPOINT}${updatedData.propertyNo}/`);
+      const currentData = response.data;
+
       const backendUpdate = {
-        property_no: updatedData.propertyNo,
-        document_id: updatedData.documentNo,
-        par_no: updatedData.parNo,
-        description: updatedData.description,
-        serial_no: updatedData.serialNo,
-        date_acquired: updatedData.dateAcquired,
-        unit_cost: updatedData.unitCost ? parseFloat(updatedData.unitCost) : null,
-        end_user: updatedData.endUser,
+        property_no: currentData.property_no || updatedData.propertyNo,
+        document_id: currentData.document_id || '',
+        par_no: currentData.par_no || '',
+        description: currentData.description || '',
+        serial_no: updatedData.serialNo || '',
+        date_acquired: currentData.date_acquired || '',
+        unit_cost: updatedData.unitCost != null ? parseFloat(updatedData.unitCost) : null,
+        end_user: updatedData.endUser || '',
         estimated_life_use: updatedData.estimatedLife ? parseInt(updatedData.estimatedLife) : null,
         property_status: updatedData.status || 'Serviceable',
-        remarks: updatedData.remarks,
+        remarks: updatedData.remarks || '',
       };
+
       await axios.put(`${PROPERTIES_ENDPOINT}${updatedData.propertyNo}/`, backendUpdate);
+
       setAllData((prevData) =>
         prevData.map((item) =>
-          item.propertyNo === selectedRow.propertyNo
+          item.propertyNo === updatedData.propertyNo
             ? {
-                propertyNo: updatedData.propertyNo,
-                documentNo: updatedData.documentNo,
-                parNo: updatedData.parNo,
-                description: updatedData.description,
-                serialNo: updatedData.serialNo,
-                dateAcquired: updatedData.dateAcquired,
-                unitCost: updatedData.unitCost != null ? updatedData.unitCost.toLocaleString('en-US', { minimumFractionDigits: 2 }) : '',
+                ...item,
+                serialNo: updatedData.serialNo || '',
+                unitCost: updatedData.unitCost != null ? parseFloat(updatedData.unitCost).toLocaleString('en-US', { minimumFractionDigits: 0 }) : '',
                 endUser: updatedData.endUser,
                 estimatedLife: updatedData.estimatedLife != null ? updatedData.estimatedLife.toString() : '',
                 status: updatedData.status || 'Unknown',
@@ -172,16 +224,48 @@ export default function AssetProperty() {
             : item
         )
       );
-      setSelectedRow(null);
+      closeAll();
       setShowUpdateNotif(true);
       setTimeout(() => setShowUpdateNotif(false), 3000);
     } catch (error) {
       console.error('Error updating property:', error.response ? error.response.data : error);
+      let errorMessage = 'Failed to update property. Please try again.';
+      if (error.response?.status === 404) {
+        errorMessage = 'Property not found. It may have been deleted. Refreshing property list...';
+        axios.get(PROPERTIES_ENDPOINT)
+          .then((response) => {
+            const fetchedData = Array.isArray(response.data)
+              ? response.data
+                  .filter((item) => item && typeof item === 'object')
+                  .map((item) => {
+                    if (!item.property_no) return null;
+                    return {
+                      propertyNo: item.property_no || '',
+                      documentNo: item.document_id || '',
+                      parNo: item.par_no || '',
+                      description: item.description || '',
+                      serialNo: item.serial_no || '',
+                      dateAcquired: item.date_acquired || '',
+                      unitCost: item.unit_cost != null ? item.unit_cost.toLocaleString('en-US', { minimumFractionDigits: 0 }) : '',
+                      endUser: item.end_user || '',
+                      estimatedLife: item.estimated_life_use != null ? item.estimated_life_use.toString() : '',
+                      status: item.property_status || 'Unknown',
+                      remarks: item.remarks || '',
+                    };
+                  })
+                  .filter((item) => item !== null)
+              : [];
+            setAllData(fetchedData);
+          })
+          .catch((fetchError) => console.error('Error refetching properties:', fetchError));
+      } else {
+        errorMessage = error.response?.data?.detail || JSON.stringify(error.response?.data) || errorMessage;
+      }
       setValidation({
         isOpen: true,
         type: 'error',
         title: 'Update Property Error',
-        message: error.response?.data?.detail || 'Failed to update property. Please try again.',
+        message: errorMessage,
       });
     }
   };
@@ -286,6 +370,7 @@ export default function AssetProperty() {
                 <tr
                   key={index}
                   onClick={() => {
+                    console.log('Selected row with propertyNo:', row.propertyNo);
                     closeAll();
                     setSelectedRow(row);
                     setShowEditConfirm(true);
@@ -305,9 +390,7 @@ export default function AssetProperty() {
                     {row.serialNo
                       ? row.serialNo.split(',').map((part, idx, arr) => {
                           const trimmedPart = part.trim();
-                          // If the part contains a quote, it's a component name
                           if (trimmedPart.includes('"') && !trimmedPart.endsWith('"')) {
-                            // This is a component name, format it with the next part
                             const nextPart = arr[idx + 1] ? arr[idx + 1].trim() : '';
                             return (
                               <div key={idx} style={{ marginBottom: '4px' }}>
@@ -315,11 +398,9 @@ export default function AssetProperty() {
                               </div>
                             );
                           }
-                          // Skip if this is a serial number that was already included with its component
                           if (idx > 0 && arr[idx - 1].includes('"') && !arr[idx - 1].endsWith('"')) {
                             return null;
                           }
-                          // For any remaining parts that don't match the pattern
                           return (
                             <div key={idx} style={{ marginBottom: '4px' }}>
                               {trimmedPart}
