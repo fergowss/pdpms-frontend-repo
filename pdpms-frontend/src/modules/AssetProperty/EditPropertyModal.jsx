@@ -27,7 +27,7 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
         parNo: row.parNo || '',
         serialNo: row.serialNo || '',
         dateAcquired: row.dateAcquired || '',
-        unitCost: row.unitCost || '',
+        unitCost: row.unitCost ? row.unitCost.replace(/,/g, '') : '',
         endUser: row.endUser || '',
         estimatedLife: row.estimatedLife || '',
         status: row.status || 'Serviceable',
@@ -36,8 +36,12 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
       };
       setFormData(newData);
       setInitialData(newData);
-      setFormValid(true);
+      // Validate initial data for required fields
+      const requiredFields = ['endUser', 'status', 'remarks'];
+      const isValid = requiredFields.every(field => newData[field]?.toString().trim() !== '');
+      setFormValid(isValid);
       setHasChanges(false);
+      console.log('Initial formData:', newData, 'formValid:', isValid);
     }
   }, [row]);
 
@@ -49,13 +53,20 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
     }));
 
     if (initialData) {
-      // Check if any editable field has changed
-      const changed =
-        (name === 'endUser' ? value : formData.endUser) !== initialData.endUser ||
-        (name === 'status' ? value : formData.status) !== initialData.status ||
-        (name === 'remarks' ? value : formData.remarks) !== initialData.remarks;
+      // Check for changes in any editable field
+      const editableFields = ['serialNo', 'unitCost', 'estimatedLife', 'endUser', 'status', 'remarks'];
+      const changed = editableFields.some(field =>
+        (name === field ? value : formData[field]) !== initialData[field]
+      );
       setHasChanges(changed);
-      setFormValid(true);
+
+      // Validate required fields
+      const requiredFields = ['endUser', 'status', 'remarks'];
+      const isValid = requiredFields.every(field =>
+        (name === field ? value : formData[field])?.toString().trim() !== ''
+      );
+      setFormValid(isValid);
+      console.log('Field changed:', name, value, 'hasChanges:', changed, 'formValid:', isValid);
     }
   };
 
@@ -64,7 +75,17 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formValid && hasChanges && onUpdate) {
-      onUpdate(formData);
+      const updatedData = {
+        propertyNo: formData.propertyNo,
+        serialNo: formData.serialNo,
+        unitCost: formData.unitCost ? parseFloat(formData.unitCost) : null,
+        endUser: formData.endUser,
+        estimatedLife: formData.estimatedLife ? formData.estimatedLife : null,
+        status: formData.status,
+        remarks: formData.remarks
+      };
+      console.log('Submitting updatedData:', updatedData);
+      onUpdate(updatedData);
     }
   };
 
@@ -88,7 +109,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.parNo} 
                 disabled
                 style={{background:'#e8eef7'}}
-                required
               />
 
               <label className="AssetProperty-ModalLabel">Description</label>
@@ -99,7 +119,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.description}
                 disabled
                 style={{background:'#e8eef7'}}
-                required 
               />
             </div>
             <div>
@@ -109,9 +128,7 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 type="text"
                 name="serialNo"
                 value={formData.serialNo} 
-                disabled
-                style={{background:'#e8eef7'}}
-                required
+                onChange={handleInputChange}
               />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
@@ -122,7 +139,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.dateAcquired} 
                 disabled
                 style={{background:'#e8eef7'}}
-                required
               />
 
               <label className="AssetProperty-ModalLabel">Unit Cost</label>   
@@ -132,9 +148,7 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 name="unitCost"
                 step="0.01" 
                 value={formData.unitCost}
-                disabled
-                style={{background:'#e8eef7'}}
-                required
+                onChange={handleInputChange}
               />
 
               <label className="AssetProperty-ModalLabel">End User</label>
@@ -154,9 +168,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 type="text" 
                 name="estimatedLife"
                 value={formData.estimatedLife}
-                disabled
-                style={{background:'#e8eef7'}}
-                required
+                onChange={handleInputChange}
+                placeholder="0 Years"
               />
 
               <label className="AssetProperty-ModalLabel">Status</label>
@@ -185,6 +198,9 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               />
             </div>
           </div>
+          { !formValid && (
+            <div className="PublicDocument-FormCenterError">End User, Status, and Remarks are required.</div>
+          )}
           <div className="AssetProperty-ModalActions">
             <button 
               type="submit" 
