@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import { normalizeRole, filterModulesByRole } from './utils/user_roles';
 import axios from 'axios';
 import './App.css';
 import bottomLogo from './images/pdpms_long.png';
@@ -44,6 +45,8 @@ const modules = [
   { id: 'Admin', subs: ['Activity Log', 'Employee Management', 'User Management'] },
 ];
 
+// Role utilities imported from ./utils/user_roles
+
 export default function App() {
   const [isAuth, setIsAuth] = useState(false);
   const [user, setUser] = useState(null);
@@ -53,6 +56,38 @@ export default function App() {
   const [activeSub, setActiveSub] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  // Resolve the user's role
+  // Determine the raw role string from user object (checks multiple possible fields)
+  const rawRoleString = user?.username === 'admin'
+    ? 'admin'
+    : (
+        user?.user_access ||
+        user?.user_access_level ||
+        user?.access_level ||
+        user?.role ||
+        user?.access ||
+        user?.access_type ||
+        user?.user_type ||
+        ''
+      );
+
+  const role = normalizeRole(rawRoleString);
+
+  // Compute which modules should be shown for the current role
+  const visibleModules = useMemo(() => {
+    const vm = filterModulesByRole(role, modules);
+    console.log('Raw role string:', rawRoleString, '→ resolved:', role, '→ visibleModules:', vm.map(m=>m.id));
+    return vm;
+  }, [role]);
+
+  // Ensure the currently active module is allowed for the current role
+  useEffect(() => {
+    if (!visibleModules.some(m => m.id === activeModule)) {
+      setActiveModule('Dashboard');
+      setActiveSub(null);
+    }
+  }, [visibleModules]);
 
   useEffect(() => {
     console.log('App mounted, checking auth...');
@@ -251,7 +286,7 @@ export default function App() {
             ☰
           </button>
           <nav className="main-nav">
-            {modules.map(m => (
+            {visibleModules.map(m => (
               <div key={m.id}>
                 <div
                   className={'nav-item' + (activeModule === m.id ? ' active' : '')}
