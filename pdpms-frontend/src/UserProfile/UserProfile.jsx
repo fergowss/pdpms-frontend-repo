@@ -63,18 +63,20 @@ export default function UserProfile({ user, onLogout }) {
             <input type="file" accept="image/*" ref={fileInputRef} style={{ display: 'none' }} onChange={handleAvatarChange} />
           </div>
           <div className="profile-name-role">
-            <h2>{user.username.charAt(0).toUpperCase() + user.username.slice(1)}</h2>
+            <h2>{user.full_name || (user.username.charAt(0).toUpperCase() + user.username.slice(1))}</h2>
             <span className="role">{user.access_level}</span>
+            {user.position && <div className="profile-position">{user.position}</div>}
+            <div className="profile-dept">{user.department || 'Electronic Data Processing Services'}</div>
           </div>
         </div>
 
         <div className="personal-info">
           <h3 className="section-header"><FiInfo className="info-icon" /> Personal Information</h3>
-          <div className="info-row"><label>Name</label><div className="profile-value">{user.name}</div></div>
+          <div className="info-row"><label>Name</label><div className="profile-value">{user.full_name || user.name || '-'}</div></div>
           <div className="info-row"><label>Username</label><div className="profile-value">{user.username}</div></div>
           <div className="info-row"><label>Employee ID</label><div className="profile-value">{user.employee_id}</div></div>
-          <div className="info-row"><label>Contact No.</label><div className="profile-value">{user.contact_no}</div></div>
-          <div className="info-row"><label>Status</label><div className="profile-value">{user.status}</div></div>
+          <div className="info-row"><label>Contact No.</label><div className="profile-value">{user.contact_no || '-'}</div></div>
+          <div className="info-row"><label>Status</label><div className="profile-value">{user.status || '-'}</div></div>
         </div>
 
         <button className="logout-section" onClick={onLogout}><FiLogOut className="logout-icon" /> Log Out</button>

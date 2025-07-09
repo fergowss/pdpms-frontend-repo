@@ -247,9 +247,16 @@
   background:#fff;
   border:1px solid #888;
   border-radius:0.25rem;
-  font-size:0.7rem;
-  padding:0.15rem 0.5rem;
+  font-size:0.60rem; /* smaller font to fit */
+  padding:0.1rem 0.4rem; /* tighter padding */
+  white-space: nowrap; /* prevent wrapping */
   cursor:pointer;
+}
+.profile-dept {
+  font-size: 0.8rem; /* slightly smaller */
+  white-space: nowrap; /* prevent wrapping */
+  margin-top: 0.05rem;
+  padding:0.15rem 0rem;
 }
 .add-photo-btn:hover{background:#f0f0f0;}
 

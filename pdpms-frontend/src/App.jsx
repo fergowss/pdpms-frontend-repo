@@ -97,6 +97,26 @@ export default function App() {
     };
   }, []);
 
+  // Ensure user has contact_no and status
+  useEffect(() => {
+    if (user && (!user.contact_no || !user.status) && user.employee_id) {
+      axios.get(`http://127.0.0.1:8000/pdpms/manila-city-hall/employees/${user.employee_id}/`)
+        .then(res => {
+          const emp = res.data;
+          const patched = {
+            ...user,
+            contact_no: emp.contact_no || emp.phone_number || emp.mobile || user.contact_no || '',
+            status: emp.employee_status || emp.status || emp.employment_status || user.status || '',
+            position: emp.position_title || emp.position || user.position || '',
+            department: emp.department || emp.department_name || user.department || 'Electronic Data Processing Services',
+          };
+          setUser(patched);
+          localStorage.setItem('pdpms_user', JSON.stringify(patched));
+        })
+        .catch(err => console.error('Failed to backfill user profile:', err));
+    }
+  }, [user]);
+
   const handleLogin = async (userData) => {
     // First, get the employee details to get the full name
     try {
@@ -105,7 +125,11 @@ export default function App() {
       // Create a new user object with the full name
       const userWithFullName = {
         ...userData,
-        full_name: `${employee.first_name} ${employee.last_name}`.trim()
+        full_name: `${employee.first_name} ${employee.last_name}`.trim(),
+        contact_no: employee.contact_no || employee.phone_number || employee.mobile || '',
+        status: employee.employee_status || employee.status || employee.employment_status || '',
+        position: employee.position_title || employee.position || '',
+        department: employee.department || employee.department_name || 'Electronic Data Processing Services',
       };
       
       localStorage.setItem('pdpms_auth', 'true');

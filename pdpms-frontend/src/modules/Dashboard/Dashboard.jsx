@@ -173,7 +173,7 @@ export default function Dashboard({ user }) {
                     cx="50%"
                     cy="50%"
                     innerRadius="40%"
-                    outerRadius="85%"
+                    outerRadius="88%"
                     paddingAngle={0}
                     dataKey="value"
                     nameKey="name"
