@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Component } from 'react';
 import './Dashboard.css';
 import { dashboardAPI } from '../../services/api';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -75,15 +75,19 @@ export default function Dashboard({ user }) {
           dashboardAPI.getPropertyStatus()
         ]);
 
-        setDocumentStatus({
+        if (docStatusRes.data) {
+          setDocumentStatus(prev => ({
+            ...prev,
             complete: docStatusRes.data.complete || 0,
             inProgress: docStatusRes.data.inProgress || 0,
             archived: docStatusRes.data.archived || 0,
             total: docStatusRes.data.total || 0
-          });
+          }));
+        }
 
-        setPropertyStatus(
-            propertyStatus.map(item => {
+        if (propertyStatusRes.data) {
+          setPropertyStatus(prev => 
+            prev.map(item => {
               const apiItem = propertyStatusRes.data.find(api => api.status === item.name);
               return {
                 ...item,
@@ -91,6 +95,7 @@ export default function Dashboard({ user }) {
               };
             })
           );
+        }
         
       } catch (err) {
         console.error('Error fetching dashboard data:', err);
@@ -159,7 +164,8 @@ export default function Dashboard({ user }) {
             <ErrorBoundary>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart
-                
+                  onMouseEnter={() => {}}
+                  onMouseLeave={() => {}}
                 >
                   <Pie
                     isAnimationActive={false}
