@@ -102,17 +102,17 @@
 }
 
 .UserManagement-TableWrapper {
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
   width: 100%;
-  margin: 0 auto;
+  margin: 1rem auto 0 auto;
   background: #fff;
   border-radius: 0.5rem;
   border: 1px solid #e0e0e0;
-  min-height: 18rem;
-  max-height: 27rem;
-  overflow-x: auto;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
   display: flex;
-  margin-top: 1rem;
   flex-direction: column;
   scrollbar-width: thin;
   scrollbar-color: #4C6085 #f6f8fa;

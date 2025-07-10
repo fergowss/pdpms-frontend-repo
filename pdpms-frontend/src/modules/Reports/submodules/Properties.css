@@ -113,17 +113,17 @@
 
 .Properties-TableWrapper {
   flex: 1 1 auto;
+  height: 100%;
+  min-height: 0;
   overflow-x: auto;
   overflow-y: auto;
   border-radius: 0.5rem;
   border: 1px solid #e6eaf2;
   margin: 1rem 1.5rem 2rem 1.5rem;
   background: #fff;
-  max-height: 28rem;
-  min-height: 18rem;
   max-width: 100%;
   min-width: 0;
-  padding-bottom: 0.5rem; 
+  padding-bottom: 0.5rem;
   box-sizing: border-box;
 }
 
