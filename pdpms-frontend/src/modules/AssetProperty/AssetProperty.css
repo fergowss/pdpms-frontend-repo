@@ -1,3 +1,4 @@
+/* Main container */
 .AssetProperty-Container {
   width: 100%;
   height: 100%;
@@ -11,9 +12,10 @@
   min-width: 40rem;
   min-height: 30rem;
   padding: 0;
-  overflow: hidden;
+  overflow: hidden; /* Prevent page-wide scrollbar */
 }
 
+/* Header row */
 .AssetProperty-HeaderRow {
   display: flex;
   align-items: flex-end;
@@ -24,6 +26,7 @@
   box-sizing: border-box;
 }
 
+/* Header tabs */
 .AssetProperty-HeaderTabs {
   display: flex;
   margin-bottom: 0.5rem;
@@ -32,6 +35,7 @@
   gap: 2rem;
 }
 
+/* Title */
 .AssetProperty-Title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -39,11 +43,13 @@
   margin: 0;
 }
 
+/* Search box */
 .AssetProperty-SearchBox {
   display: flex;
   flex: 1;
 }
 
+/* Search bar row */
 .AssetProperty-SearchBarRow {
   display: flex;
   justify-content: flex-end;
@@ -53,6 +59,7 @@
   flex: 1;
 }
 
+/* Search bar */
 .AssetProperty-SearchBar {
   height: 2rem;
   width: 15rem;
@@ -68,25 +75,19 @@
 }
 
 .AssetProperty-SearchBar:focus {
-  border-color: #223354;
+  border-color: #3571b9;
 }
 
-.AssetProperty-SearchInput:focus {
-  border-color: #223354;
-}
-
-
-
+/* Add button container */
 .AssetProperty-AddBtnContainer {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  padding: 1.2rem 1.5rem;
+  padding: 1.2rem 1.4rem;
   background: transparent;
-  margin-top: -5rem; 
-  margin-right: 0.1rem;
 }
 
+/* Add button */
 .AssetProperty-AddBtn {
   background: #223354;
   color: #fff;
@@ -97,25 +98,19 @@
   font-weight: 400;
   box-shadow: 0 1px 2px rgba(44,62,80,0.08);
   cursor: pointer;
-  transition: background 0.2s, box-shadow 0.2s;
-  white-space: nowrap;
+  transition: background 0.2s;
 }
 
 .AssetProperty-AddBtn:hover {
   background: #2a5db0;
-  box-shadow: 0 1px 3px rgba(44,62,80,0.15);
 }
 
-.AssetProperty-AddBtn:active {
-  transform: translateY(0);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
-}
-
+/* Table container */
 .AssetProperty-TableContainer {
   flex: 1 1 auto;
-  height: 100%;
+  height: 90%;
   min-height: 0;
-  margin: 0.5rem 1.5rem 1.5rem 1.5rem;
+  margin: 0.5rem 1.5rem auto 1.5rem;
   background: #fff;
   border-radius: 0.5rem;
   border: 1px solid #e0e0e0;
@@ -124,16 +119,21 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  overflow: auto;
+  overflow-x: auto; /* Enable horizontal scrolling for the table */
+  overflow-y: auto; /* Keep vertical scrolling */
 }
 
+/* Table */
 .AssetProperty-Table {
-  width: 100%;
+  width: max-content; /* Allow table to expand beyond container width */
+  min-width: 100%; /* Ensure table takes full container width if content is small */
   border-collapse: collapse;
   font-size: 0.9rem;
   background: #fff;
+  table-layout: auto; /* Allow table to adjust column widths naturally */
 }
 
+/* Table headers and cells */
 .AssetProperty-Table th, 
 .AssetProperty-Table td {
   padding: 0.8rem 0.7rem;
@@ -156,71 +156,27 @@
   letter-spacing: normal;
 }
 
-
-.AssetProperty-Table th, 
-.AssetProperty-Table td {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding: 0.8rem 0.7rem;
-  text-align: left;
-  vertical-align: top;
-  border-bottom: 1px solid #f0f0f0;
-  line-height: 1.4;
-}
-
-/* Description column specific styling */
-.AssetProperty-Table td.description-cell {
-  white-space: pre-line;
-  word-break: break-word;
+/* Wrapping cells (description, serial-no, remarks) */
+.AssetProperty-Table td.description-cell,
+.AssetProperty-Table td.serial-no-cell,
+.AssetProperty-Table td.remarks-cell {
+  white-space: pre-wrap; /* Preserve newlines and wrap text */
+  word-break: break-word; /* Break long words */
   min-width: 150px;
-  max-width: 200px;
-  padding: 8px 6px;
-  line-height: 1.6;
-}
-
-/* Serial No. column specific styling */
-.AssetProperty-Table td.serial-no-cell {
-  white-space: normal;
-  min-width: 200px; /* Increased minimum width */
-  max-width: 400px; /* Increased maximum width */
+  max-width: 250px; /* Reasonable max-width to prevent excessive stretching */
   padding: 8px 10px;
   line-height: 1.6;
-  overflow-x: auto; /* Add horizontal scrollbar if needed */
+  overflow: hidden; /* Ensure no cell-level overflow */
 }
 
-
-/* Ensure serial number items have proper spacing and don't wrap */
-.AssetProperty-Table td.serial-no-cell > div {
-  margin-bottom: 8px;
-  white-space: nowrap; /* Prevent wrapping within each part */
-  min-width: 100%; /* Ensure div takes full width of cell */
-}
-
-
-/* Remove bottom margin from last item */
-.AssetProperty-Table td.serial-no-cell > div:last-child {
-  margin-bottom: 0;
-}
-
-/* Ensure each serial number has proper spacing */
-.AssetProperty-Table td.serial-no-cell span {
-  display: block;
-  margin: 2px 0;
-}
-
-
-.AssetProperty-Table tr:last-child td {
-  border-bottom: none;
-}
-
+/* Table row hover effect */
 .AssetProperty-Table tbody tr:hover {
   background: #eaf0fa;
   cursor: pointer;
   transition: background 0.18s;
 }
 
-/* Scrollbar Styling */
+/* Scrollbar styling */
 .AssetProperty-TableContainer::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -245,14 +201,11 @@
   background: #3571b9;
 }
 
-/* Horizontal scrollbar specific */
 .AssetProperty-TableContainer {
   scrollbar-width: thin;
   scrollbar-color: #4C6085 #f6f8fa;
-  overflow-x: auto;
 }
 
-/* For Firefox */
 @supports (scrollbar-width: thin) {
   .AssetProperty-TableContainer {
     scrollbar-width: thin;
@@ -260,17 +213,23 @@
   }
 }
 
-/* Responsive adjustments */
+/* Media query for smaller screens */
 @media (max-width: 1200px) {
   .AssetProperty-Table {
-    display: block;
-    overflow-x: auto;
-    white-space: nowrap;
+    display: table; /* Revert to table display */
+    width: max-content; /* Allow table to expand for horizontal scrolling */
+    min-width: 100%; /* Ensure table takes full container width if content is small */
   }
   
   .AssetProperty-Table th,
   .AssetProperty-Table td {
-    min-width: 120px;
+    min-width: 100px; /* Default min-width for responsiveness */
+  }
+  
+  .AssetProperty-Table td.description-cell,
+  .AssetProperty-Table td.serial-no-cell,
+  .AssetProperty-Table td.remarks-cell {
+    min-width: 150px; /* Maintain readability for wrapping columns */
   }
 }
 
@@ -285,18 +244,54 @@
     width: 100%;
   }
   
-  .AssetProperty-SearchInput {
-    width: 100%;
-  }
-  
   .AssetProperty-AddBtn {
     width: 100%;
   }
+
+  .AssetProperty-ModalGrid {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .AssetProperty-AddModalBox,
+  .AssetProperty-EditModalBox {
+    min-width: 90%;
+    max-width: 95%;
+    padding: 1rem;
+  }
 }
 
-/* ================= MODAL STYLES ================= */
+/* Suggestions dropdown */
+.AssetProperty-Suggestions {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 180px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 
-/* Notification and Modal Overlay Styles */
+.AssetProperty-SuggestionItem {
+  padding: 8px 10px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  color: #223354;
+}
+
+.AssetProperty-SuggestionItem:hover,
+.AssetProperty-SuggestionItem--focused {
+  background-color: #f0f4ff;
+}
+
+/* Notification overlay */
 .AssetProperty-NotificationOverlay {
   position: fixed;
   top: 0;
@@ -306,7 +301,7 @@
   background: rgba(0, 0, 0, 0.15);
   display: flex;
   justify-content: center;
-  align-items: center !important;
+  align-items: center;
   padding: 0;
   z-index: 2000;
   backdrop-filter: none;
@@ -333,7 +328,7 @@
   gap: 0.6rem;
 }
 
-/* Edit Notification */
+/* Edit notification */
 .AssetProperty-EditNotificationOverlay {
   position: fixed;
   top: 0;
@@ -351,105 +346,36 @@
 .AssetProperty-EditNotification {
   background: #e8eef7;
   border: 1.7px solid #bfc7d1;
-  border-radius: 0.75rem; 
-  padding: 1.8rem 2.2rem 2rem 2.2rem; 
-  min-width: 220px !important; 
-  max-width: 220px !important; 
-  box-shadow: 0 4px 20px rgba(34, 51, 84, 0.15); 
+  border-radius: 0.75rem;
+  padding: 1.8rem 2.2rem 2rem 2.2rem;
+  min-width: 220px;
+  max-width: 220px;
+  box-shadow: 0 4px 20px rgba(34, 51, 84, 0.15);
   position: relative;
-  text-align: center !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  min-height: 110px; 
-  padding: 1rem 0.5rem; 
-}
- 
-
-.AssetProperty-EditNotification-Title {
-    width: 100% !important;
-    text-align: center !important;
-    margin-bottom: 0.5rem !important; 
-    font-size: 1.1rem !important; 
-    font-weight: 500 !important;
-    color: #000 !important;
-    line-height: 1.4;
-  }
-
-.AssetProperty-EditNotification-Actions {
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.AssetProperty-EditNotification-EditBtn {
-  width: auto !important;
-  display: block !important;
-  margin: 0 auto !important;
-  background: #eaf0fa !important;
-  color: #2B3E63 !important;
-  border: 2px solid #2B3E63 !important;
-  border-radius: 0.35rem !important;
-  padding: 0.45rem 1.8rem !important;
-  font-size: 0.95rem !important;
-  font-weight: 500 !important;
-  cursor: pointer !important;
-  transition: all 0.2s ease !important;
-  margin-bottom:rem;
-}
-
-.AssetProperty-EditNotification-EditBtn:hover {
-  background: #2B3E63 !important;
-  color: #fff !important;
-}
-
-.AssetProperty-EditNotification-Title {
-  width: 100%;
   text-align: center;
-  margin-bottom: 1.2rem;
-}
-
-.AssetProperty-EditNotification-Actions {
-  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.AssetProperty-EditNotification-EditBtn {
-  width: auto;
-  display: block;
-  margin: 0 auto;
-  background: #eaf0fa;
-  color: #2B3E63;
-  border: 2px solid #2B3E63;
-  border-radius: 0.35rem;
-  padding: 0.45rem 1.8rem;
-  font-size: 0.95rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  min-height: 110px;
 }
 
 .AssetProperty-EditNotification-Title {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 1.2rem;
   font-size: 1.1rem;
   font-weight: 500;
   color: #000000;
-  margin-bottom: 1.2rem;
   line-height: 1.4;
-  text-align: center;
 }
 
-/* Style the property number to be bold and black */
 .AssetProperty-EditNotification-Title b {
   color: #000000;
   font-weight: 500;
 }
 
 .AssetProperty-EditNotification-Actions {
+  width: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -498,27 +424,12 @@
   opacity: 1;
 }
 
-/* Edit Form Overlay */
-.AssetProperty-EditFormOverlay {
+/* Modal styles */
+.AssetProperty-AddModalOverlay {
   position: fixed;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.15);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 2000;
-  backdrop-filter: none;
-}
-
-/* Add Property Modal */
-.AssetProperty-AddModalOverlay {
-  position: fixed;
-  top: 0; 
-  left: 0; 
-  right: 0; 
+  right: 0;
   bottom: 0;
   width: 100vw;
   height: 100vh;
@@ -543,14 +454,15 @@
   display: flex;
   flex-direction: column;
   margin-top: -20px;
+  overflow: visible;
+  position: relative;
 }
 
-/* Edit Property Modal */
 .AssetProperty-EditModalOverlay {
   position: fixed;
-  top: 0; 
-  left: 0; 
-  right: 0; 
+  top: 0;
+  left: 0;
+  right: 0;
   bottom: 0;
   width: 100vw;
   height: 100vh;
@@ -567,18 +479,22 @@
   background: #f6fcff;
   border: 2px solid #2B3E63;
   border-radius: 0.7rem;
-  padding: 1.5rem 2.5rem 1.1rem 2.5rem;
+  overflow: visible !important;
+  padding: 1rem 2.5rem 1.1rem 2.5rem;
   box-shadow: 0 4px 32px rgba(34, 51, 84, 0.14);
-  min-width: 900px;
-  max-width: 1100px;
+  min-width: 700px;
+  max-width: 900px;
   min-height: 400px;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .AssetProperty-ModalForm {
   width: 100%;
+  overflow: visible !important;
+  position: relative;
 }
 
 .AssetProperty-ModalGrid {
@@ -616,6 +532,12 @@
   border-color: #3571b9;
 }
 
+.AssetProperty-ModalTextarea:disabled {
+  background: #e8eef7;
+  cursor: not-allowed;
+  color: #666;
+}
+
 .AssetProperty-ModalLabel {
   font-weight: 600;
   font-size: 1.04rem;
@@ -639,25 +561,28 @@
   width: 100%;
 }
 
+.AssetProperty-ModalInput:disabled,
+.AssetProperty-ModalSelect:disabled {
+  background: #e8eef7;
+  cursor: not-allowed;
+  color: #666;
+}
+
 .AssetProperty-ModalSelect {
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
   background-color: #f6fcff;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%232B3E63' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%232B3E63' viewBox='0 0 24 24' fill='%232B3E63' stroke='%232B3E63' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 0.7em top 50%;
   background-size: 0.8em auto;
   padding-right: 2.2em;
 }
-.AssetProperty-ModalInput:focus {
-  border-color: #3571b9;
-}
 
-.AssetProperty-ModalTextarea {
-  resize: none !important;
-  min-height: 6.5rem;
-  resize: vertical;
+.AssetProperty-ModalInput:focus,
+.AssetProperty-ModalSelect:focus {
+  border-color: #3571b9;
 }
 
 .AssetProperty-ModalActions {
@@ -677,19 +602,34 @@
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+
 .AssetProperty-ModalBtn--primary {
   background: #2B3E63;
   color: #fff;
   border-color: #2B3E63;
 }
+
 .AssetProperty-ModalBtn--primary:hover {
   background: #3571b9;
   border-color: #3571b9;
 }
+
+.AssetProperty-ModalBtn--primary:disabled {
+  background: #2B3E63;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .AssetProperty-ModalBtn--secondary {
   background: #f6fcff;
   color: #2B3E63;
   border-color: #2B3E63;
+}
+
+.AssetProperty-ModalBtn--secondary:hover {
+  background: #e7ecf3;
+  color: #3571b9;
+  border-color: #3571b9;
 }
 
 .PublicDocument-FormCenterError {
@@ -702,8 +642,143 @@
   letter-spacing: 0.01em;
 }
 
-.AssetProperty-ModalBtn--secondary:hover {
-  background: #e7ecf3;
-  color: #3571b9;
-  border-color: #3571b9;
+.AssetProperty-EmployeeSearchContainer {
+  position: relative;
+  width: 100%;
+}
+
+.AssetProperty-EmployeeDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 2001;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  margin-top: 2px;
+  transform: translateY(0);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.AssetProperty-EmployeeDropdown::-webkit-scrollbar {
+  display: none;
+}
+
+.AssetProperty-EmployeeOption {
+  padding: 10px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.2s ease;
+}
+
+.AssetProperty-EmployeeOption:hover,
+.AssetProperty-EmployeeOption--focused {
+  background-color: #f0f4ff;
+}
+
+.AssetProperty-EmployeeOption:last-child {
+  border-bottom: none;
+}
+
+.AssetProperty-EmployeeOption-Name {
+  font-weight: bold;
+  font-size: 14px;
+  color: #223354;
+  margin-bottom: 2px;
+}
+
+.AssetProperty-EmployeeOption-Id {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 2px;
+}
+
+.AssetProperty-EmployeeOption-Department {
+  font-size: 11px;
+  color: #888;
+  font-style: italic;
+}
+
+.AssetProperty-ErrorText {
+  font-size: 12px;
+  color: #e53935;
+  margin-top: 4px;
+}
+
+.AssetProperty-EmployeeValidation {
+  font-size: 12px;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.AssetProperty-EmployeeValidation--valid {
+  color: #4caf50;
+}
+
+.AssetProperty-EmployeeValidation--invalid {
+  color: #e53935;
+}
+
+.AssetProperty-EmployeeValidation--pending {
+  color: #ff9800;
+}
+
+.AssetProperty-ModalInput--valid {
+  border-color: #4caf50 !important;
+}
+
+.AssetProperty-ModalInput--invalid {
+  border-color: #e53935 !important;
+}
+
+.AssetProperty-ModalInput--pending {
+  border-color: #ff9800 !important;
+}
+
+.AssetProperty-EmployeeDropdown::-webkit-scrollbar {
+  width: 6px;
+}
+
+.AssetProperty-EmployeeDropdown::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.AssetProperty-EmployeeDropdown::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.AssetProperty-EmployeeDropdown::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+@media (max-width: 768px) {
+  .AssetProperty-EmployeeDropdown {
+    max-height: 150px;
+    font-size: 13px;
+  }
+  
+  .AssetProperty-EmployeeOption {
+    padding: 8px;
+  }
+  
+  .AssetProperty-EmployeeOption-Name {
+    font-size: 13px;
+  }
+  
+  .AssetProperty-EmployeeOption-Id {
+    font-size: 11px;
+  }
+  
+  .AssetProperty-EmployeeOption-Department {
+    font-size: 10px;
+  }
 }

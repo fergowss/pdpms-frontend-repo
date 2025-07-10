@@ -4,7 +4,7 @@ import AddPropertyModal from './AddPropertyModal';
 import EditPropertyModal from './EditPropertyModal';
 import axios from 'axios';
 
-// SVG for stack icon (from user screenshot)
+// SVG for stack icon
 const StackIcon = (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
     <rect x="2" y="16" width="20" height="4" rx="1" fill="#223354"/>
@@ -12,6 +12,17 @@ const StackIcon = (
     <rect x="6" y="4" width="12" height="4" rx="1" fill="#223354"/>
   </svg>
 );
+
+// Utility function to insert newlines after every 10 words
+const insertNewlines = (text) => {
+  if (!text) return '';
+  const words = text.split(/\s+/).filter(word => word.length > 0);
+  const lines = [];
+  for (let i = 0; i < words.length; i += 10) {
+    lines.push(words.slice(i, i + 10).join(' '));
+  }
+  return lines.join('\n');
+};
 
 export default function AssetProperty() {
   const [showAddNotif, setShowAddNotif] = useState(false);
@@ -92,6 +103,10 @@ export default function AssetProperty() {
   // Handler for adding a property
   const handleAddProperty = async (newProperty) => {
     try {
+      // Validate required fields
+      if (!newProperty.endUser || !newProperty.status || !newProperty.remarks) {
+        throw new Error('End User, Status, and Remarks are required.');
+      }
       const backendProperty = {
         document_id: newProperty.documentNo,
         par_no: newProperty.parNo,
@@ -110,7 +125,7 @@ export default function AssetProperty() {
       setAllData((prevData) => [
         ...prevData,
         {
-          propertyNo: response.data.property_no, // Use backend-generated property_no
+          propertyNo: response.data.property_no,
           documentNo: response.data.document_id,
           parNo: response.data.par_no,
           description: response.data.description,
@@ -155,7 +170,12 @@ export default function AssetProperty() {
         .catch((fetchError) => console.error('Error refetching properties:', fetchError));
     } catch (error) {
       console.error('Error adding property:', error.response ? error.response.data : error);
-
+      setValidation({
+        isOpen: true,
+        type: 'error',
+        title: 'Add Property Error',
+        message: error.message || 'Failed to add property. Please try again.',
+      });
       // Refetch properties to sync frontend with backend
       axios.get(PROPERTIES_ENDPOINT)
         .then((response) => {
@@ -189,6 +209,10 @@ export default function AssetProperty() {
   // Handler for updating property
   const handleUpdateProperty = async (updatedData) => {
     try {
+      // Validate required fields
+      if (!updatedData.endUser || !updatedData.status || !updatedData.remarks) {
+        throw new Error('End User, Status, and Remarks are required.');
+      }
       console.log('Updating property with propertyNo:', updatedData.propertyNo);
       const response = await axios.get(`${PROPERTIES_ENDPOINT}${updatedData.propertyNo}/`);
       const currentData = response.data;
@@ -229,7 +253,7 @@ export default function AssetProperty() {
       setTimeout(() => setShowUpdateNotif(false), 3000);
     } catch (error) {
       console.error('Error updating property:', error.response ? error.response.data : error);
-      let errorMessage = 'Failed to update property. Please try again.';
+      let errorMessage = error.message || 'Failed to update property. Please try again.';
       if (error.response?.status === 404) {
         errorMessage = 'Property not found. It may have been deleted. Refreshing property list...';
         axios.get(PROPERTIES_ENDPOINT)
@@ -270,6 +294,13 @@ export default function AssetProperty() {
     }
   };
 
+  // Handler for opening the Add Property modal
+  const handleOpenAddModal = () => {
+    console.log('Opening Add Property modal');
+    closeAll();
+    setAddModalOpen(true);
+  };
+
   // Handler for closing all modals and notifications
   const closeAll = () => {
     setAddModalOpen(false);
@@ -282,9 +313,10 @@ export default function AssetProperty() {
 
   return (
     <div className="AssetProperty-Container">
+      {/* Notifications */}
       {showAddNotif && (
         <div className="AssetProperty-NotificationOverlay">
-          <div className="AssetProperty-NotificationBox">
+          <div className="AssetProperty JunoAssetProperty-NotificationBox">
             <div className="AssetProperty-NotificationContent" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
                 {StackIcon}
@@ -322,9 +354,11 @@ export default function AssetProperty() {
           </div>
         </div>
       )}
+
+      {/* Header with Search */}
       <div className="AssetProperty-HeaderRow">
         <div className="AssetProperty-HeaderTabs">
-          <div className="AssetProperty-Title"></div>
+          <div className="AssetProperty-Title">Asset Properties</div>
         </div>
         <div className="AssetProperty-SearchBox">
           <div className="AssetProperty-SearchBarRow">
@@ -339,6 +373,7 @@ export default function AssetProperty() {
         </div>
       </div>
 
+      {/* Table Container */}
       <div className="AssetProperty-TableContainer">
         {isLoading ? (
           <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
@@ -380,35 +415,8 @@ export default function AssetProperty() {
                   <td>{row.propertyNo}</td>
                   <td>{row.documentNo}</td>
                   <td>{row.parNo}</td>
-                  <td className="description-cell">
-                    {row.description.includes('"ASUS POWERLOGIC') 
-                      ? row.description.replace('"ASUS POWERLOGIC', '\n"ASUS POWERLOGIC')
-                      : row.description
-                    }
-                  </td>
-                  <td className="serial-no-cell">
-                    {row.serialNo
-                      ? row.serialNo.split(',').map((part, idx, arr) => {
-                          const trimmedPart = part.trim();
-                          if (trimmedPart.includes('"') && !trimmedPart.endsWith('"')) {
-                            const nextPart = arr[idx + 1] ? arr[idx + 1].trim() : '';
-                            return (
-                              <div key={idx} style={{ marginBottom: '4px' }}>
-                                {trimmedPart.replace(/"/g, '')} {nextPart}
-                              </div>
-                            );
-                          }
-                          if (idx > 0 && arr[idx - 1].includes('"') && !arr[idx - 1].endsWith('"')) {
-                            return null;
-                          }
-                          return (
-                            <div key={idx} style={{ marginBottom: '4px' }}>
-                              {trimmedPart}
-                            </div>
-                          );
-                        })
-                      : ''}
-                  </td>
+                  <td className="description-cell">{insertNewlines(row.description)}</td>
+                  <td className="serial-no-cell">{insertNewlines(row.serialNo)}</td>
                   <td>{row.dateAcquired}</td>
                   <td>{row.unitCost}</td>
                   <td>{row.endUser}</td>
@@ -422,25 +430,32 @@ export default function AssetProperty() {
                       {row.status || 'Unknown'}
                     </span>
                   </td>
-                  <td>{row.remarks}</td>
+                  <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
                 </tr>
               ))}
             </tbody>
           </table>
         )}
       </div>
+
+      {/* Add Property Button at bottom */}
       <div className="AssetProperty-AddBtnContainer">
         <button
           className="AssetProperty-AddBtn"
-          onClick={() => {
-            closeAll();
-            setAddModalOpen(true);
-          }}
+          onClick={handleOpenAddModal}
+          type="button"
         >
           ADD PROPERTY
         </button>
       </div>
-      <AddPropertyModal open={addModalOpen} onClose={closeAll} onAdd={handleAddProperty} />
+
+      {/* Modals */}
+      <AddPropertyModal 
+        open={addModalOpen} 
+        onClose={closeAll} 
+        onAdd={handleAddProperty} 
+      />
+      
       {showEditConfirm && selectedRow && (
         <div className="AssetProperty-EditNotificationOverlay">
           <div className="AssetProperty-EditNotification">
@@ -470,6 +485,7 @@ export default function AssetProperty() {
           </div>
         </div>
       )}
+      
       <EditPropertyModal
         open={editModalOpen && !!selectedRow}
         onClose={closeAll}

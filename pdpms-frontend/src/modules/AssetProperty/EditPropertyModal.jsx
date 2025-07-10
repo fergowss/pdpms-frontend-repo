@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './AssetProperty.css';
+import axios from 'axios';
 
 export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   const [formData, setFormData] = useState({
@@ -18,6 +19,52 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   const [formValid, setFormValid] = useState(true);
   const [hasChanges, setHasChanges] = useState(false);
   const [initialData, setInitialData] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({ unitCost: '', estimatedLife: '' });
+  const [employees, setEmployees] = useState([]);
+  const [employeeSearchInput, setEmployeeSearchInput] = useState('');
+  const [employeeSearchResults, setEmployeeSearchResults] = useState([]);
+  const [showEmployeeDropdown, setShowEmployeeDropdown] = useState(false);
+  const [isValidatingEmployee, setIsValidatingEmployee] = useState(false);
+  const [employeeValidationMessage, setEmployeeValidationMessage] = useState('');
+  const [employeeValidationStatus, setEmployeeValidationStatus] = useState('');
+  const [focusedSuggestionIndex, setFocusedSuggestionIndex] = useState(-1);
+  const dropdownRef = useRef(null);
+  const inputRef = useRef(null);
+
+  // ------------------------------------------------------------
+  // Dynamic form validation
+  // ------------------------------------------------------------
+  useEffect(() => {
+    if (!initialData) return;
+
+    // Check if any editable field has been modified
+    const editableFields = [
+      'serialNo',
+      'unitCost',
+      'estimatedLife',
+      'endUser',
+      'status',
+      'remarks',
+    ];
+    const changed = editableFields.some(
+      (field) => formData[field] !== initialData[field]
+    );
+    setHasChanges(changed);
+
+    // Individual validation rules ---------------------------------
+    const isEndUserValid = formData.endUser?.toString().trim() !== '';
+    const employeeValid =
+      employeeValidationStatus === 'valid' ||
+      formData.endUser === initialData.endUser;
+    const numericValid = Object.values(validationErrors).every(
+      (err) => err === ''
+    );
+
+    setFormValid(isEndUserValid && employeeValid && numericValid);
+  }, [formData, validationErrors, employeeValidationStatus, initialData]);
+
+  const API_URL = 'http://127.0.0.1:8000';
+  const EMPLOYEES_ENDPOINT = `${API_URL}/pdpms/manila-city-hall/employees/`;
 
   useEffect(() => {
     if (row) {
@@ -36,44 +83,189 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
       };
       setFormData(newData);
       setInitialData(newData);
-      // Validate initial data for required fields
+      setEmployeeSearchInput(newData.endUser);
       const requiredFields = ['endUser', 'status', 'remarks'];
       const isValid = requiredFields.every(field => newData[field]?.toString().trim() !== '');
       setFormValid(isValid);
       setHasChanges(false);
-      console.log('Initial formData:', newData, 'formValid:', isValid);
+      if (newData.endUser) {
+        setEmployeeValidationStatus('valid');
+        setEmployeeValidationMessage('');
+      }
     }
   }, [row]);
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+  useEffect(() => {
+    if (!open) return;
+    axios.get(EMPLOYEES_ENDPOINT)
+      .then(res => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        const normalized = data.map(emp => ({
+          id: emp.employee_id,
+          name: `${emp.first_name} ${emp.last_name}`,
+          department: emp.department || '',
+        }));
+        setEmployees(normalized);
+      })
+      .catch(err => console.error('Unable to fetch employees:', err));
+  }, [open]);
 
-    if (initialData) {
-      // Check for changes in any editable field
-      const editableFields = ['serialNo', 'unitCost', 'estimatedLife', 'endUser', 'status', 'remarks'];
-      const changed = editableFields.some(field =>
-        (name === field ? value : formData[field]) !== initialData[field]
-      );
-      setHasChanges(changed);
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const trimmed = employeeSearchInput.trim();
+      if (trimmed === '') {
+        setShowEmployeeDropdown(false);
+        setEmployeeValidationStatus('');
+        setEmployeeValidationMessage('');
+        return;
+      }
 
-      // Validate required fields
-      const requiredFields = ['endUser', 'status', 'remarks'];
-      const isValid = requiredFields.every(field =>
-        (name === field ? value : formData[field])?.toString().trim() !== ''
-      );
-      setFormValid(isValid);
-      console.log('Field changed:', name, value, 'hasChanges:', changed, 'formValid:', isValid);
+      if (initialData && trimmed.toLowerCase() === initialData.endUser.toLowerCase()) {
+        setEmployeeValidationStatus('valid');
+        setEmployeeValidationMessage('');
+        setShowEmployeeDropdown(false);
+      } else {
+        searchEmployees(trimmed);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [employeeSearchInput, initialData?.endUser]);
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target) && !inputRef.current.contains(e.target)) {
+        setShowEmployeeDropdown(false);
+        setFocusedSuggestionIndex(-1);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const searchEmployees = (searchTerm) => {
+    const term = searchTerm.toLowerCase();
+    const results = employees.filter(emp =>
+      emp.id.toLowerCase().includes(term) || emp.name.toLowerCase().includes(term)
+    );
+    setEmployeeSearchResults(results);
+    setShowEmployeeDropdown(results.length > 0);
+    setFocusedSuggestionIndex(-1);
+
+    const exactMatch = employees.find(emp => emp.id.toLowerCase() === term);
+    if (exactMatch) {
+      setEmployeeValidationStatus('valid');
+      setEmployeeValidationMessage('');
+    } else {
+      setEmployeeValidationStatus('invalid');
+      setEmployeeValidationMessage('No employee found.');
     }
   };
 
-  if (!open || !row) return null;
+  const handleEmployeeSelect = (employee) => {
+    setEmployeeSearchInput(employee.id);
+    setFormData(prev => ({
+      ...prev,
+      endUser: employee.id
+    }));
+    setShowEmployeeDropdown(false);
+    setFocusedSuggestionIndex(-1);
+    setEmployeeValidationStatus('valid');
+    setEmployeeValidationMessage('');
+    updateFormValidation('endUser', employee.id);
+    inputRef.current.focus();
+  };
+
+  const handleEmployeeInputChange = (e) => {
+    const value = e.target.value;
+    setEmployeeSearchInput(value);
+    setFormData(prev => ({
+      ...prev,
+      endUser: value
+    }));
+    if (value !== initialData?.endUser) {
+      setEmployeeValidationStatus('');
+      setEmployeeValidationMessage('');
+    }
+    updateFormValidation('endUser', value);
+  };
+
+  const handleKeyDown = (e) => {
+    if (!showEmployeeDropdown || employeeSearchResults.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedSuggestionIndex(prev => 
+        prev < employeeSearchResults.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedSuggestionIndex(prev => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Enter' && focusedSuggestionIndex >= 0) {
+      e.preventDefault();
+      handleEmployeeSelect(employeeSearchResults[focusedSuggestionIndex]);
+    } else if (e.key === 'Escape') {
+      setShowEmployeeDropdown(false);
+      setFocusedSuggestionIndex(-1);
+    }
+  };
+
+  const validateNumericInput = (name, value) => {
+    let error = '';
+    if (value.trim() === '') {
+      error = '';
+    } else if (/^-/.test(value)) {
+      error = 'Negative values are not allowed';
+    } else if (!/^[0-9.,]+$/.test(value)) {
+      error = 'Only numbers, comma, and decimal point are allowed';
+    } else if ((value.match(/\./g) || []).length > 1) {
+      error = 'Only one decimal point is allowed';
+    }
+    setValidationErrors(prev => ({ ...prev, [name]: error }));
+    return error === '';
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'unitCost' || name === 'estimatedLife') {
+      validateNumericInput(name, value);
+    }
+    setFormData(prev => ({ ...prev, [name]: value }));
+    updateFormValidation(name, value);
+  };
+
+  const updateFormValidation = (changedField, changedValue) => {
+    if (initialData) {
+      const editableFields = ['serialNo', 'unitCost', 'estimatedLife', 'endUser', 'status', 'remarks'];
+      const changed = editableFields.some(field =>
+        (changedField === field ? changedValue : formData[field]) !== initialData[field]
+      );
+      setHasChanges(changed);
+
+      // Only endUser is required
+      const isEndUserValid = changedField === 'endUser' 
+        ? changedValue?.toString().trim() !== ''
+        : formData.endUser?.toString().trim() !== '';
+
+      const employeeValid = employeeValidationStatus === 'valid' || 
+                           (changedField === 'endUser' && changedValue === initialData.endUser);
+
+      const numericValid = Object.values(validationErrors).every(err => err === '');
+      
+      setFormValid(isEndUserValid && employeeValid && numericValid);
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (employeeValidationStatus !== 'valid' && formData.endUser !== initialData?.endUser) {
+      setEmployeeValidationStatus('invalid');
+      if (!employeeValidationMessage) {
+        setEmployeeValidationMessage('No employee found.');
+      }
+      return;
+    }
+    
     if (formValid && hasChanges && onUpdate) {
       const updatedData = {
         propertyNo: formData.propertyNo,
@@ -84,10 +276,11 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
         status: formData.status,
         remarks: formData.remarks
       };
-      console.log('Submitting updatedData:', updatedData);
       onUpdate(updatedData);
     }
   };
+
+  if (!open || !row) return null;
 
   return (
     <div className="AssetProperty-EditModalOverlay">
@@ -144,22 +337,53 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               <label className="AssetProperty-ModalLabel">Unit Cost</label>   
               <input 
                 className="AssetProperty-ModalInput" 
-                type="number" 
+                type="text" 
                 name="unitCost"
-                step="0.01" 
                 value={formData.unitCost}
                 onChange={handleInputChange}
+                placeholder="0.00"
               />
+              {validationErrors.unitCost && (
+                <div className="AssetProperty-ErrorText">{validationErrors.unitCost}</div>
+              )}
 
               <label className="AssetProperty-ModalLabel">End User</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="endUser" 
-                value={formData.endUser}
-                onChange={handleInputChange}
-                required 
-              />
+              <div className="AssetProperty-EmployeeSearchContainer">
+                <input 
+                  ref={inputRef}
+                  className={`AssetProperty-ModalInput AssetProperty-ModalInput--${employeeValidationStatus || 'default'}`}
+                  type="text" 
+                  name="endUser" 
+                  value={employeeSearchInput}
+                  onChange={handleEmployeeInputChange}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Enter employee name or ID"
+                  autoComplete="off"
+  
+                />
+                {showEmployeeDropdown && employeeSearchResults.length > 0 && (
+                  <div className="AssetProperty-EmployeeDropdown" ref={dropdownRef}>
+                    {employeeSearchResults.map((employee, index) => (
+                      <div
+                        key={employee.id}
+                        className={`AssetProperty-EmployeeOption ${index === focusedSuggestionIndex ? 'AssetProperty-EmployeeOption--focused' : ''}`}
+                        onClick={() => handleEmployeeSelect(employee)}
+                      >
+                        <div className="AssetProperty-EmployeeOption-Name">{employee.name}</div>
+                        <div className="AssetProperty-EmployeeOption-Id">{employee.id}</div>
+                        {employee.department && (
+                          <div className="AssetProperty-EmployeeOption-Department">{employee.department}</div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {employeeValidationStatus && (
+                  <div className={`AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--${employeeValidationStatus}`}>
+                    {employeeValidationMessage}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
@@ -171,14 +395,17 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 onChange={handleInputChange}
                 placeholder="0 Years"
               />
+              {validationErrors.estimatedLife && (
+                <div className="AssetProperty-ErrorText">{validationErrors.estimatedLife}</div>
+              )}
 
               <label className="AssetProperty-ModalLabel">Status</label>
               <select 
-                className="AssetProperty-ModalInput" 
+                className="AssetProperty-ModalInput AssetProperty-ModalSelect" 
                 name="status" 
                 value={formData.status}
                 onChange={handleInputChange}
-                required
+
               >
                 <option value="">Select Status</option>
                 <option value="Serviceable">Serviceable</option>
@@ -194,21 +421,36 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 name="remarks" 
                 value={formData.remarks}
                 onChange={handleInputChange}
-                required 
+ 
               />
             </div>
           </div>
-          { !formValid && (
-            <div className="PublicDocument-FormCenterError">End User, Status, and Remarks are required.</div>
+          
+          {(!formValid && employeeValidationStatus !== 'invalid') && (
+            <div className="PublicDocument-FormCenterError">
+              Please select a valid employee from the dropdown.
+            </div>
           )}
+          
           <div className="AssetProperty-ModalActions">
             <button 
               type="submit" 
               className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary" 
-              disabled={!formValid || !hasChanges}
-              style={{ opacity: formValid && hasChanges ? 1 : 0.6, cursor: formValid && hasChanges ? 'pointer' : 'not-allowed' }}
-            >UPDATE</button>
-            <button type="button" className="AssetProperty-ModalBtn AssetProperty-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+              disabled={!formValid || !hasChanges || employeeValidationStatus === 'invalid' || Object.values(validationErrors).some(err => err)}
+              style={{ 
+                opacity: (formValid && hasChanges && employeeValidationStatus !== 'invalid') ? 1 : 0.6, 
+                cursor: (formValid && hasChanges && employeeValidationStatus !== 'invalid') ? 'pointer' : 'not-allowed' 
+              }}
+            >
+              UPDATE
+            </button>
+            <button 
+              type="button" 
+              className="AssetProperty-ModalBtn AssetProperty-ModalBtn--secondary" 
+              onClick={onClose}
+            >
+              CANCEL
+            </button>
           </div>
         </form>
       </div>
