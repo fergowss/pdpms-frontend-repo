@@ -14,7 +14,6 @@
   overflow: hidden;
 }
 
-
 .PublicDocument-HeaderRow {
   display: flex;
   align-items: flex-end;
@@ -22,7 +21,6 @@
   padding: 1.2rem 1.5rem 0 1.5rem;
   gap: 2rem;
 }
-
 
 .PublicDocument-HeaderTabs {
   display: flex;
@@ -32,12 +30,10 @@
   gap: 2rem;
 }
 
-
 .PublicDocument-SearchBox {
   display: flex;
   flex: 1;
 }
-
 
 .PublicDocument-SearchBarRow {
   display: flex;
@@ -66,12 +62,6 @@
   border-color: #223354;
 }
 
-
-
-
-
-
-
 .PublicDocument-Tab {
   font-size: 1.1rem;
   font-weight: 500;
@@ -82,13 +72,11 @@
   transition: color 0.2s, border-bottom 0.2s;
 }
 
-
 .PublicDocument-Tab--active {
   color: #223354;
   border-bottom: 2.5px solid #223354;
   font-weight: 700;
 }
-
 
 .PublicDocument-TableContainer {
   flex: 1 1 auto;
@@ -103,26 +91,21 @@
   box-shadow: 0 0.1rem 0.2rem rgba(162, 162, 162, 0.07);
 }
 
-
 .PublicDocument-Table {
-  /* mimic Reports Documents table */
   border-collapse: collapse;
   min-width: 900px;
   width: max-content;
-  border-collapse: collapse;
   font-size: 0.9rem;
   background: #fff;
 }
 
-
 .PublicDocument-Table th, .PublicDocument-Table td {
-  padding: 0.5rem 0.7rem; /* tighter vertical padding */
+  padding: 0.5rem 0.7rem;
   text-align: left;
   border-bottom: 1px solid #f0f0f0;
   white-space: nowrap;
   vertical-align: top;
 }
-
 
 .PublicDocument-Table th {
   background: #f6f8fa;
@@ -133,21 +116,16 @@
   z-index: 2;
 }
 
-
 .PublicDocument-Table tr:last-child td {
   border-bottom: none;
 }
 
-
-/* Row hover effect */
 .PublicDocument-Table tbody tr:hover {
   background: #eaf0fa;
   cursor: pointer;
   transition: background 0.18s;
 }
 
-
-/* Edit notification styles */
 .PublicDocument-EditNotificationOverlay {
   position: fixed;
   top: 0;
@@ -176,6 +154,7 @@
   position: relative;
   text-align: center;
 }
+
 .PublicDocument-EditNotification-Title {
   font-size: 1.1rem;
   font-weight: 500;
@@ -184,6 +163,7 @@
   margin-bottom: 0.7rem;
   margin-top: 0.2rem;
 }
+
 .PublicDocument-EditNotification-EditBtn {
   background: #eaf0fa;
   color: #2B3E63;
@@ -197,7 +177,6 @@
   transition: background 0.17s, color 0.17s;
 }
 
-
 .PublicDocument-ArchiveBtn {
   background: #e8eef7;
   color: #2B8C4B;
@@ -210,16 +189,17 @@
   cursor: pointer;
   transition: background 0.17s, color 0.17s;
 }
+
 .PublicDocument-ArchiveBtn:hover {
   background: #1E4F39;
   color: #fff;
 }
 
-
 .PublicDocument-EditNotification-EditBtn:hover {
   background: #2B3E63;
   color: #fff;
 }
+
 .PublicDocument-EditNotification-Close {
   position: absolute;
   top: 0.5rem;
@@ -234,12 +214,10 @@
   opacity: 0.6;
   transition: opacity 0.15s;
 }
+
 .PublicDocument-EditNotification-Close:hover {
   opacity: 1;
 }
-
-
-
 
 .PublicDocument-PDFLink {
   color: #2a5db0;
@@ -247,7 +225,6 @@
   font-weight: 500;
   cursor: pointer;
 }
-
 
 .PublicDocument-AddBtnContainer {
   display: flex;
@@ -257,7 +234,6 @@
   background: transparent;
 }
 
-
 .PublicDocument-AddBtn {
   background: #223354;
   color: #fff;
@@ -265,41 +241,37 @@
   border-radius: 7px;
   padding: 0.5rem 1.3rem;
   font-size: 0.9rem;
-  font-weight: 400px;
+  font-weight: 400;
   box-shadow: 0 1px 2px rgba(44,62,80,0.08);
   cursor: pointer;
   transition: background 0.2s;
 }
 
-
 .PublicDocument-AddBtn:hover {
   background: #2a5db0;
 }
 
-
-/* Custom Scrollbar */
 .PublicDocument-TableContainer::-webkit-scrollbar {
   width: 10px;
   background: #f6f8fa;
   border-radius: 0.5rem;
 }
+
 .PublicDocument-TableContainer::-webkit-scrollbar-thumb {
   background: #4C6085;
   border-radius: 0.5rem;
   transition: background 0.2s;
 }
+
 .PublicDocument-TableContainer::-webkit-scrollbar-thumb:hover {
   background: #3571b9;
 }
-
 
 .PublicDocument-TableContainer {
   scrollbar-width: thin;
   scrollbar-color: #4C6085 #f6f8fa;
 }
 
-
-/* ================= MODAL STYLES ================= */
 .PublicDocument-ModalOverlay {
   position: fixed;
   top: 0;
@@ -316,7 +288,6 @@
   backdrop-filter: none;
 }
 
-
 .PublicDocument-ModalBox {
   background: #f6fcff;
   border: 2px solid #2B3E63;
@@ -331,17 +302,16 @@
   flex-direction: column;
 }
 
-
 .PublicDocument-ModalForm {
   width: 100%;
 }
-
 
 .PublicDocument-ModalGrid {
   display: flex;
   flex-direction: row;
   gap: 1.7rem;
 }
+
 .PublicDocument-ModalGrid > div {
   flex: 1;
   display: flex;
@@ -349,14 +319,12 @@
   gap: 0.7rem;
 }
 
-
 .PublicDocument-ModalLabel {
   font-weight: 500;
   font-size: 1.04rem;
   margin-bottom: 0.16rem;
   color: #000000;
 }
-
 
 .PublicDocument-ModalInput {
   border: 1.5px solid #2B3E63;
@@ -369,6 +337,7 @@
   outline: none;
   transition: border 0.2s;
 }
+
 .PublicDocument-ModalInput:focus {
   border-color: #3571b9;
 }
@@ -383,7 +352,6 @@
   resize: vertical;
   background: #f6fcff;
 }
-
 
 .PublicDocument-ModalHint {
   font-size: 0.95rem;
@@ -429,20 +397,24 @@ button:not(:disabled) {
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
 }
+
 .PublicDocument-ModalBtn--primary {
   background: #2B3E63;
   color: #fff;
   border-color: #2B3E63;
 }
+
 .PublicDocument-ModalBtn--primary:hover {
   background: #3571b9;
   border-color: #3571b9;
 }
+
 .PublicDocument-ModalBtn--secondary {
   background: #f6fcff;
   color: #2B3E63;
   border-color: #2B3E63;
 }
+
 .PublicDocument-ModalBtn--secondary:hover {
   background: #e7ecf3;
   color: #3571b9;
@@ -450,14 +422,24 @@ button:not(:disabled) {
 }
 
 .PublicDocument-Table td.subject-cell,
-.PublicDocument-Table td.remarks-cell,
-.PublicDocument-Table td.receivedby-cell {
+.PublicDocument-Table td.remarks-cell {
   white-space: pre-wrap;
   word-break: break-word;
   min-width: 40ch;
   max-width: 60ch;
   padding: 2px 6px;
   line-height: 1.25;
-  vertical-align: top; /* align multiline text to top of cell */
+  vertical-align: top;
+  overflow: hidden;
+}
+
+.PublicDocument-Table td.receivedby-cell {
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 20ch; /* Reduced to make column narrower */
+  max-width: 30ch; /* Reduced to encourage earlier wrapping */
+  padding: 2px 6px;
+  line-height: 1.25;
+  vertical-align: top;
   overflow: hidden;
 }

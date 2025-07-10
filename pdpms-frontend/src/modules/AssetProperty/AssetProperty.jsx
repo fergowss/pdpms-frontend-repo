@@ -316,7 +316,7 @@ export default function AssetProperty() {
       {/* Notifications */}
       {showAddNotif && (
         <div className="AssetProperty-NotificationOverlay">
-          <div className="AssetProperty JunoAssetProperty-NotificationBox">
+          <div className="AssetProperty-NotificationBox">
             <div className="AssetProperty-NotificationContent" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center' }}>
               <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
                 {StackIcon}
@@ -415,7 +415,7 @@ export default function AssetProperty() {
                   <td>{row.propertyNo}</td>
                   <td>{row.documentNo}</td>
                   <td>{row.parNo}</td>
-                  <td className="description-cell">{insertNewlines(row.description)}</td>
+                  <td className="description-cell">{insertNewlines(row.description, 5)}</td>
                   <td className="serial-no-cell">{insertNewlines(row.serialNo, 7)}</td>
                   <td>{row.dateAcquired}</td>
                   <td>{row.unitCost}</td>
@@ -430,7 +430,7 @@ export default function AssetProperty() {
                       {row.status || 'Unknown'}
                     </span>
                   </td>
-                  <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
+                  <td className="remarks-cell">{insertNewlines(row.remarks, 10)}</td>
                 </tr>
               ))}
             </tbody>

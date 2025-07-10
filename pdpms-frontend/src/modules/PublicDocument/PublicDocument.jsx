@@ -29,13 +29,14 @@ export default function PublicDocument() {
     message: '',
   });
 
-  // Utility function to insert newlines after every 10 words
-  const insertNewlines = (text) => {
+  // Utility function to insert newlines after every 10 words for subject and remarks, 5 words for receivedBy
+  const insertNewlines = (text, isReceivedBy = false) => {
     if (!text) return '';
     const words = text.split(/\s+/).filter(word => word.length > 0);
+    const chunkSize = isReceivedBy ? 5 : 10;
     const lines = [];
-    for (let i = 0; i < words.length; i += 10) {
-      lines.push(words.slice(i, i + 10).join(' '));
+    for (let i = 0; i < words.length; i += chunkSize) {
+      lines.push(words.slice(i, i + chunkSize).join(' '));
     }
     return lines.join('\n');
   };
@@ -82,7 +83,7 @@ export default function PublicDocument() {
   // Call fetchDocuments when the component mounts 
   useEffect(() => {
     fetchDocuments();
-    }, []);
+  }, []);
 
   // Helper: check if date is more than 5 years old
   function isOver5Years(dateString) {
@@ -211,65 +212,65 @@ export default function PublicDocument() {
     }
   };
 
-const handleAddFollowUp = async (formData) => {
-  if (!addFollowUpDocId) return;
+  const handleAddFollowUp = async (formData) => {
+    if (!addFollowUpDocId) return;
 
-  const baseId = addFollowUpDocId;
-  const submissionData = new FormData();
+    const baseId = addFollowUpDocId;
+    const submissionData = new FormData();
 
-  // Format dates to YYYY-MM-DD
-  const formatDate = (date) => {
-    if (!date) return '';
-    const d = new Date(date);
-    return isNaN(d) ? '' : d.toISOString().split('T')[0];
-  };
+    // Format dates to YYYY-MM-DD
+    const formatDate = (date) => {
+      if (!date) return '';
+      const d = new Date(date);
+      return isNaN(d) ? '' : d.toISOString().split('T')[0];
+    };
 
-  // Log formData for debugging
-  console.log('FormData:', {
-    base_document_id: baseId,
-    reference_code: formData.referenceCode,
-    subject: formData.subject,
-    document_type: formData.documentType,
-    document_date: formData.date,
-    date_received: formData.dateReceived,
-    received_by: formData.receivedBy,
-    document_status: formData.status,
-    remarks: formData.remarks,
-    pdf_file: formData.file
-  });
-
-  submissionData.append('base_document_id', baseId);
-  submissionData.append('reference_code', formData.referenceCode || '');
-  submissionData.append('subject', formData.subject || '');
-  submissionData.append('document_type', formData.documentType || '');
-  submissionData.append('document_date', formatDate(formData.date));
-  submissionData.append('date_received', formatDate(formData.dateReceived));
-  submissionData.append('received_by', formData.receivedBy || '');
-  submissionData.append('document_status', formData.status || '');
-  submissionData.append('remarks', formData.remarks || '');
-  if (formData.file) submissionData.append('pdf_file', formData.file);
-
-  try {
-    const response = await axios.post(
-      'http://127.0.0.1:8000/pdpms/manila-city-hall/documents/',
-      submissionData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
-    );
-    console.log('Created document ID:', response.data.document_id);
-    setShowFollowUpNotif(true);
-    fetchDocuments();
-    setTimeout(() => setShowFollowUpNotif(false), 3000);
-  } catch (err) {
-    console.error('Follow-up creation error:', err);
-    console.error('Server response:', err.response?.data);
-    setValidation({
-      isOpen: true,
-      type: 'error',
-      title: 'Follow-Up Error',
-      message: err.response?.data?.message || JSON.stringify(err.response?.data) || 'Failed to add follow-up document.',
+    // Log formData for debugging
+    console.log('FormData:', {
+      base_document_id: baseId,
+      reference_code: formData.referenceCode,
+      subject: formData.subject,
+      document_type: formData.documentType,
+      document_date: formData.date,
+      date_received: formData.dateReceived,
+      received_by: formData.receivedBy,
+      document_status: formData.status,
+      remarks: formData.remarks,
+      pdf_file: formData.file
     });
-  }
-};
+
+    submissionData.append('base_document_id', baseId);
+    submissionData.append('reference_code', formData.referenceCode || '');
+    submissionData.append('subject', formData.subject || '');
+    submissionData.append('document_type', formData.documentType || '');
+    submissionData.append('document_date', formatDate(formData.date));
+    submissionData.append('date_received', formatDate(formData.dateReceived));
+    submissionData.append('received_by', formData.receivedBy || '');
+    submissionData.append('document_status', formData.status || '');
+    submissionData.append('remarks', formData.remarks || '');
+    if (formData.file) submissionData.append('pdf_file', formData.file);
+
+    try {
+      const response = await axios.post(
+        'http://127.0.0.1:8000/pdpms/manila-city-hall/documents/',
+        submissionData,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      );
+      console.log('Created document ID:', response.data.document_id);
+      setShowFollowUpNotif(true);
+      fetchDocuments();
+      setTimeout(() => setShowFollowUpNotif(false), 3000);
+    } catch (err) {
+      console.error('Follow-up creation error:', err);
+      console.error('Server response:', err.response?.data);
+      setValidation({
+        isOpen: true,
+        type: 'error',
+        title: 'Follow-Up Error',
+        message: err.response?.data?.message || JSON.stringify(err.response?.data) || 'Failed to add follow-up document.',
+      });
+    }
+  };
 
   // Handle search on input change
   const handleSearch = (value) => {
@@ -415,7 +416,7 @@ const handleAddFollowUp = async (formData) => {
                 <td>{row.type}</td>
                 <td>{row.date}</td>
                 <td>{row.received}</td>
-                <td>{row.receivedBy}</td>
+                <td className="receivedby-cell">{insertNewlines(row.receivedBy, true)}</td>
                 <td>{row.status}</td>
                 <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
                 <td>{row.file && row.file !== '#' ? ( 
@@ -426,10 +427,10 @@ const handleAddFollowUp = async (formData) => {
                     onClick={() => {
                       try {
                         window.open(row.file, '_blank', 'noopener,noreferrer');
-                        } catch (e) {
-                          console.error('Failed to open PDF:', e, row.file);
-                        }         
-                        }}
+                      } catch (e) {
+                        console.error('Failed to open PDF:', e, row.file);
+                      }         
+                    }}
                   >
                     View PDF
                   </button>
@@ -479,10 +480,6 @@ const handleAddFollowUp = async (formData) => {
               </div>
               <button className="PublicDocument-ArchiveBtn" onClick={() => {
                 handleArchiveDocument(selectedRow.id);
-                // No longer show notification here directly, it's handled in handleArchiveDocument
-                // setSelectedRow(null); // Already handled in handleArchiveDocument
-                // setShowArchiveNotif(true); // Handled in handleArchiveDocument
-                // setTimeout(() => setShowArchiveNotif(false), 3000); // Handled in handleArchiveDocument
               }}>
                 ARCHIVE
               </button>

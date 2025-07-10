@@ -50,15 +50,16 @@
   background: #f6f8fa;
   border-radius: 0.5rem;
 }
+
 .Documents-Tabs::-webkit-scrollbar-thumb {
   background: #4C6085;
   border-radius: 0.5rem;
   transition: background 0.2s;
 }
+
 .Documents-Tabs::-webkit-scrollbar-thumb:hover {
   background: #3571b9;
 }
-
 
 .Documents-Tab {
   font-weight: 600;
@@ -103,6 +104,7 @@
   transition: border 0.2s;
   text-align: left;
 }
+
 .Documents-SearchBar:focus {
   border-color: #223354;
 }
@@ -123,7 +125,6 @@
   box-sizing: border-box;
 }
 
-
 .Documents-Table {
   table-layout: fixed;
   border-collapse: collapse;
@@ -132,15 +133,6 @@
   max-width: none;
   background: #fff;
 }
-
-
-
-.Documents-Table {
-  table-layout: fixed;
-  border-collapse: collapse;
-  min-width: 900px;
-}
-
 
 .Documents-Table th, .Documents-Table td {
   padding: 0.8rem 1rem;
@@ -160,7 +152,6 @@
   font-family: inherit, sans-serif;
 }
 
-
 .Documents-Table td {
   border-bottom: 1px solid #e1e7ef;
   color: #223354;
@@ -168,7 +159,6 @@
   font-family: inherit, sans-serif;
   padding: 0.7rem 1rem;
 }
-
 
 .Documents-Table tr:last-child td {
   border-bottom: none;
@@ -190,21 +180,34 @@
   overflow: hidden;
 }
 
-/* Custom Scrollbars */
+.Documents-Table td.receivedby-cell {
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 20ch; /* Reduced to make column narrower */
+  max-width: 30ch; /* Reduced to encourage earlier wrapping */
+  padding: 4px 8px;
+  line-height: 1.35;
+  vertical-align: top;
+  overflow: hidden;
+}
+
 .Documents-TableWrapper::-webkit-scrollbar {
   width: 10px;
   height: 10px;
   background: #f6f8fa;
   border-radius: 0.5rem;
 }
+
 .Documents-TableWrapper::-webkit-scrollbar-thumb {
   background: #4C6085;
   border-radius: 0.5rem;
   transition: background 0.2s;
 }
+
 .Documents-TableWrapper::-webkit-scrollbar-thumb:hover {
   background: #3571b9;
 }
+
 .Documents-TableWrapper {
   scrollbar-width: thin;
   scrollbar-color: #4C6085 #f6f8fa;

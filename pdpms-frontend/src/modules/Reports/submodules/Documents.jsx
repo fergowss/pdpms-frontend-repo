@@ -20,13 +20,14 @@ export default function Documents() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Utility function to insert newlines after every 10 words
-  const insertNewlines = (text) => {
+  // Utility function to insert newlines after every 10 words for subject and remarks, 5 words for receivedBy
+  const insertNewlines = (text, isReceivedBy = false) => {
     if (!text) return '';
     const words = text.split(/\s+/).filter(word => word.length > 0);
+    const chunkSize = isReceivedBy ? 5 : 10;
     const lines = [];
-    for (let i = 0; i < words.length; i += 10) {
-      lines.push(words.slice(i, i + 10).join(' '));
+    for (let i = 0; i < words.length; i += chunkSize) {
+      lines.push(words.slice(i, i + chunkSize).join(' '));
     }
     return lines.join('\n');
   };
@@ -109,7 +110,6 @@ export default function Documents() {
 
   return (
     <div className="Documents-Container">
-      
       <div className="Documents">
         <div className="Documents-TopRow">
           <div className="Documents-Tabs">
@@ -158,14 +158,14 @@ export default function Documents() {
                   </tr>
                 ) : (
                   filteredData.map((row, i) => (
-                    <tr key={row.id || i}> {/* Use row.id for key after processing */}
+                    <tr key={row.id || i}>
                       <td>{row.id}</td>
                       <td>{row.ref}</td>
                       <td className="subject-cell">{insertNewlines(row.subject)}</td>
                       <td>{row.type}</td>
                       <td>{row.date}</td>
                       <td>{row.received}</td>
-                      <td>{row.receivedBy}</td>
+                      <td className="receivedby-cell">{insertNewlines(row.receivedBy, true)}</td>
                       <td>{row.status}</td>
                       <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
                       <td>

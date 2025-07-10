@@ -163,7 +163,7 @@
   white-space: pre-wrap; /* Preserve newlines and wrap text */
   word-break: break-word; /* Break long words */
   min-width: 150px;
-  max-width: 250px; /* Reasonable max-width to prevent excessive stretching */
+  max-width: 600px; /* Increased to avoid premature wrapping; allows 10-word lines */
   padding: 8px 10px;
   line-height: 1.6;
   overflow: hidden; /* Ensure no cell-level overflow */
