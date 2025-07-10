@@ -128,6 +128,7 @@
 }
 
 .Properties-Table {
+  table-layout: fixed;
   border-collapse: collapse;
   min-width: 900px;
   width: max-content;
@@ -159,6 +160,19 @@
   font-size: 0.9rem;
   font-family: inherit, sans-serif;
   padding: 0.7rem 1rem;
+}
+
+.Properties-Table td.description-cell,
+.Properties-Table td.remarks-cell,
+.Properties-Table td.serial-no-cell {
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 40ch;
+  max-width: 60ch;
+  padding: 4px 8px;
+  line-height: 1.35;
+  vertical-align: top;
+  overflow: hidden;
 }
 
 .Properties-Table tr:last-child td {

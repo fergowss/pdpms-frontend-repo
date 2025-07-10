@@ -20,6 +20,17 @@ export default function Documents() {
   const [searchKeyword, setSearchKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Utility function to insert newlines after every 10 words
+  const insertNewlines = (text) => {
+    if (!text) return '';
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    const lines = [];
+    for (let i = 0; i < words.length; i += 10) {
+      lines.push(words.slice(i, i + 10).join(' '));
+    }
+    return lines.join('\n');
+  };
+
   // Helper function to process fetched document items
   const processDocumentItem = (item) => {
     if (!item || typeof item !== 'object') return null;
@@ -150,40 +161,25 @@ export default function Documents() {
                     <tr key={row.id || i}> {/* Use row.id for key after processing */}
                       <td>{row.id}</td>
                       <td>{row.ref}</td>
-                      <td>{row.subject}</td>
+                      <td className="subject-cell">{insertNewlines(row.subject)}</td>
                       <td>{row.type}</td>
                       <td>{row.date}</td>
                       <td>{row.received}</td>
                       <td>{row.receivedBy}</td>
                       <td>{row.status}</td>
-                      <td>{row.remarks}</td>
+                      <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
                       <td>
-                        {row.file && row.file !== '#' ? ( 
-                          <button
-                            className="Documents-PDFLink" // You might need to define this class in Documents.css
-                            onClick={() => {
-                              try {
-                                window.open(row.file, '_blank', 'noopener,noreferrer');
-                              } catch (e) {
-                                console.error('Failed to open PDF:', e, row.file);
-                              }         
-                            }}
-                            style={{ // Inline style for quick visual
-                              background: 'none',
-                              border: 'none',
-                              color: '#2951a3',
-                              fontWeight: 500,
-                              textDecoration: 'underline',
-                              cursor: 'pointer',
-                              padding: 0,
-                              fontFamily: 'inherit',
-                              fontSize: 'inherit'
-                            }}
+                        {row.file === '#' ? (
+                          <span style={{ color: '#888' }}>No file</span>
+                        ) : (
+                          <a
+                            href={row.file}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ color: '#2a5db0', textDecoration: 'underline', fontWeight: 500 }}
                           >
                             View PDF
-                          </button>
-                        ) : (
-                          <span className="Documents-NoPDF">No PDF</span> // You might need to define this class
+                          </a>
                         )}
                       </td>
                     </tr>
@@ -197,4 +193,3 @@ export default function Documents() {
     </div>
   );
 }
-

@@ -125,6 +125,7 @@
 
 
 .Documents-Table {
+  table-layout: fixed;
   border-collapse: collapse;
   min-width: 900px;
   width: max-content;
@@ -135,6 +136,7 @@
 
 
 .Documents-Table {
+  table-layout: fixed;
   border-collapse: collapse;
   min-width: 900px;
 }
@@ -176,6 +178,17 @@
   background: #f0f4fa;
 }
 
+.Documents-Table td.subject-cell,
+.Documents-Table td.remarks-cell {
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-width: 40ch;
+  max-width: 60ch;
+  padding: 4px 8px;
+  line-height: 1.35;
+  vertical-align: top;
+  overflow: hidden;
+}
 
 /* Custom Scrollbars */
 .Documents-TableWrapper::-webkit-scrollbar {

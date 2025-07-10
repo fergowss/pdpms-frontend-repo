@@ -13,13 +13,13 @@ const StackIcon = (
   </svg>
 );
 
-// Utility function to insert newlines after every 10 words
-const insertNewlines = (text) => {
+// Utility: insert newlines after every `wordsPerLine` words (default 10)
+const insertNewlines = (text, wordsPerLine = 10) => {
   if (!text) return '';
   const words = text.split(/\s+/).filter(word => word.length > 0);
   const lines = [];
-  for (let i = 0; i < words.length; i += 10) {
-    lines.push(words.slice(i, i + 10).join(' '));
+  for (let i = 0; i < words.length; i += wordsPerLine) {
+    lines.push(words.slice(i, i + wordsPerLine).join(' '));
   }
   return lines.join('\n');
 };
@@ -416,7 +416,7 @@ export default function AssetProperty() {
                   <td>{row.documentNo}</td>
                   <td>{row.parNo}</td>
                   <td className="description-cell">{insertNewlines(row.description)}</td>
-                  <td className="serial-no-cell">{insertNewlines(row.serialNo)}</td>
+                  <td className="serial-no-cell">{insertNewlines(row.serialNo, 7)}</td>
                   <td>{row.dateAcquired}</td>
                   <td>{row.unitCost}</td>
                   <td>{row.endUser}</td>

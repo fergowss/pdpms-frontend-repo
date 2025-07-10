@@ -29,6 +29,17 @@ export default function PublicDocument() {
     message: '',
   });
 
+  // Utility function to insert newlines after every 10 words
+  const insertNewlines = (text) => {
+    if (!text) return '';
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    const lines = [];
+    for (let i = 0; i < words.length; i += 10) {
+      lines.push(words.slice(i, i + 10).join(' '));
+    }
+    return lines.join('\n');
+  };
+
   // Fetch documents from the API
   const fetchDocuments = () => {
     setIsLoading(true);
@@ -400,13 +411,13 @@ const handleAddFollowUp = async (formData) => {
               <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
                 <td>{row.id}</td>
                 <td>{row.ref}</td>
-                <td>{row.subject}</td>
+                <td className="subject-cell">{insertNewlines(row.subject)}</td>
                 <td>{row.type}</td>
                 <td>{row.date}</td>
                 <td>{row.received}</td>
                 <td>{row.receivedBy}</td>
                 <td>{row.status}</td>
-                <td>{row.remarks}</td>
+                <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
                 <td>{row.file && row.file !== '#' ? ( 
                 <>
                   {console.log('Rendering link for:', row.id, row.file)} {/* Debug */}
@@ -513,6 +524,3 @@ const handleAddFollowUp = async (formData) => {
     </div>
   );
 }
-
-
-

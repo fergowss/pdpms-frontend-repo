@@ -18,6 +18,17 @@ export default function Properties() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
+  // Utility: insert newlines after every `wordsPerLine` words (default 10)
+  const insertNewlines = (text, wordsPerLine = 10) => {
+    if (!text) return '';
+    const words = text.split(/\s+/).filter(word => word.length > 0);
+    const lines = [];
+    for (let i = 0; i < words.length; i += wordsPerLine) {
+      lines.push(words.slice(i, i + wordsPerLine).join(' '));
+    }
+    return lines.join('\n');
+  };
+
   // Fetch data when activeTab changes
   useEffect(() => {
     const fetchData = async () => {
@@ -130,14 +141,14 @@ export default function Properties() {
                       <td>{row.propertyNo}</td>
                       <td>{row.documentNo}</td>
                       <td>{row.parNo}</td>
-                      <td>{row.description}</td>
-                      <td>{row.serialNo}</td>
+                      <td className="description-cell">{insertNewlines(row.description)}</td>
+                      <td className="serial-no-cell">{insertNewlines(row.serialNo, 7)}</td>
                       <td>{row.dateAcquired}</td>
                       <td>{row.unitCost}</td>
                       <td>{row.endUser}</td>
                       <td>{row.estimatedLifeUse}</td>
                       <td>{row.status}</td>
-                      <td>{row.remarks}</td>
+                      <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
                     </tr>
                   ))
                 )}
