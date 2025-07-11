@@ -32,7 +32,7 @@ export default function EmployeeManagement() {
           name: `${emp.first_name} ${emp.last_name}`,
           position: emp.position_title,
           contact: emp.contact_no,
-          status: emp.employee_status,
+          status: emp.employee_status === 'Resigned' ? 'Inactive' : emp.employee_status,
           firstName: emp.first_name,
           lastName: emp.last_name,
           employeeId: emp.employee_id,
@@ -146,7 +146,7 @@ export default function EmployeeManagement() {
                   <td>{row.position}</td>
                   <td>{row.contact}</td>
                   <td>
-                    <span className={`EmployeeManagement-Status ${row.status.toLowerCase().replace(/\s+/g, '')}`}>
+                    <span className={`EmployeeManagement-Status ${row.status === 'Inactive' ? 'resigned' : row.status.toLowerCase().replace(/\s+/g, '')}`}>
                       {row.status}
                     </span>
                   </td>

@@ -53,25 +53,81 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     setFormValid(formData.endUser?.toString().trim() !== '' && employeeValidationStatus === 'valid');
   }, [formData, employeeValidationStatus]);
 
-  // Employee search logic (same as EditPropertyModal)
+  // Load employees when modal opens
   useEffect(() => {
-    if (!employeeSearchInput) {
-      setEmployeeSearchResults([]);
-      setShowEmployeeDropdown(false);
-      return;
-    }
-    const fetchEmployees = async () => {
+    if (!open) return;
+    
+    const loadEmployees = async () => {
       try {
-        const res = await axios.get(EMPLOYEES_ENDPOINT, { params: { search: employeeSearchInput } });
-        setEmployeeSearchResults(res.data || []);
-        setShowEmployeeDropdown(true);
+        const res = await axios.get(EMPLOYEES_ENDPOINT);
+        const data = Array.isArray(res.data) ? res.data : [];
+        const normalized = data.map(emp => ({
+          id: emp.employee_id,
+          name: `${emp.first_name} ${emp.last_name}`,
+          department: emp.department || '',
+        }));
+        setEmployees(normalized);
       } catch (err) {
-        setEmployeeSearchResults([]);
-        setShowEmployeeDropdown(false);
+        console.error('Unable to fetch employees:', err);
+        setEmployees([]);
       }
     };
-    fetchEmployees();
+    
+    loadEmployees();
+  }, [open]);
+
+  // Handle employee search input
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const trimmed = employeeSearchInput.trim();
+      if (trimmed === '') {
+        setShowEmployeeDropdown(false);
+        setEmployeeValidationStatus('');
+        setEmployeeValidationMessage('');
+        return;
+      }
+      searchEmployees(trimmed);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
   }, [employeeSearchInput]);
+
+  // Handle click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target) && 
+          inputRef.current && !inputRef.current.contains(e.target)) {
+        setShowEmployeeDropdown(false);
+        setFocusedSuggestionIndex(-1);
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Search employees function
+  const searchEmployees = (searchTerm) => {
+    const term = searchTerm.toLowerCase();
+    const results = employees.filter(emp =>
+      emp.id.toLowerCase().includes(term) || 
+      emp.name.toLowerCase().includes(term) ||
+      (emp.department && emp.department.toLowerCase().includes(term))
+    );
+    
+    setEmployeeSearchResults(results);
+    setShowEmployeeDropdown(results.length > 0);
+    setFocusedSuggestionIndex(-1);
+
+    const exactMatch = employees.find(emp => emp.id.toLowerCase() === term);
+    if (exactMatch) {
+      setEmployeeValidationStatus('valid');
+      setEmployeeValidationMessage('');
+    } else {
+      setEmployeeValidationStatus('invalid');
+      setEmployeeValidationMessage('No employee found.');
+    }
+  };
 
   // Employee validation logic
   useEffect(() => {
@@ -80,34 +136,62 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
       setEmployeeValidationMessage('');
       return;
     }
-    setIsValidatingEmployee(true);
-    axios.get(EMPLOYEES_ENDPOINT, { params: { search: formData.endUser } })
-      .then(res => {
-        const found = res.data && Array.isArray(res.data) && res.data.some(emp => emp.employee_id === formData.endUser);
-        setEmployeeValidationStatus(found ? 'valid' : 'invalid');
-        setEmployeeValidationMessage(found ? 'Valid employee' : 'Employee not found');
-      })
-      .catch(() => {
-        setEmployeeValidationStatus('invalid');
-        setEmployeeValidationMessage('Employee not found');
-      })
-      .finally(() => setIsValidatingEmployee(false));
-  }, [formData.endUser]);
+    
+    // Check if the current input matches any employee ID in the already loaded list
+    const exactMatch = employees.find(emp => emp.id === formData.endUser);
+    if (exactMatch) {
+      setEmployeeValidationStatus('valid');
+      setEmployeeValidationMessage('');
+      return;
+    }
+    
+    // If no match found, show a message but don't show error state
+    setEmployeeValidationStatus('');
+    setEmployeeValidationMessage('');
+  }, [formData.endUser, employees]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'endUser') {
       setEmployeeSearchInput(value);
+      setFormData(prev => ({
+        ...prev,
+        endUser: value
+      }));
+    } else {
+      setFormData(prev => ({ ...prev, [name]: value }));
     }
-    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleEmployeeSelect = (employee) => {
-    setFormData(prev => ({ ...prev, endUser: employee.employee_id }));
-    setEmployeeSearchInput('');
+    setEmployeeSearchInput(employee.id);
+    setFormData(prev => ({
+      ...prev,
+      endUser: employee.id
+    }));
     setShowEmployeeDropdown(false);
+    setFocusedSuggestionIndex(-1);
     setEmployeeValidationStatus('valid');
-    setEmployeeValidationMessage('Valid employee');
+    setEmployeeValidationMessage('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (!showEmployeeDropdown || employeeSearchResults.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setFocusedSuggestionIndex(prev => 
+        prev < employeeSearchResults.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setFocusedSuggestionIndex(prev => 
+        prev > 0 ? prev - 1 : 0
+      );
+    } else if (e.key === 'Enter' && focusedSuggestionIndex >= 0) {
+      e.preventDefault();
+      handleEmployeeSelect(employeeSearchResults[focusedSuggestionIndex]);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -154,30 +238,38 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                   className={`AssetProperty-ModalInput AssetProperty-ModalInput--${employeeValidationStatus || 'default'}`}
                   type="text"
                   name="endUser"
-                  value={formData.endUser}
+                  value={employeeSearchInput}
                   onChange={handleInputChange}
+                  onKeyDown={handleKeyDown}
+                  onFocus={() => setShowEmployeeDropdown(employeeSearchResults.length > 0)}
                   autoComplete="off"
                   required
-                  onFocus={() => setShowEmployeeDropdown(employeeSearchResults.length > 0)}
+                  placeholder="Enter employee name or ID"
                 />
                 {showEmployeeDropdown && employeeSearchResults.length > 0 && (
                   <div className="AssetProperty-EmployeeDropdown" ref={dropdownRef}>
                     {employeeSearchResults.map((employee, index) => (
                       <div
-                        key={employee.employee_id}
-                        className={`AssetProperty-EmployeeOption${focusedSuggestionIndex === index ? ' AssetProperty-EmployeeOption--focused' : ''}`}
+                        key={employee.id}
+                        className={`AssetProperty-EmployeeOption ${index === focusedSuggestionIndex ? 'AssetProperty-EmployeeOption--focused' : ''}`}
                         onClick={() => handleEmployeeSelect(employee)}
                       >
-                        <div className="AssetProperty-EmployeeOption-Name">{employee.full_name}</div>
-                        <div className="AssetProperty-EmployeeOption-Id">{employee.employee_id}</div>
-                        <div className="AssetProperty-EmployeeOption-Department">{employee.department}</div>
+                        <div className="AssetProperty-EmployeeOption-Name">{employee.name}</div>
+                        <div className="AssetProperty-EmployeeOption-Id">{employee.id}</div>
+                        {employee.department && (
+                          <div className="AssetProperty-EmployeeOption-Department">{employee.department}</div>
+                        )}
                       </div>
                     ))}
                   </div>
                 )}
-                {employeeValidationStatus && (
-                  <div className={`AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--${employeeValidationStatus}`}>
-                    {employeeValidationMessage}
+                {isValidatingEmployee ? (
+                  <div className="AssetProperty-EmployeeValidation">
+                    <span>Searching...</span>
+                  </div>
+                ) : employeeValidationStatus === 'valid' && (
+                  <div className="AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--valid">
+                    <span>✓ Valid employee</span>
                   </div>
                 )}
               </div>
