@@ -472,7 +472,8 @@ export default function AssetProperty() {
             </button>
             <div className="AssetProperty-EditNotification-Content">
               <div className="AssetProperty-EditNotification-Title">
-                Manage Property <b>{selectedRow.propertyNo}</b>?
+                <div>Manage Property</div>
+                <div><b>{selectedRow.propertyNo}</b>?</div>
               </div>
               <div className="AssetProperty-EditNotification-Actions">
                 <button

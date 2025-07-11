@@ -49,9 +49,16 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     }
   }, [row]);
 
+  // Form validation
   useEffect(() => {
-    setFormValid(formData.endUser?.toString().trim() !== '' && employeeValidationStatus === 'valid');
-  }, [formData, employeeValidationStatus]);
+    // Only validate if the user has started typing or selected an employee
+    const hasInteracted = employeeSearchInput.trim() !== '';
+    const isValid = hasInteracted 
+      ? formData.endUser?.toString().trim() !== '' && employeeValidationStatus === 'valid'
+      : false;
+    
+    setFormValid(isValid);
+  }, [formData, employeeValidationStatus, employeeSearchInput]);
 
   // Load employees when modal opens
   useEffect(() => {
@@ -164,15 +171,20 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   };
 
   const handleEmployeeSelect = (employee) => {
-    setEmployeeSearchInput(employee.id);
+    const employeeName = employee.name;
     setFormData(prev => ({
       ...prev,
-      endUser: employee.id
+      endUser: employeeName
     }));
+    setEmployeeSearchInput(employeeName);
     setShowEmployeeDropdown(false);
-    setFocusedSuggestionIndex(-1);
     setEmployeeValidationStatus('valid');
     setEmployeeValidationMessage('');
+    // Clear any previous validation errors
+    setValidationErrors(prev => ({
+      ...prev,
+      endUser: ''
+    }));
   };
 
   const handleKeyDown = (e) => {
@@ -267,7 +279,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                   <div className="AssetProperty-EmployeeValidation">
                     <span>Searching...</span>
                   </div>
-                ) : employeeValidationStatus === 'valid' && (
+                ) : employeeValidationStatus === 'valid' && employeeSearchInput.trim() !== '' && (
                   <div className="AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--valid">
                     <span>✓ Valid employee</span>
                   </div>
@@ -292,12 +304,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               />
             </div>
           </div>
-          {/* Error message for invalid employee selection */}
-          {showEmployeeDropdown === false && employeeValidationStatus === 'invalid' && (
-            <div className="PublicDocument-FormCenterError">
-              Please select a valid employee from the dropdown.
-            </div>
-          )}
+
           <div className="AssetProperty-ModalActions">
             <button
               type="submit"

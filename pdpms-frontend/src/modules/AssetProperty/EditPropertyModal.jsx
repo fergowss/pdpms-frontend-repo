@@ -53,9 +53,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
 
     // Individual validation rules ---------------------------------
     const isEndUserValid = formData.endUser?.toString().trim() !== '';
-    const employeeValid =
-      employeeValidationStatus === 'valid' ||
-      formData.endUser === initialData.endUser;
+    const employeeValid = employeeValidationStatus === 'valid' || 
+                         (formData.endUser === initialData.endUser && employeeValidationStatus !== 'invalid');
     const numericValid = Object.values(validationErrors).every(
       (err) => err === ''
     );
@@ -378,9 +377,13 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                     ))}
                   </div>
                 )}
-                {employeeValidationStatus && (
-                  <div className={`AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--${employeeValidationStatus}`}>
-                    {employeeValidationMessage}
+                {isValidatingEmployee ? (
+                  <div className="AssetProperty-EmployeeValidation">
+                    <span>Searching...</span>
+                  </div>
+                ) : employeeValidationStatus === 'valid' && employeeSearchInput.trim() !== '' && (
+                  <div className="AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--valid">
+                    <span>✓ Valid employee</span>
                   </div>
                 )}
               </div>
@@ -425,12 +428,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               />
             </div>
           </div>
-          
-          {(!formValid && employeeValidationStatus !== 'invalid') && (
-            <div className="PublicDocument-FormCenterError">
-              Please select a valid employee from the dropdown.
-            </div>
-          )}
           
           <div className="AssetProperty-ModalActions">
             <button 

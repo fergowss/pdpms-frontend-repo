@@ -402,8 +402,12 @@
   color: #000;
   text-align: center;
   margin: 0 0 1.5rem 0;
-  line-height: 1.4;
+  line-height: 1.6;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 .AssetProperty-EditNotification-Title b {
