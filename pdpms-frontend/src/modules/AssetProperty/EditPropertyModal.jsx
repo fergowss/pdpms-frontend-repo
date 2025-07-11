@@ -315,12 +315,12 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text"
+              <textarea
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea"
                 name="serialNo"
-                value={formData.serialNo} 
+                value={formData.serialNo}
                 onChange={handleInputChange}
+                rows={3}
               />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>

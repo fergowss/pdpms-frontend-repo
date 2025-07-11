@@ -393,7 +393,7 @@
 
 .UserManagement-ModalInput:disabled {
   background-color: #f0f0f0;
-  color: #666;
+  color: #f6fcff;
 }
 
 .UserManagement-PasswordWrapper {

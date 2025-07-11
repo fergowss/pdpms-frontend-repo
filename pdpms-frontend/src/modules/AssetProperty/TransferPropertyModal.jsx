@@ -235,7 +235,13 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <input className="AssetProperty-ModalInput" type="text" value={formData.serialNo} disabled style={{background:'#e8eef7'}} />
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                value={formData.serialNo} 
+                disabled 
+                style={{background:'#e8eef7', resize: 'none'}}
+                rows={3}
+              />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
               <input className="AssetProperty-ModalInput" type="date" value={formData.dateAcquired} disabled style={{background:'#e8eef7'}} />

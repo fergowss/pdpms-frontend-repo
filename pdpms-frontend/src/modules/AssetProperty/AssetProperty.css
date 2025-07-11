@@ -571,17 +571,13 @@
 
 .AssetProperty-ModalTextarea {
   min-height: 6rem;
-  resize: vertical;
+  resize: none;
   width: 100%;
   box-sizing: border-box;
   padding: 0.5rem 0.75rem;
-  border: 1.5px solid #2B3E63;
-  border-radius: 0.35rem;
   font-size: 0.98rem;
-  background: #f6fcff;
-  color: #223354;
-  outline: none;
-  transition: border 0.2s;
+  overflow-y: auto;
+  line-height: 1.5;
 }
 
 .AssetProperty-ModalTextarea:focus {
@@ -602,7 +598,8 @@
 }
 
 .AssetProperty-ModalInput,
-.AssetProperty-ModalSelect {
+.AssetProperty-ModalSelect,
+.AssetProperty-ModalTextarea {
   border: 1.5px solid #2B3E63;
   border-radius: 0.35rem;
   padding: 0.48rem 0.9rem;
@@ -612,9 +609,52 @@
   color: #223354;
   outline: none;
   transition: border 0.2s;
-  height: 2.5rem;
+  height: 5rem; /* Fixed height for all input fields */
   box-sizing: border-box;
   width: 100%;
+  font-family: inherit;
+  resize: none; /* Prevent resizing */
+  overflow-y: auto; /* Add scroll if content overflows */
+}
+
+/* Specific style for non-textarea inputs to override the height */
+.AssetProperty-ModalInput:not(textarea),
+.AssetProperty-ModalSelect {
+  height: 2.5rem; /* Standard height for regular inputs */
+  overflow: hidden; /* Hide scrollbars for regular inputs */
+}
+
+/* Custom scrollbar for textareas */
+.AssetProperty-ModalTextarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+.AssetProperty-ModalTextarea::-webkit-scrollbar-track {
+  background: #e8eef7;
+  border-radius: 4px;
+}
+
+.AssetProperty-ModalTextarea::-webkit-scrollbar-thumb {
+  background: #2B3E63;
+  border-radius: 4px;
+}
+
+.AssetProperty-ModalTextarea::-webkit-scrollbar-thumb:hover {
+  background: #3571b9;
+}
+
+/* Specific style for serial number input */
+input[name="serialNo"] {
+  height: 5rem !important; /* Match height with description and remarks */
+  overflow-y: auto; /* Add scroll if content overflows */
+  text-align: left !important; /* Align text to the left */
+  vertical-align: top; /* Align text to the top */
+  white-space: pre-wrap; /* Allow text to wrap */
+  word-wrap: break-word; /* Break long words if needed */
+  padding-top: 0.5rem; /* Add some top padding */
+  line-height: 1.5; /* Match line height with description */
+  scrollbar-width: thin;
+  scrollbar-color: #2B3E63 #e8eef7;
 }
 
 .AssetProperty-ModalInput:disabled,
