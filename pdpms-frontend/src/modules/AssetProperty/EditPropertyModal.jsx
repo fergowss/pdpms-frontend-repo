@@ -290,7 +290,7 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
               <label className="AssetProperty-ModalLabel">Property No.</label>
               <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
 
-              <label className="AssetProperty-ModalLabel">Document No.</label>
+              <label className="AssetProperty-ModalLabel">Document ID</label>
               <input className="AssetProperty-ModalInput" type="text" value={formData.documentNo} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>

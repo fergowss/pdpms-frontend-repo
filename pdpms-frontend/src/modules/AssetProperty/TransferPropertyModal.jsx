@@ -224,7 +224,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               <label className="AssetProperty-ModalLabel">Property No.</label>
               <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
 
-              <label className="AssetProperty-ModalLabel">Document No.</label>
+              <label className="AssetProperty-ModalLabel">Document ID</label>
               <input className="AssetProperty-ModalInput" type="text" value={formData.documentNo} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>

@@ -392,7 +392,7 @@ export default function AssetProperty() {
             <thead>
               <tr>
                 <th>Property No.</th>
-                <th>Document No.</th>
+                <th>Document ID </th>
                 <th>PAR No.</th>
                 <th>Description</th>
                 <th>Serial No.</th>
