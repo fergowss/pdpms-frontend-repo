@@ -21,7 +21,7 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
         lastName: employee.name?.split(' ').slice(1).join(' ') || '',
         position: employee.position || '',
         contact: employee.contact || '',
-        status: employee.status || 'Active',
+        status: employee.status === 'Resigned' ? 'Inactive' : (employee.status || 'Active'),
       });
     }
   }, [employee]);
@@ -56,7 +56,7 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             last_name: form.lastName,
             position_title: form.position,
             contact_no: form.contact,
-            employee_status: form.status,
+            employee_status: form.status === 'Inactive' ? 'Resigned' : form.status,
           }
         );
         onUpdate(form);
@@ -136,11 +136,7 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             <select className="EmployeeEditModal-Input" name="status" value={form.status} onChange={handleChange}>
               <option value="">Select Status</option>
               <option value="Active">Active</option>
-              <option value="Resigned">Resigned</option>
-              <option value="Maternity Leave">Maternity Leave</option>
-              <option value="Terminated">Terminated</option>
-              <option value="Vacation Leave">Vacation Leave</option>
-              <option value="Emergency Leave">Emergency Leave</option>
+              <option value="Inactive">Inactive</option>
             </select>
           </div>
           <div className="EmployeeEditModal-Actions">
