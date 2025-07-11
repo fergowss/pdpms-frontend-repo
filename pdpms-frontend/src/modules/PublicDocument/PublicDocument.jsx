@@ -18,6 +18,27 @@ export default function PublicDocument() {
   const [addFollowUpModalOpen, setAddFollowUpModalOpen] = useState(false);
   const [addFollowUpDocId, setAddFollowUpDocId] = useState(null);
   const [showFollowUpNotif, setShowFollowUpNotif] = useState(false);
+  // Date filter states
+  const [docDateFilter, setDocDateFilter] = useState('');
+  const [receivedDateFilter, setReceivedDateFilter] = useState('');
+  const [showDocDateFilter, setShowDocDateFilter] = useState(false);
+  const [showReceivedDateFilter, setShowReceivedDateFilter] = useState(false);
+  const docInputRef = React.useRef(null);
+  const receivedInputRef = React.useRef(null);
+
+  // auto-open native picker when input appears
+  useEffect(() => {
+    if (showDocDateFilter && docInputRef.current) {
+      docInputRef.current.focus();
+      if (docInputRef.current.showPicker) docInputRef.current.showPicker();
+    }
+  }, [showDocDateFilter]);
+  useEffect(() => {
+    if (showReceivedDateFilter && receivedInputRef.current) {
+      receivedInputRef.current.focus();
+      if (receivedInputRef.current.showPicker) receivedInputRef.current.showPicker();
+    }
+  }, [showReceivedDateFilter]);
 
   // Data state
   const [allData, setAllData] = useState([]);
@@ -122,7 +143,7 @@ export default function PublicDocument() {
   const baseData = activeTab === 'all' ? allData : archivingData;
 
   // Filter data based on search keyword
-  const data = searchKeyword
+  let data = searchKeyword
     ? baseData.filter((row) =>
         Object.values(row).some(
           (value) =>
@@ -130,6 +151,14 @@ export default function PublicDocument() {
         )
       )
     : baseData;
+
+  // Apply date filters if set
+  if (docDateFilter) {
+    data = data.filter(row => row.date && row.date.startsWith(docDateFilter));
+  }
+  if (receivedDateFilter) {
+    data = data.filter(row => row.received && row.received.startsWith(receivedDateFilter));
+  }
 
   // Handler for when a document is added
   const closeAll = () => {
@@ -399,8 +428,44 @@ export default function PublicDocument() {
               <th>Reference Code</th>
               <th>Subject</th>
               <th>Document Type</th>
-              <th>Date</th>
-              <th>Date Received</th>
+              <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowDocDateFilter(prev => !prev); }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  Date
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                {showDocDateFilter && (
+                  <input
+                    ref={docInputRef}
+                    type="date"
+                    value={docDateFilter}
+                    onChange={(e) => setDocDateFilter(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onBlur={() => setShowDocDateFilter(false)}
+                    style={{ position: 'absolute', top: '100%', left: 0, marginTop: '0.2rem', zIndex: 5 }}
+                  />
+                )}
+              </th>
+              <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowReceivedDateFilter(prev => !prev); }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  Date Received
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </span>
+                {showReceivedDateFilter && (
+                  <input
+                    ref={receivedInputRef}
+                    type="date"
+                    value={receivedDateFilter}
+                    onChange={(e) => setReceivedDateFilter(e.target.value)}
+                    onClick={(e) => e.stopPropagation()}
+                    onBlur={() => setShowReceivedDateFilter(false)}
+                    style={{ position: 'absolute', top: '100%', left: 0, marginTop: '0.2rem', zIndex: 5 }}
+                  />
+                )}
+              </th>
               <th>Received By</th>
               <th>Status</th>
               <th>Remarks</th>

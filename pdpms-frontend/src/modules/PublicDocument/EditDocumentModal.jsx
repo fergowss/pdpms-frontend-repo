@@ -118,7 +118,13 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               {errors.referenceCode && <div className="PublicDocument-ErrorText">{errors.referenceCode}</div>}
               
               <label className="PublicDocument-ModalLabel">Subject</label>
-              <input className="PublicDocument-ModalInput PublicDocument-ModalInput--large" type="text" value={doc.subject || 'Intern Application'} disabled style={{background:'#e8eef7'}} />
+              <textarea
+                className="PublicDocument-ModalInput PublicDocument-ModalTextarea"
+                rows={4}
+                value={doc.subject || ''}
+                disabled
+                style={{ background: '#e8eef7', resize: 'none' }}
+              />
               
               <label className="PublicDocument-ModalLabel">Document Type</label>
               <select className="PublicDocument-ModalInput" value={doc.type || ''} disabled style={{background:'#e8eef7'}}>
