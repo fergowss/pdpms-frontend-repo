@@ -24,13 +24,16 @@ const insertNewlines = (text, wordsPerLine = 10) => {
   return lines.join('\n');
 };
 
+import TransferPropertyModal from './TransferPropertyModal';
 export default function AssetProperty() {
+  const [transferNotif, setTransferNotif] = useState({ open: false, endUser: '' });
   const [showAddNotif, setShowAddNotif] = useState(false);
   const [showUpdateNotif, setShowUpdateNotif] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [showEditConfirm, setShowEditConfirm] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
+  const [transferModalOpen, setTransferModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [allData, setAllData] = useState([]);
@@ -309,6 +312,7 @@ export default function AssetProperty() {
     setSelectedRow(null);
     setShowAddNotif(false);
     setShowUpdateNotif(false);
+    setTransferModalOpen(false);
   };
 
   return (
@@ -466,10 +470,8 @@ export default function AssetProperty() {
             >
               ×
             </button>
-            <div className="AssetProperty-EditNotification-Title">
-              Edit Property
-              <br />
-              <b>{selectedRow.propertyNo}</b>?
+            <div className="AssetProperty-EditNotification-Title" style={{ marginBottom: '1.2rem', textAlign: 'center' }}>
+              Manage Property <b>{selectedRow.propertyNo}</b>?
             </div>
             <div className="AssetProperty-EditNotification-Actions">
               <button
@@ -481,11 +483,52 @@ export default function AssetProperty() {
               >
                 EDIT
               </button>
+              <button
+                className="AssetProperty-EditNotification-EditBtn"
+                onClick={() => {
+                  setShowEditConfirm(false);
+                  setTransferModalOpen(true);
+                }}
+              >
+                ASSET TRANSFER
+              </button>
             </div>
           </div>
         </div>
       )}
       
+      {/* Transfer Notification Popup */}
+      {transferNotif.open && (
+        <div className="AssetProperty-NotificationOverlay">
+          <div className="AssetProperty-NotificationBox">
+            <div className="AssetProperty-NotificationContent">
+              {/* Transfer icon (checkmark/transfer) */}
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" style={{marginRight: '0.7rem'}} xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="12" fill="#e6f0ff"/>
+                <path d="M17 10.5V7.75C17 6.23122 15.7688 5 14.25 5H6.75C5.23122 5 4 6.23122 4 7.75V16.25C4 17.7688 5.23122 19 6.75 19H14.25C15.7688 19 17 17.7688 17 16.25V13.5" stroke="#2a5db0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21 12L17 16M21 12L17 8M21 12H9" stroke="#2a5db0" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+              <span style={{ fontWeight: 500, fontSize: '1.13rem', color: '#223354' }}>
+                The asset property has been transferred to {transferNotif.endUser}.
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Transfer Property Modal */}
+      {transferModalOpen && selectedRow && (
+        <TransferPropertyModal
+          open={transferModalOpen}
+          onClose={() => setTransferModalOpen(false)}
+          row={selectedRow}
+          onTransfer={(data) => {
+            setTransferModalOpen(false);
+            setTransferNotif({ open: true, endUser: data.endUser });
+            setTimeout(() => setTransferNotif({ open: false, endUser: '' }), 3000);
+          }}
+        />
+      )}
+
       <EditPropertyModal
         open={editModalOpen && !!selectedRow}
         onClose={closeAll}

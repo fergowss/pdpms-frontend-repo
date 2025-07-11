@@ -130,7 +130,7 @@ export default function Dashboard({ user }) {
 
   return (
     <div className="dashboard-container">
-      <div className="dashboard-header">
+      <div className="dashboard-header welcome-message-container">
         <h1>Welcome back, {firstName || 'User'}!</h1>
       </div>
 
