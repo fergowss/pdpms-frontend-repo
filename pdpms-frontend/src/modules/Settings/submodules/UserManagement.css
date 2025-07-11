@@ -479,8 +479,10 @@
 }
 
 .UserManagement-ModalInput:disabled {
-  background-color: #f0f0f0;
-  color: #666;
+  background-color:#e8eef7;
+  color: #e8eef7;
+  opacity: 1;
+  -webkit-text-fill-color: #2B3E63;
 }
 
 .UserManagement-PasswordWrapper {
