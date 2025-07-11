@@ -6,7 +6,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   const [formData, setFormData] = useState({
     propertyNo: '',
     documentNo: '',
-    parNo: '',
+    parNo: '',  // Empty by default
     serialNo: '',
     dateAcquired: '',
     unitCost: '',
@@ -36,7 +36,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
       setFormData({
         propertyNo: row.propertyNo || '',
         documentNo: row.documentNo || '',
-        parNo: row.parNo || '',
+        parNo: '',  // Always set to empty string
         serialNo: row.serialNo || '',
         dateAcquired: row.dateAcquired || '',
         unitCost: row.unitCost || '',
@@ -225,10 +225,22 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">Document ID</label>
-              <input className="AssetProperty-ModalInput" type="text" value={formData.documentNo} disabled style={{background:'#e8eef7'}} />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="documentNo"
+                value={formData.documentNo} 
+                onChange={handleInputChange}
+              />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input className="AssetProperty-ModalInput" type="text" value={formData.parNo} disabled style={{background:'#e8eef7'}} />
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="parNo"
+                value={formData.parNo} 
+                onChange={handleInputChange}
+              />
 
               <label className="AssetProperty-ModalLabel">Description</label>
               <textarea className="AssetProperty-ModalInput AssetProperty-ModalTextarea" rows={3} value={formData.description} disabled style={{background:'#e8eef7', resize: 'none'}} />
