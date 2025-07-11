@@ -185,9 +185,6 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
                 value={formData.remarks}
                 onChange={handleChange}
               />
-              
-              <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only)</span></label>
-              <input className="PublicDocument-ModalInput" type="text" value={getFileName(doc.file)} disabled style={{background:'#f2f4f8'}} />
             </div>
           </div>
           <div className="PublicDocument-ModalActions">

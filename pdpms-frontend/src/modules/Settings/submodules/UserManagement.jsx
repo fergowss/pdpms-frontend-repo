@@ -697,20 +697,6 @@ function AddUserModal({ open, onClose, onAdd }) {
                   onChange={handleChange}
                   autoFocus
                   required
-                  style={{
-                    color: '#2B3E63',
-                    WebkitTextFillColor: '#2B3E63',
-                    opacity: 1,
-                    caretColor: '#2B3E63',
-                    backgroundColor: '#f0f0f0',
-                    border: '1px solid #2B3E63',
-                    borderRadius: '0.35rem',
-                    padding: '0.5rem 0.9rem',
-                    fontSize: '0.95rem',
-                    width: '100%',
-                    height: '38px',
-                    outline: 'none'
-                  }}
                 />
               </div>
               <div className="UserManagement-FormGroup">
