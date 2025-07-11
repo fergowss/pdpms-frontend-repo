@@ -13,6 +13,7 @@
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: #c1c1c1 #f1f1f1;
+  position: relative;
 }
 
 /* Webkit (Chrome, Safari, newer versions of Opera) */
@@ -53,40 +54,41 @@
 
 /* Welcome message specific styles */
 .welcome-message-container {
-  position: relative;
   width: 100%;
-  height: 5rem; /* Fixed height to prevent layout shift */
-  z-index: 1;
-  pointer-events: none; /* Make sure it doesn't interfere with clicks */
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+  height: auto;
+  padding: 4px;
 }
 
 .welcome-message-container h1 {
   color: #1a237e;
   font-weight: 600;
-  margin: 0;
+  margin: 2.5rem 0 0 4rem;
   font-size: 1.8rem;
   line-height: 1.2;
-  position: absolute;
-  top: 1.5rem;
-  left: 3.5rem;
-  pointer-events: auto; /* Re-enable pointer events for the text */
+  padding: 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* Main Content */
 .dashboard-main {
-  margin-top: 0 !important; /* Prevent any top margin from affecting position */
+  margin-top: -25px !important;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-  padding: 0 1.5rem 1.5rem;
+  padding: 1rem 2.5rem 1.5rem;
   box-sizing: border-box;
   min-height: 0;
   flex: 1;
   overflow: visible;
   align-content: start;
+  position: relative;
 }
 
 /* Document Status Section */
