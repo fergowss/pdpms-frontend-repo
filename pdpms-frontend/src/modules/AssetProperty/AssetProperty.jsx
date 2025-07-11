@@ -470,28 +470,30 @@ export default function AssetProperty() {
             >
               ×
             </button>
-            <div className="AssetProperty-EditNotification-Title" style={{ marginBottom: '1.2rem', textAlign: 'center' }}>
-              Manage Property <b>{selectedRow.propertyNo}</b>?
-            </div>
-            <div className="AssetProperty-EditNotification-Actions">
-              <button
-                className="AssetProperty-EditNotification-EditBtn"
-                onClick={() => {
-                  setShowEditConfirm(false);
-                  setEditModalOpen(true);
-                }}
-              >
-                EDIT
-              </button>
-              <button
-                className="AssetProperty-EditNotification-EditBtn"
-                onClick={() => {
-                  setShowEditConfirm(false);
-                  setTransferModalOpen(true);
-                }}
-              >
-                ASSET TRANSFER
-              </button>
+            <div className="AssetProperty-EditNotification-Content">
+              <div className="AssetProperty-EditNotification-Title">
+                Manage Property <b>{selectedRow.propertyNo}</b>?
+              </div>
+              <div className="AssetProperty-EditNotification-Actions">
+                <button
+                  className="AssetProperty-EditNotification-EditBtn"
+                  onClick={() => {
+                    setShowEditConfirm(false);
+                    setEditModalOpen(true);
+                  }}
+                >
+                  EDIT
+                </button>
+                <button
+                  className="AssetProperty-EditNotification-TransferBtn"
+                  onClick={() => {
+                    setShowEditConfirm(false);
+                    setTransferModalOpen(true);
+                  }}
+                >
+                  ASSET TRANSFER
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -359,29 +359,66 @@
   min-height: 110px;
 }
 
-.AssetProperty-EditNotification-Title {
+/* Notification Popup - Matched with PublicDocument style */
+.AssetProperty-EditNotificationOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.15);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: none;
+}
+
+.AssetProperty-EditNotification {
+  background: #e8eef7;
+  border: 1.7px solid #bfc7d1;
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 16px rgba(34, 51, 84, 0.13);
+  padding: 2rem 2.5rem;
+  min-width: 300px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
   text-align: center;
-  margin-bottom: 1.2rem;
+}
+
+.AssetProperty-EditNotification-Content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.AssetProperty-EditNotification-Title {
   font-size: 1.1rem;
   font-weight: 500;
-  color: #000000;
+  color: #000;
+  text-align: center;
+  margin: 0 0 1.5rem 0;
   line-height: 1.4;
+  width: 100%;
 }
 
 .AssetProperty-EditNotification-Title b {
-  color: #000000;
+  color: #000;
   font-weight: 500;
 }
 
 .AssetProperty-EditNotification-Actions {
-  width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.8rem;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
   margin: 0;
   padding: 0;
+  flex-wrap: wrap;
 }
 
 .AssetProperty-EditNotification-EditBtn {
@@ -389,14 +426,12 @@
   color: #2B3E63;
   border: 2px solid #2B3E63;
   border-radius: 0.35rem;
-  padding: 0.45rem 1.8rem;
-  font-size: 0.95rem;
-  font-weight: 500;
+  padding: 0.45rem 1.3rem;
+  font-size: 1rem;
+  font-weight: 400;
   cursor: pointer;
-  transition: all 0.2s ease;
-  width: auto;
-  display: block;
-  margin: 0 auto;
+  transition: background 0.17s, color 0.17s;
+  min-width: 120px;
 }
 
 .AssetProperty-EditNotification-EditBtn:hover {
@@ -404,23 +439,40 @@
   color: #fff;
 }
 
+.AssetProperty-EditNotification-TransferBtn {
+  background: #eaf0fa;
+  color: #2B3E63;
+  border: 2px solid #2B3E63;
+  border-radius: 0.35rem;
+  padding: 0.45rem 1.3rem;
+  font-size: 1rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: background 0.17s, color 0.17s;
+  min-width: 120px;
+}
+
+.AssetProperty-EditNotification-TransferBtn:hover {
+  background: #2B3E63;
+  color: #fff;
+}
+
 .AssetProperty-EditNotification-Close {
   position: absolute;
-  top: 0.1rem;
-  right: 0.2rem;
+  top: 0.5rem;
+  right: 0.7rem;
+  font-size: 1.1rem;
+  color: #223354;
   background: none;
   border: none;
-  font-size: 1.3rem;
   cursor: pointer;
-  color: #5e6e8c;
-  padding: 0.2rem 0.4rem;
+  padding: 0;
   line-height: 1;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  opacity: 0.6;
+  transition: opacity 0.15s;
 }
 
 .AssetProperty-EditNotification-Close:hover {
-  background-color: rgba(0, 0, 0, 0.05);
   opacity: 1;
 }
 
