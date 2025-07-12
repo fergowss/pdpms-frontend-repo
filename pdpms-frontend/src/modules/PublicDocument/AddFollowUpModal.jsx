@@ -98,8 +98,8 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 type="text"
                 name="referenceCode"
                 value={formData.referenceCode}
-                onChange={handleChange}
-                style={{ maxWidth: '100%', boxSizing: 'border-box' }}
+                disabled
+                style={{ maxWidth: '100%', boxSizing: 'border-box', background: '#e8eef7', cursor: 'not-allowed' }}
               />
               {errors.referenceCode && <span className="PublicDocument-ErrorText">{errors.referenceCode}</span>}
               <label className="PublicDocument-ModalLabel">Subject</label>
