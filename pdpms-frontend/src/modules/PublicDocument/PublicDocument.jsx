@@ -519,7 +519,7 @@ export default function PublicDocument() {
           </tbody>
         </table>
         )}
-        {activeTab === 'all' && selectedRow && !editModalOpen && (
+        {activeTab === 'all' && selectedRow && !editModalOpen && selectedRow.status !== 'Archived' && (
           <div className="PublicDocument-EditNotificationOverlay" style={{ zIndex: 2100 }}>
             <div className="PublicDocument-EditNotification">
               <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
