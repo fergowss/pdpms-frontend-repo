@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserManagement.css';
+import UserEditNotification from './UserEditNotification';
 
 // SVG for user icon
 const UserIcon = (
@@ -11,6 +12,7 @@ const UserIcon = (
 );
 
 export default function UserManagement() {
+  const [showEditConfirm, setShowEditConfirm] = useState(false);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -340,7 +342,7 @@ export default function UserManagement() {
                   </tr>
                 ) : (
                   filteredUsers.map((user, idx) => (
-                    <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
+                    <tr key={idx} onClick={() => { setSelectedUser(user); setShowEditConfirm(true); }} style={{ cursor: 'pointer' }}>
                       <td>{user.id}</td>
                       <td>{user.name}</td>
                       <td>{user.role}</td>
@@ -377,6 +379,15 @@ export default function UserManagement() {
       onClose={() => setEditModalOpen(false)}
       onUpdate={handleUpdateUser}
       user={selectedUser}
+    />
+    {/* Edit Confirmation Modal */}
+    <UserEditNotification
+      open={showEditConfirm}
+      onClose={() => setShowEditConfirm(false)}
+      onEdit={() => {
+        setShowEditConfirm(false);
+        setEditModalOpen(true);
+      }}
     />
     <DeleteUserModal
       open={deleteModalOpen}
