@@ -260,7 +260,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
                 </div>
               }
 
-              <label className="PublicDocument-ModalLabel">New Remarks</label>
+              <label className="PublicDocument-ModalLabel">Remarks</label>
               <textarea
                 className="PublicDocument-ModalInput PublicDocument-ModalTextarea"
                 rows={4}
