@@ -425,21 +425,15 @@ button:not(:disabled) {
 .PublicDocument-Table td.remarks-cell {
   white-space: pre-wrap;
   word-break: break-word;
-  min-width: 40ch;
-  max-width: 60ch;
-  padding: 2px 6px;
-  line-height: 1.25;
-  vertical-align: top;
+  min-width: 20ch;
+  max-width: 30ch;
   overflow: hidden;
 }
 
 .PublicDocument-Table td.receivedby-cell {
   white-space: pre-wrap;
   word-break: break-word;
-  min-width: 20ch; /* Reduced to make column narrower */
-  max-width: 30ch; /* Reduced to encourage earlier wrapping */
-  padding: 2px 6px;
-  line-height: 1.25;
-  vertical-align: top;
+  min-width: 20ch;
+  max-width: 30ch;
   overflow: hidden;
 }
