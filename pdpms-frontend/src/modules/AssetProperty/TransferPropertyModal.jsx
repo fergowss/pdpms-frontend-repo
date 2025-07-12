@@ -321,16 +321,6 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                 onChange={handleInputChange}
                 style={{resize: 'none'}} 
               />
-
-              <label className="AssetProperty-ModalLabel">Document ID</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="documentNo"
-                value={formData.documentNo} 
-                disabled
-                style={{background:'#e8eef7'}}
-              />
             </div>
           </div>
 
