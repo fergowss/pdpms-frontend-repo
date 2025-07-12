@@ -261,7 +261,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
               <input className="AssetProperty-ModalInput" type="text" value={formData.unitCost} disabled style={{background:'#e8eef7'}} />
 
-              <label className="AssetProperty-ModalLabel">End User <span style={{ color: '#e53935' }}>*</span></label>
+              <label className="AssetProperty-ModalLabel">End User</label>
               <div className="AssetProperty-EmployeeSearchContainer">
                 <input
                   ref={inputRef}
