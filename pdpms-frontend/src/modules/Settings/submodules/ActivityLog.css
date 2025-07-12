@@ -57,7 +57,8 @@
   flex: 1 1 auto;
   height: 100%;
   min-height: 0;
-  overflow: auto;
+  overflow-x: hidden; /* Hide horizontal scrollbar */
+  overflow-y: auto; /* Keep vertical scrollbar */
   border-radius: 0.5rem;
   border: 1px solid #e6eaf2;
   margin: 1rem 1.5rem 1.5rem 1.5rem;
@@ -72,15 +73,15 @@
 .ActivityLog-Table {
   border-collapse: collapse;
   width: 100%;
-  min-width: 100%;
-  table-layout: fixed;
+  min-width: 0; /* Allow table to be smaller than container */
+  table-layout: auto; /* Allow columns to adjust based on content */
   background: #fff;
 }
 
 @media (min-width: 1200px) {
   .ActivityLog-Table {
-    min-width: 1150px;
     width: 100%;
+    min-width: 0; /* Remove fixed minimum width */
   }
 }
 
@@ -88,7 +89,9 @@
   padding: 0.8rem 1rem;
   text-align: left;
   font-size: 1rem;
-  white-space: nowrap;
+  white-space: normal; /* Allow text to wrap */
+  word-break: break-word; /* Break long words if needed */
+  max-width: 200px; /* Prevent columns from becoming too wide */
 }
 
 .ActivityLog-Table th {
