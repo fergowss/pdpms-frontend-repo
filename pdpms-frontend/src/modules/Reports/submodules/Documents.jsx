@@ -64,6 +64,15 @@ export default function Documents() {
     };
   };
 
+  // Helper function to sort data by date in descending order
+  const sortByDateDescending = (dataArray) => {
+    return dataArray.sort((a, b) => {
+      const dateA = new Date(a.date || '1900-01-01');
+      const dateB = new Date(b.date || '1900-01-01');
+      return dateB - dateA;
+    });
+  };
+
   // Fetch data for all tabs on mount
   useEffect(() => {
     setIsLoading(true);
@@ -71,10 +80,14 @@ export default function Documents() {
       TABS.map(tab => axios.get(API_ENDPOINTS[tab]))
     )
       .then(([ongoingRes, completedRes, archivedRes]) => {
+        const ongoingData = Array.isArray(ongoingRes.data) ? ongoingRes.data.map(processDocumentItem).filter(Boolean) : [];
+        const completedData = Array.isArray(completedRes.data) ? completedRes.data.map(processDocumentItem).filter(Boolean) : [];
+        const archivedData = Array.isArray(archivedRes.data) ? archivedRes.data.map(processDocumentItem).filter(Boolean) : [];
+        
         setData({
-          'On Going': Array.isArray(ongoingRes.data) ? ongoingRes.data.map(processDocumentItem).filter(Boolean) : [],
-          'Completed': Array.isArray(completedRes.data) ? completedRes.data.map(processDocumentItem).filter(Boolean) : [],
-          'Archived': Array.isArray(archivedRes.data) ? archivedRes.data.map(processDocumentItem).filter(Boolean) : [],
+          'On Going': sortByDateDescending(ongoingData),
+          'Completed': sortByDateDescending(completedData),
+          'Archived': sortByDateDescending(archivedData),
         });
         setIsLoading(false);
       })
