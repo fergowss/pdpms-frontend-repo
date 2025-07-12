@@ -35,8 +35,8 @@ export const filterModulesByRole = (role, allModules) => {
       return allModules.filter(m => m.id !== 'Admin');
 
     case 'information_officer':
-      // Information Access Officers can only view Dashboard and Reports
-      return allModules.filter(m => ['Dashboard', 'Reports'].includes(m.id));
+      // Information Access Officers can only view Dashboard and Masterlist
+      return allModules.filter(m => ['Dashboard', 'Masterlist'].includes(m.id));
 
     default:
       // By default, hide the Admin module for non-admin roles

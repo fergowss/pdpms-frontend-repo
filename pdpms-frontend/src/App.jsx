@@ -26,7 +26,7 @@ import {
 
 const iconMap = {
   Dashboard: FiHome,
-  Reports: FiFileText,
+  'Masterlist': FiFileText,
   'Public Document': FiBook,
   'Asset Property': FiLayers,
   Admin: FiUsers,
@@ -39,7 +39,7 @@ const iconMap = {
 
 const modules = [
   { id: 'Dashboard' },
-  { id: 'Reports', subs: ['Documents', 'Properties'] },
+  { id: 'Masterlist', subs: ['Documents', 'Properties'] },
   { id: 'Public Document' },
   { id: 'Asset Property' },
   { id: 'Admin', subs: ['Activity Log', 'Employee Management', 'User Management'] },
@@ -377,7 +377,7 @@ export default function App() {
                 'Dashboard': <Dashboard user={user} />,
                 'Public Document': <PublicDocument />,
                 'Asset Property': <AssetProperty />,
-                'Reports': <Reports />,
+                'Masterlist': <Reports />,
                 'Admin': <ActivityLog key={activityLogRefreshKey} />,
                 'Settings': <Settings />,
               }[activeModule] || <p>Select a module.</p>

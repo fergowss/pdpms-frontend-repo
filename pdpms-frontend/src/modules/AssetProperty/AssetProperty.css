@@ -405,9 +405,8 @@
   line-height: 1.6;
   width: 100%;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .AssetProperty-EditNotification-Title b {

@@ -250,15 +250,6 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
         <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} noValidate>
           <div className="AssetProperty-ModalGrid">
             <div>
-              <label className="AssetProperty-ModalLabel">Document No.</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="documentNo" 
-                value={formData.documentNo} 
-                onChange={handleFormChange} 
-              />
-
               <label className="AssetProperty-ModalLabel">PAR No.</label>
               <input 
                 className="AssetProperty-ModalInput" 
@@ -359,16 +350,6 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
                 <div className="AssetProperty-ErrorText">{validationErrors.estimatedLife}</div>
               )}
 
-              <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                rows={3} 
-                name="remarks" 
-                value={formData.remarks} 
-                onChange={handleFormChange}
-                required
-              />
-
               <label className="AssetProperty-ModalLabel">Status</label>
               <select 
                 className="AssetProperty-ModalInput AssetProperty-ModalSelect" 
@@ -383,13 +364,17 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
                 <option value="For Repair">For Repair</option>
                 <option value="Condemned">Condemned</option>
               </select>
+
+              <label className="AssetProperty-ModalLabel">Document ID</label>
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="documentNo" 
+                value={formData.documentNo} 
+                onChange={handleFormChange} 
+              />
             </div>
           </div>
-          {(!formValid && employeeValidationStatus !== 'invalid') && (
-            <div className="PublicDocument-FormCenterError">
-              End User, Status, and Remarks are required.
-            </div>
-          )}
           <div className="AssetProperty-ModalActions">
             <button 
               type="submit" 
