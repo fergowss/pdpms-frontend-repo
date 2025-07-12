@@ -150,6 +150,9 @@
   padding: 0.7rem 1rem;
   text-align: left;
   font-family: inherit, sans-serif;
+  position: sticky; /* Stick header to top when scrolling */
+  top: 0;
+  z-index: 2;
 }
 
 .Documents-Table td {
