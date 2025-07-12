@@ -18,13 +18,19 @@ function validatePdfFile(file) {
   return '';
 }
 
-function generateReferenceCode() {
-  return 'REF-CD-';
+function generateReferenceCodeFromDate(dateString) {
+  if (!dateString) return 'REF-CD-';
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'REF-CD-';
+  
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  return `REF-CD-${year}-${month}`;
 }
 
 export default function AddDocumentModal({ open, onClose, onAdd, user }) {
   const [formData, setFormData] = useState({
-    referenceCode: generateReferenceCode(),
+    referenceCode: 'REF-CD-',
     subject: '',
     documentType: '',
     date: '',
@@ -38,10 +44,17 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Get current year and month dynamically
+  const currentDate = new Date();
+  const currentYear = currentDate.getFullYear();
+  const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
+  const currentDay = String(currentDate.getDate()).padStart(2, '0');
+  const maxDate = `${currentYear}-${currentMonth}-${currentDay}`;
+
   useEffect(() => {
     if (!open) {
       setFormData({
-        referenceCode: generateReferenceCode(),
+        referenceCode: 'REF-CD-',
         subject: '',
         documentType: '',
         date: '',
@@ -82,58 +95,40 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
       const file = files[0];
       setFormData((prev) => ({ ...prev, file }));
       setErrors((prev) => ({ ...prev, file: validatePdfFile(file) }));
-    } else if (name === 'referenceCode') {
-      let suffix = value.startsWith('REF-CD-') ? value.slice(7) : value;
-      suffix = suffix.replace(/[^0-9-]/g, '');
-      const inputValue = `REF-CD-${suffix}`;
-      setFormData((prev) => ({ ...prev, referenceCode: inputValue }));
-      setErrors((prev) => ({ ...prev, referenceCode: validateField(name, inputValue) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
+    } else if (name === 'date') {
+      // When date changes, automatically update reference code
+      const newReferenceCode = generateReferenceCodeFromDate(value);
+      setFormData((prev) => ({ 
+        ...prev, 
+        date: value,
+        referenceCode: newReferenceCode
+      }));
       if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
-      if (name === 'date' && formData.status === 'Archived' && !isOver5Years(value)) {
+      if (errors.referenceCode) setErrors((prev) => ({ ...prev, referenceCode: '' }));
+      
+      // Handle status validation for archived documents
+      if (formData.status === 'Archived' && !isOver5Years(value)) {
         setFormData((prev) => ({ ...prev, status: '' }));
         setErrors((prev) => ({
           ...prev,
           status: 'Cannot select Archived unless the document date is at least 5 years ago.',
         }));
       }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      if (errors[name]) setErrors((prev) => ({ ...prev, [name]: '' }));
     }
   };
 
   const validateField = (name, value) => {
     if (name === 'file') return '';
     if (name === 'referenceCode') {
-      if (!value || value === 'REF-CD-') return 'Reference code requires a valid year and month.';
-      if (!value.startsWith('REF-CD-')) return 'Reference code must start with "REF-CD-".';
-      const suffix = value.slice(7);
-      if (!/^[0-9-]+$/.test(suffix)) return 'Reference code allows only numbers and hyphens after prefix.';
-      if (suffix.includes('--')) return 'Reference code cannot have consecutive hyphens.';
-      const match = suffix.match(/^(\d{4})-(\d{2})$/);
-      if (!match) return 'Reference code must follow "REF-CD-YYYY-MM" format (e.g., REF-CD-2025-01).';
-      const year = parseInt(match[1], 10);
-      const month = parseInt(match[2], 10);
-      const currentYear = new Date().getFullYear();
-      if (year < 1900 || year > currentYear) return `Year must be between 1900 and ${currentYear}.`;
-      if (month < 1 || month > 12) return 'Month must be between 01 and 12.';
+      if (!value || value === 'REF-CD-') return 'Please select a date first to generate the reference code.';
       return '';
     }
     // Only apply "required" validation to required fields, exclude "remarks"
     if (name !== 'remarks' && (!value || value.toString().trim() === '')) return 'This field is required.';
     return '';
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.target.name === 'referenceCode') {
-      const { selectionStart, value } = e.target;
-      if ((e.key !== 'Backspace' && e.key !== 'Delete' && selectionStart < 7) ||
-          ((e.key === 'Backspace' || e.key === 'Delete') && selectionStart <= 7)) {
-        e.preventDefault();
-      }
-      if (selectionStart >= 7 && !/[0-9-]/.test(e.key) && e.key.length === 1) {
-        e.preventDefault();
-      }
-    }
   };
 
   const handleBlur = (e) => {
@@ -222,10 +217,8 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 type="text"
                 name="referenceCode"
                 value={formData.referenceCode}
-                onChange={handleChange}
-                onKeyDown={handleKeyDown}
-                onBlur={handleBlur}
-                style={{ background: '#fff' }}
+                readOnly
+                style={{ background: '#f5f5f5', cursor: 'not-allowed' }}
               />
               {errors.referenceCode && (
                 <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.referenceCode}</div>
@@ -267,6 +260,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 value={formData.date}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                max={maxDate}
               />
               <label className="PublicDocument-ModalLabel">Date Received *</label>
               <input
@@ -276,6 +270,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 value={formData.dateReceived}
                 onChange={handleChange}
                 onBlur={handleBlur}
+                max={maxDate}
               />
             </div>
             <div>
