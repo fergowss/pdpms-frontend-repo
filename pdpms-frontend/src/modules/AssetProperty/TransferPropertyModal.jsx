@@ -224,15 +224,6 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               <label className="AssetProperty-ModalLabel">Property No.</label>
               <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
 
-              <label className="AssetProperty-ModalLabel">Document ID</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="documentNo"
-                value={formData.documentNo} 
-                disabled
-                style={{background:'#e8eef7'}}
-              />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
               <input 
@@ -320,6 +311,16 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                 value={formData.remarks} 
                 onChange={handleInputChange}
                 style={{resize: 'none'}} 
+              />
+
+              <label className="AssetProperty-ModalLabel">Document ID</label>
+              <input 
+                className="AssetProperty-ModalInput" 
+                type="text" 
+                name="documentNo"
+                value={formData.documentNo} 
+                disabled
+                style={{background:'#e8eef7'}}
               />
             </div>
           </div>
