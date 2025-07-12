@@ -230,7 +230,8 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                 type="text" 
                 name="documentNo"
                 value={formData.documentNo} 
-                onChange={handleInputChange}
+                disabled
+                style={{background:'#e8eef7'}}
               />
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
