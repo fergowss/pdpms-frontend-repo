@@ -84,7 +84,6 @@ export default function AddEmployeeModal({ open, onClose, onAdd }) {
               <select className="EmployeeManagement-ModalInput" name="status" value={form.status} onChange={handleChange} required>
                 <option value="">Select Employee Status</option>
                 <option value="Active">Active</option>
-                <option value="On Leave">On Leave</option>
                 <option value="Inactive">Inactive</option>
               </select>
             </div>
