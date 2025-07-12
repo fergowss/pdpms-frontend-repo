@@ -13,6 +13,9 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
   }));
   
   // Update form when employee prop changes
+  // local overlay flag
+  const [blockNotif, setBlockNotif] = useState(false);
+
   React.useEffect(() => {
     if (employee) {
       setForm({
@@ -48,6 +51,22 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
     e.preventDefault();
     if (isFormChanged()) {
       try {
+        // If attempting to set employee Inactive, ensure no properties remain
+        if (form.status === 'Inactive') {
+          try {
+            const propsRes = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/properties/');
+            const propsData = Array.isArray(propsRes.data) ? propsRes.data : [];
+            const stillOwned = propsData.filter(p => p && (p.end_user === form.employeeId));
+            if (stillOwned.length > 0) {
+              setBlockNotif(true);
+                setTimeout(() => setBlockNotif(false), 3000);
+              return;
+            }
+          } catch (propErr) {
+            console.warn('Property check failed:', propErr.response?.data || propErr.message);
+          }
+        }
+
         await axios.put(
           `http://127.0.0.1:8000/pdpms/manila-city-hall/employees/${form.employeeId}/`,
           {
@@ -59,6 +78,21 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             employee_status: form.status === 'Inactive' ? 'Resigned' : form.status,
           }
         );
+        // Sync linked user status
+        try {
+          const { data: usersData } = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/users/');
+          const linkedUser = Array.isArray(usersData) ? usersData.find(u => u.employee_id === form.employeeId) : null;
+          if (linkedUser) {
+            await axios.patch(
+              `http://127.0.0.1:8000/pdpms/manila-city-hall/users/${linkedUser.username}/`,
+              {
+                user_status: form.status === 'Inactive' ? 'Deactivated' : 'Active',
+              }
+            );
+          }
+        } catch (syncErr) {
+          console.warn('User status sync failed:', syncErr.response?.data || syncErr.message);
+        }
         onUpdate(form);
         onClose();
       } catch (error) {
@@ -144,6 +178,19 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             <button type="button" className="EmployeeEditModal-CancelBtn" onClick={onClose}>CANCEL</button>
           </div>
         </form>
+
+        {blockNotif && (
+          <div className="AssetProperty-NotificationOverlay" style={{justifyContent:'center',alignItems:'center'}} onClick={()=>setBlockNotif(false)}>
+            <div className="AssetProperty-NotificationBox" style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',gap:'0.7rem',padding:'1.2rem 1.8rem'}}>
+              <span style={{display:'flex',alignItems:'center',height:'24px'}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
+                </svg>
+              </span>
+              <span style={{fontSize:'1.05rem',color:'#223354',fontWeight:400,display:'flex',alignItems:'center'}}>Deactivation could not be completed as this user still has properties associated with their account.</span>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

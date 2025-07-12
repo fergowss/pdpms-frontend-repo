@@ -40,6 +40,13 @@ export default function Login({ onLogin }) {
         return;
       }
 
+      // Check if user is deactivated
+      if (user.user_status && user.user_status.toLowerCase() !== 'active') {
+        setError("This user's account has been deactivated. Please contact the admin.");
+        setIsSubmitting(false);
+        return;
+      }
+
       // Pass user info to parent (App.jsx)
       if (onLogin) onLogin(user);
 
@@ -69,6 +76,7 @@ export default function Login({ onLogin }) {
           <input
             type={showPwd ? 'text' : 'password'}
             className="login-input"
+            placeholder='Enter your password'
             value={password}
             onChange={e => setPassword(e.target.value)}
             required
@@ -78,7 +86,7 @@ export default function Login({ onLogin }) {
           </span>
         </div>
         {error && <div className="login-error">{error}</div>}
-        <a href="#" className="login-forgot">Forgot Password? <span>Contact Admin.</span></a>
+        <a href="#" className="login-forgot" onClick={() => window.open('https://mail.google.com/mail/?view=cm&fs=1&to=vansondepano@gmail.com', '_blank', 'noopener,noreferrer')}>Forgot Password? <span>Contact Admin.</span></a>
         <button type="submit" className="login-btn" disabled={isSubmitting}>
           {isSubmitting ? 'Signing In...' : 'Sign In'}
         </button>

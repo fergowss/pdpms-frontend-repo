@@ -166,6 +166,24 @@ export default function UserManagement() {
 
   const handleToggleUserStatus = async (user) => {
     const newStatus = user.status === 'Activated' ? 'Deactivated' : 'Activated';
+
+    // If trying to deactivate, ensure user has no remaining properties
+    if (newStatus === 'Deactivated') {
+      try {
+        const propsRes = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/properties/');
+        const propsData = Array.isArray(propsRes.data) ? propsRes.data : [];
+        const stillOwned = propsData.filter(p => p && (p.end_user === user.id || p.end_user === user.username));
+        if (stillOwned.length > 0) {
+          setDeactivateModalOpen(false);
+          setDeactivateNotifMessage('Deactivation could not be completed as this user still has properties associated with their account.');
+          setShowDeactivateNotif(true);
+          setTimeout(() => setShowDeactivateNotif(false), 2500);
+          return;
+        }
+      } catch (propErr) {
+        console.warn('Property check failed:', propErr.response?.data || propErr.message);
+      }
+    }
     try {
       await axios.patch(
         `http://127.0.0.1:8000/pdpms/manila-city-hall/users/${user.username}/`,
@@ -173,6 +191,18 @@ export default function UserManagement() {
           user_status: newStatus === 'Activated' ? 'Active' : 'Deactivated'
         }
       );
+      // Sync linked employee status
+      try {
+        await axios.patch(
+          `http://127.0.0.1:8000/pdpms/manila-city-hall/employees/${user.id}/`,
+          {
+            employee_status: newStatus === 'Activated' ? 'Active' : 'Resigned',
+          }
+        );
+      } catch (empErr) {
+        console.warn('Employee status sync failed:', empErr.response?.data || empErr.message);
+      }
+
       setDeactivateModalOpen(false);
       setDeactivateNotifMessage(
         newStatus === 'Activated'
@@ -190,7 +220,7 @@ export default function UserManagement() {
   return (
     <div className="User-Management-Container">
       {showAddNotif && (
-  <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+  <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowDeactivateNotif(false)}>
     <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
       <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -205,7 +235,7 @@ export default function UserManagement() {
   </div>
 )}
       {showUpdateNotif && (
-        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowDeactivateNotif(false)}>
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -262,13 +292,12 @@ export default function UserManagement() {
         </div>
       )}
       {showDeactivateNotif && (
-        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }}>
+        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowDeactivateNotif(false)}>
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
-            <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <circle cx="12" cy="8" r="4" fill="#223354"/>
-                <path d="M20 19C20 15.13 16.41 12 12 12C7.59 12 4 15.13 4 19" stroke="#223354" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
+          <span style={{display:'flex',alignItems:'center',height:'24px'}}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
+                </svg>
             </span>
             <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
               {deactivateNotifMessage}

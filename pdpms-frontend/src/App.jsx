@@ -20,7 +20,7 @@ import EmployeeManagement from './modules/Settings/submodules/EmployeeManagement
 
 import {
   FiHome, FiFileText, FiBook, FiLayers,
-  FiFolder, FiActivity, FiUsers,
+  FiFolder, FiActivity, FiUsers, FiMenu, FiX,
   FiUser, FiUserCheck, FiCircle
 } from 'react-icons/fi';
 
@@ -56,6 +56,25 @@ export default function App() {
   const [activeSub, setActiveSub] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+
+  // Close profile dropdown when user clicks outside of it or the user badge
+  useEffect(() => {
+    if (!profileOpen) return; // Only attach listener when dropdown is open
+
+    const handleClickOutside = (e) => {
+      const dropdown = document.querySelector('.profile-dropdown');
+      const badge = document.querySelector('.user-badge');
+      if (dropdown && !dropdown.contains(e.target) && badge && !badge.contains(e.target)) {
+        setProfileOpen(false);
+      }
+    };
+
+    // Use mousedown so it fires before focus shifts
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [profileOpen]);
 
   // Resolve the user's role
   // Determine the raw role string from user object (checks multiple possible fields)
@@ -283,13 +302,14 @@ export default function App() {
             onClick={() => setCollapsed(!collapsed)}
             aria-label="Toggle sidebar"
           >
-            ☰
+            {collapsed ? <FiMenu size={20} /> : <FiX size={20} />}
           </button>
+
           <nav className="main-nav">
             {visibleModules.map(m => (
               <div key={m.id}>
                 <div
-                  className={'nav-item' + (activeModule === m.id ? ' active' : '')}
+                  className={"nav-item" + (activeModule === m.id ? " active" : "")}
                   onClick={() => {
                     openSidebarIfCollapsed();
                     setActiveModule(m.id);
