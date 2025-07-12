@@ -435,13 +435,19 @@ button:not(:disabled) {
   border-color: #3571b9;
 }
 
+.PublicDocument-Table td {
+  vertical-align: middle;
+}
+
 .PublicDocument-Table td.subject-cell,
 .PublicDocument-Table td.remarks-cell {
   white-space: pre-wrap;
   word-break: break-word;
-  min-width: 20ch;
-  max-width: 30ch;
-  overflow: hidden;
+  min-width: 60ch;  
+  max-width: 80ch;  
+  overflow: visible;
+  line-height: 1.2;
+  padding: 8px 12px;  
 }
 
 .PublicDocument-Table td.receivedby-cell {

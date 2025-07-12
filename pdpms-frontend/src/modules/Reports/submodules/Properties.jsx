@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './Properties.css';
 
@@ -17,6 +17,19 @@ export default function Properties() {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  // Date Acquired filter states
+  const [dateAcquiredFilter, setDateAcquiredFilter] = useState('');
+  const [showDateAcquiredFilter, setShowDateAcquiredFilter] = useState(false);
+  const [datePickerPos, setDatePickerPos] = useState({ top: 0, left: 0 });
+  const dateInputRef = useRef(null);
+
+  // auto-open native picker when input appears
+  useEffect(() => {
+    if (showDateAcquiredFilter && dateInputRef.current) {
+      dateInputRef.current.focus();
+      if (dateInputRef.current.showPicker) dateInputRef.current.showPicker();
+    }
+  }, [showDateAcquiredFilter]);
 
   // Utility: insert newlines after every `wordsPerLine` words (default 10)
   const insertNewlines = (text, wordsPerLine = 10) => {
@@ -83,12 +96,13 @@ export default function Properties() {
     setSearchKeyword('');
   };
 
-  // Filter data based on active tab and search keyword
+  // Filter data based on active tab, date acquired filter, and search keyword
   const filteredData = data.filter(item => {
     const matchesTab = item.status === activeTab;
-    if (!searchKeyword) return matchesTab;
+    const matchesDate = dateAcquiredFilter ? item.dateAcquired === dateAcquiredFilter : true;
+    if (!searchKeyword) return matchesTab && matchesDate;
     
-    return matchesTab && Object.values(item).some(
+    return matchesTab && matchesDate && Object.values(item).some(
       value => value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
     );
   });
@@ -129,7 +143,30 @@ export default function Properties() {
                   <th>PAR No.</th>
                   <th>Description</th>
                   <th>Serial No.</th>
-                  <th>Date Acquired</th>
+                  <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => {
+                      e.stopPropagation();
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setDatePickerPos({ top: rect.bottom + 2, left: rect.left });
+                      setShowDateAcquiredFilter(prev => !prev);
+                    }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      Date Acquired
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                    </span>
+                    {showDateAcquiredFilter && (
+                      <div style={{ position: 'fixed', top: datePickerPos.top, left: datePickerPos.left, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
+                        <input
+                          ref={dateInputRef}
+                          type="date"
+                          value={dateAcquiredFilter}
+                          onChange={(e) => setDateAcquiredFilter(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onBlur={() => setShowDateAcquiredFilter(false)}
+                          style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+                        />
+                      </div>
+                    )}
+                  </th>
                   <th>Unit Cost</th>
                   <th>End User</th>
                   <th>Estimated Life Use</th>
@@ -150,14 +187,14 @@ export default function Properties() {
                       <td>{row.propertyNo}</td>
                       <td>{row.documentNo}</td>
                       <td>{row.parNo}</td>
-                      <td className="description-cell">{insertNewlines(row.description)}</td>
-                      <td className="serial-no-cell">{insertNewlines(row.serialNo, 7)}</td>
+                      <td className="description-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.description)}</td>
+                      <td className="serial-no-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.serialNo, 7)}</td>
                       <td>{row.dateAcquired}</td>
                       <td>{row.unitCost}</td>
                       <td>{row.endUser}</td>
                       <td>{row.estimatedLifeUse}</td>
                       <td>{row.status}</td>
-                      <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
+                      <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks)}</td>
                     </tr>
                   ))
                 )}

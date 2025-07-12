@@ -160,6 +160,7 @@
   font-size: 0.9rem;
   font-family: inherit, sans-serif;
   padding: 0.7rem 1rem;
+  vertical-align: middle;
 }
 
 .Properties-Table td.description-cell,
@@ -167,8 +168,16 @@
 .Properties-Table td.serial-no-cell {
   white-space: pre-wrap;
   word-break: break-word;
+<<<<<<< Updated upstream
   min-width: 20ch;
   max-width: 30ch;
+=======
+  min-width: 40ch;
+  max-width: 60ch;
+  padding: 4px 8px;
+  line-height: 1.35;
+  vertical-align: middle;
+>>>>>>> Stashed changes
   overflow: hidden;
 }
 

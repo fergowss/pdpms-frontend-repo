@@ -59,7 +59,10 @@ export default function PublicDocument() {
     for (let i = 0; i < words.length; i += chunkSize) {
       lines.push(words.slice(i, i + chunkSize).join(' '));
     }
-    return lines.join('\n');
+    // Return as JSX with <br/> so browsers always render line breaks
+    return lines.map((line, idx) => (
+      idx === 0 ? line : [<br key={idx} />, line]
+    ));
   };
 
   // Fetch documents from the API
@@ -163,10 +166,38 @@ export default function PublicDocument() {
 
   // Apply date filters if set
   if (docDateFilter) {
-    data = data.filter(row => row.date && row.date.startsWith(docDateFilter));
+    console.log('Applying Document Date Filter:', docDateFilter);
+    data = data.filter(row => {
+      if (!row.date) {
+        console.log('No date for row:', row.id);
+        return false;
+      }
+      const normalizedDate = new Date(row.date);
+      if (isNaN(normalizedDate.getTime())) {
+        console.log('Invalid date for row:', row.id, 'Date:', row.date);
+        return false;
+      }
+      const formattedDate = normalizedDate.toISOString().split('T')[0];
+      console.log('Comparing:', formattedDate, 'with filter:', docDateFilter, 'for row:', row.id);
+      return formattedDate === docDateFilter;
+    });
   }
   if (receivedDateFilter) {
-    data = data.filter(row => row.received && row.received.startsWith(receivedDateFilter));
+    console.log('Applying Received Date Filter:', receivedDateFilter);
+    data = data.filter(row => {
+      if (!row.received) {
+        console.log('No received date for row:', row.id);
+        return false;
+      }
+      const normalizedDate = new Date(row.received);
+      if (isNaN(normalizedDate.getTime())) {
+        console.log('Invalid received date for row:', row.id, 'Date:', row.received);
+        return false;
+      }
+      const formattedDate = normalizedDate.toISOString().split('T')[0];
+      console.log('Comparing:', formattedDate, 'with filter:', receivedDateFilter, 'for row:', row.id);
+      return formattedDate === receivedDateFilter;
+    });
   }
 
   // Handler for when a document is added
@@ -446,15 +477,17 @@ export default function PublicDocument() {
                   </svg>
                 </span>
                 {showDocDateFilter && (
-                  <input
-                    ref={docInputRef}
-                    type="date"
-                    value={docDateFilter}
-                    onChange={(e) => setDocDateFilter(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    onBlur={() => setShowDocDateFilter(false)}
-                    style={{ position: 'absolute', top: '100%', left: 0, marginTop: '0.2rem', zIndex: 5 }}
-                  />
+                  <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
+                    <input
+                      ref={docInputRef}
+                      type="date"
+                      value={docDateFilter}
+                      onChange={(e) => setDocDateFilter(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={() => setShowDocDateFilter(false)}
+                      style={{ position: 'absolute', opacity: 0, width: '0', height: '0', pointerEvents: 'none' }}
+                    />
+                  </div>
                 )}
               </th>
               <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowReceivedDateFilter(prev => !prev); }}>
@@ -465,15 +498,17 @@ export default function PublicDocument() {
                   </svg>
                 </span>
                 {showReceivedDateFilter && (
-                  <input
-                    ref={receivedInputRef}
-                    type="date"
-                    value={receivedDateFilter}
-                    onChange={(e) => setReceivedDateFilter(e.target.value)}
-                    onClick={(e) => e.stopPropagation()}
-                    onBlur={() => setShowReceivedDateFilter(false)}
-                    style={{ position: 'absolute', top: '100%', left: 0, marginTop: '0.2rem', zIndex: 5 }}
-                  />
+                  <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
+                    <input
+                      ref={receivedInputRef}
+                      type="date"
+                      value={receivedDateFilter}
+                      onChange={(e) => setReceivedDateFilter(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={() => setShowReceivedDateFilter(false)}
+                      style={{ position: 'absolute', opacity: 0, width: '0', height: '0', pointerEvents: 'none' }}
+                    />
+                  </div>
                 )}
               </th>
               <th>Received By</th>
@@ -487,13 +522,13 @@ export default function PublicDocument() {
               <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
                 <td>{row.id}</td>
                 <td>{row.ref}</td>
-                <td className="subject-cell">{insertNewlines(row.subject)}</td>
+                <td className="subject-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.subject)}</td>
                 <td>{row.type}</td>
                 <td>{row.date}</td>
                 <td>{row.received}</td>
                 <td className="receivedby-cell">{insertNewlines(row.receivedBy, true)}</td>
                 <td>{row.status}</td>
-                <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
+                <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks)}</td>
                 <td>{row.file && row.file !== '#' ? ( 
                 <>
                   {console.log('Rendering link for:', row.id, row.file)} {/* Debug */}

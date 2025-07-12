@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './AssetProperty.css';
 import AddPropertyModal from './AddPropertyModal';
 import EditPropertyModal from './EditPropertyModal';
@@ -44,6 +44,18 @@ export default function AssetProperty() {
     title: '',
     message: '',
   });
+  // Date Acquired filter states
+  const [dateAcquiredFilter, setDateAcquiredFilter] = useState('');
+  const [showDateAcquiredFilter, setShowDateAcquiredFilter] = useState(false);
+  const [datePickerPos, setDatePickerPos] = useState({ top: 0, left: 0 });
+  const dateInputRef = useRef(null);
+
+  useEffect(() => {
+    if (showDateAcquiredFilter && dateInputRef.current) {
+      dateInputRef.current.focus();
+      if (dateInputRef.current.showPicker) dateInputRef.current.showPicker();
+    }
+  }, [showDateAcquiredFilter]);
 
   // API endpoint
   const API_URL = 'http://127.0.0.1:8000';
@@ -93,15 +105,15 @@ export default function AssetProperty() {
     setSearchKeyword(value);
   };
 
-  // Filter data based on search keyword with defensive checks
-  const filteredData = searchKeyword
-    ? allData.filter((item) =>
-        item &&
-        Object.values(item).some((val) =>
-          val != null ? val.toString().toLowerCase().includes(searchKeyword.toLowerCase()) : false
-        )
-      )
-    : allData;
+  // Filter data based on date filter and search keyword with defensive checks
+  const filteredData = allData.filter(item => {
+    const matchesDate = dateAcquiredFilter ? item.dateAcquired === dateAcquiredFilter : true;
+    if (!searchKeyword) return matchesDate;
+    
+    return matchesDate && Object.values(item).some(
+      value => value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+    );
+  });
 
   // Handler for adding a property
   const handleAddProperty = async (newProperty) => {
@@ -383,10 +395,6 @@ export default function AssetProperty() {
           <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>
             Loading...
           </div>
-        ) : filteredData.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '20px', color: '#888' }}>
-            No records found.
-          </div>
         ) : (
           <table className="AssetProperty-Table">
             <thead>
@@ -396,7 +404,30 @@ export default function AssetProperty() {
                 <th>PAR No.</th>
                 <th>Description</th>
                 <th>Serial No.</th>
-                <th>Date Acquired</th>
+                <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => {
+                e.stopPropagation();
+                const rect = e.currentTarget.getBoundingClientRect();
+                setDatePickerPos({ top: rect.bottom + 2, left: rect.left });
+                setShowDateAcquiredFilter(prev => !prev);
+              }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                  Date Acquired
+                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </span>
+                {showDateAcquiredFilter && (
+                  <div style={{ position: 'fixed', top: datePickerPos.top, left: datePickerPos.left, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0,0,0,0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
+                    <input
+                      ref={dateInputRef}
+                      type="date"
+                      value={dateAcquiredFilter}
+                      onChange={(e) => setDateAcquiredFilter(e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={() => setShowDateAcquiredFilter(false)}
+                      style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+                    />
+                  </div>
+                )}
+              </th>
                 <th>Unit Cost</th>
                 <th>End User</th>
                 <th>Estimated Life Use</th>
@@ -405,38 +436,46 @@ export default function AssetProperty() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.map((row, index) => (
-                <tr
-                  key={index}
-                  onClick={() => {
-                    console.log('Selected row with propertyNo:', row.propertyNo);
-                    closeAll();
-                    setSelectedRow(row);
-                    setShowEditConfirm(true);
-                  }}
-                  style={{ cursor: 'pointer' }}
-                >
-                  <td>{row.propertyNo}</td>
-                  <td>{row.documentNo}</td>
-                  <td>{row.parNo}</td>
-                  <td className="description-cell">{insertNewlines(row.description, 5)}</td>
-                  <td className="serial-no-cell">{insertNewlines(row.serialNo, 7)}</td>
-                  <td>{row.dateAcquired}</td>
-                  <td>{row.unitCost}</td>
-                  <td>{row.endUser}</td>
-                  <td>{row.estimatedLife}</td>
-                  <td>
-                    <span
-                      className={`AssetProperty-Status ${
-                        row.status ? row.status.toLowerCase().replace(/\s+/g, '') : 'unknown'
-                      }`}
-                    >
-                      {row.status || 'Unknown'}
-                    </span>
+              {filteredData.length === 0 ? (
+                <tr>
+                  <td colSpan={11} style={{ textAlign: 'center', color: '#888' }}>
+                    No records found.
                   </td>
-                  <td className="remarks-cell">{insertNewlines(row.remarks, 10)}</td>
                 </tr>
-              ))}
+              ) : (
+                filteredData.map((row, index) => (
+                  <tr
+                    key={index}
+                    onClick={() => {
+                      console.log('Selected row with propertyNo:', row.propertyNo);
+                      closeAll();
+                      setSelectedRow(row);
+                      setShowEditConfirm(true);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <td>{row.propertyNo}</td>
+                    <td>{row.documentNo}</td>
+                    <td>{row.parNo}</td>
+                    <td className="description-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.description, 5)}</td>
+                    <td className="serial-no-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.serialNo, 7)}</td>
+                    <td>{row.dateAcquired}</td>
+                    <td>{row.unitCost}</td>
+                    <td>{row.endUser}</td>
+                    <td>{row.estimatedLife}</td>
+                    <td>
+                      <span
+                        className={`AssetProperty-Status ${
+                          row.status ? row.status.toLowerCase().replace(/\s+/g, '') : 'unknown'
+                        }`}
+                      >
+                        {row.status || 'Unknown'}
+                      </span>
+                    </td>
+                    <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks, 10)}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         )}

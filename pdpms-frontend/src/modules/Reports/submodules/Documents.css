@@ -158,6 +158,7 @@
   font-size: 0.9rem;
   font-family: inherit, sans-serif;
   padding: 0.7rem 1rem;
+  vertical-align: middle;
 }
 
 .Documents-Table tr:last-child td {
@@ -172,16 +173,32 @@
 .Documents-Table td.remarks-cell {
   white-space: pre-wrap;
   word-break: break-word;
+<<<<<<< Updated upstream
   min-width: 20ch;
   max-width: 30ch;
+=======
+  min-width: 40ch;
+  max-width: 60ch;
+  padding: 4px 8px;
+  line-height: 1.35;
+  vertical-align: middle;
+>>>>>>> Stashed changes
   overflow: hidden;
 }
 
 .Documents-Table td.receivedby-cell {
   white-space: pre-wrap;
   word-break: break-word;
+<<<<<<< Updated upstream
   min-width: 20ch;
   max-width: 30ch;
+=======
+  min-width: 20ch; /* Reduced to make column narrower */
+  max-width: 30ch; /* Reduced to encourage earlier wrapping */
+  padding: 4px 8px;
+  line-height: 1.35;
+  vertical-align: middle;
+>>>>>>> Stashed changes
   overflow: hidden;
 }
 

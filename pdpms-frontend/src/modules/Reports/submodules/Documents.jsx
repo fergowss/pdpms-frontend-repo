@@ -19,6 +19,27 @@ export default function Documents() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Date filter states
+  const [docDateFilter, setDocDateFilter] = useState('');
+  const [receivedDateFilter, setReceivedDateFilter] = useState('');
+  const [showDocDateFilter, setShowDocDateFilter] = useState(false);
+  const [showReceivedDateFilter, setShowReceivedDateFilter] = useState(false);
+  const docInputRef = React.useRef(null);
+  const receivedInputRef = React.useRef(null);
+
+  // auto-open native picker when input appears
+  useEffect(() => {
+    if (showDocDateFilter && docInputRef.current) {
+      docInputRef.current.focus();
+      if (docInputRef.current.showPicker) docInputRef.current.showPicker();
+    }
+  }, [showDocDateFilter]);
+  useEffect(() => {
+    if (showReceivedDateFilter && receivedInputRef.current) {
+      receivedInputRef.current.focus();
+      if (receivedInputRef.current.showPicker) receivedInputRef.current.showPicker();
+    }
+  }, [showReceivedDateFilter]);
 
   // Utility function to insert newlines after every 10 words for subject and remarks, 5 words for receivedBy
   const insertNewlines = (text, isReceivedBy = false) => {
@@ -111,15 +132,51 @@ export default function Documents() {
   };
 
   // Filter data according to active tab and search keyword
-  const filteredData = (data[activeTab] || []).filter(row => {
-    const matchesTab = row.status === activeTab; 
-    
-    if (!searchKeyword) return true;
-
-    return Object.values(row).some(
-      value => value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+  let filteredData = data[activeTab] || [];
+  
+  if (searchKeyword) {
+    filteredData = filteredData.filter(row => 
+      Object.values(row).some(
+        value => value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
+      )
     );
-  });
+  }
+
+  // Apply date filters if set
+  if (docDateFilter) {
+    console.log('Applying Document Date Filter:', docDateFilter);
+    filteredData = filteredData.filter(row => {
+      if (!row.date) {
+        console.log('No date for row:', row.id);
+        return false;
+      }
+      const normalizedDate = new Date(row.date);
+      if (isNaN(normalizedDate.getTime())) {
+        console.log('Invalid date for row:', row.id, 'Date:', row.date);
+        return false;
+      }
+      const formattedDate = normalizedDate.toISOString().split('T')[0];
+      console.log('Comparing:', formattedDate, 'with filter:', docDateFilter, 'for row:', row.id);
+      return formattedDate === docDateFilter;
+    });
+  }
+  if (receivedDateFilter) {
+    console.log('Applying Received Date Filter:', receivedDateFilter);
+    filteredData = filteredData.filter(row => {
+      if (!row.received) {
+        console.log('No received date for row:', row.id);
+        return false;
+      }
+      const normalizedDate = new Date(row.received);
+      if (isNaN(normalizedDate.getTime())) {
+        console.log('Invalid received date for row:', row.id, 'Date:', row.received);
+        return false;
+      }
+      const formattedDate = normalizedDate.toISOString().split('T')[0];
+      console.log('Comparing:', formattedDate, 'with filter:', receivedDateFilter, 'for row:', row.id);
+      return formattedDate === receivedDateFilter;
+    });
+  }
 
   return (
     <div className="Documents-Container">
@@ -156,8 +213,48 @@ export default function Documents() {
                   <th>Reference Code</th>
                   <th>Subject</th>
                   <th>Document Type</th>
-                  <th>Date</th>
-                  <th>Date Received</th>
+                  <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowDocDateFilter(prev => !prev); }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      Date
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
+                    {showDocDateFilter && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
+                        <input
+                          ref={docInputRef}
+                          type="date"
+                          value={docDateFilter}
+                          onChange={(e) => setDocDateFilter(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onBlur={() => setShowDocDateFilter(false)}
+                          style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+                        />
+                      </div>
+                    )}
+                  </th>
+                  <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowReceivedDateFilter(prev => !prev); }}>
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      Date Received
+                      <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                      </svg>
+                    </span>
+                    {showReceivedDateFilter && (
+                      <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
+                        <input
+                          ref={receivedInputRef}
+                          type="date"
+                          value={receivedDateFilter}
+                          onChange={(e) => setReceivedDateFilter(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onBlur={() => setShowReceivedDateFilter(false)}
+                          style={{ position: 'absolute', opacity: 0, width: 0, height: 0, pointerEvents: 'none' }}
+                        />
+                      </div>
+                    )}
+                  </th>
                   <th>Received By</th>
                   <th>Status</th>
                   <th>Remarks</th>
@@ -174,13 +271,13 @@ export default function Documents() {
                     <tr key={row.id || i}>
                       <td>{row.id}</td>
                       <td>{row.ref}</td>
-                      <td className="subject-cell">{insertNewlines(row.subject)}</td>
+                      <td className="subject-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.subject)}</td>
                       <td>{row.type}</td>
                       <td>{row.date}</td>
                       <td>{row.received}</td>
                       <td className="receivedby-cell">{insertNewlines(row.receivedBy, true)}</td>
                       <td>{row.status}</td>
-                      <td className="remarks-cell">{insertNewlines(row.remarks)}</td>
+                      <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks)}</td>
                       <td>
                         {row.file === '#' ? (
                           <span style={{ color: '#888' }}>No file</span>
