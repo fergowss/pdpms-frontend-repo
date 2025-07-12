@@ -29,6 +29,15 @@ export default function Properties() {
     return lines.join('\n');
   };
 
+  // Helper function to sort data by date acquired in descending order
+  const sortByDateDescending = (dataArray) => {
+    return dataArray.sort((a, b) => {
+      const dateA = new Date(a.dateAcquired || '1900-01-01');
+      const dateB = new Date(b.dateAcquired || '1900-01-01');
+      return dateB - dateA;
+    });
+  };
+
   // Fetch data when activeTab changes
   useEffect(() => {
     const fetchData = async () => {
@@ -51,7 +60,7 @@ export default function Properties() {
           status: item.property_status,
           remarks: item.remarks,
         }));
-        setData(mappedData);
+        setData(sortByDateDescending(mappedData));
       } catch (err) {
         setError(err.message);
       } finally {
