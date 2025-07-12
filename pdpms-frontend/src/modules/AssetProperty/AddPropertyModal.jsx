@@ -276,7 +276,8 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
                 value={formData.serialNo} 
                 onChange={handleFormChange} 
               />
-
+            </div>
+            <div>
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
               <input 
                 className="AssetProperty-ModalInput" 
@@ -285,8 +286,7 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
                 value={formData.dateAcquired} 
                 onChange={handleFormChange} 
               />
-            </div>
-            <div>
+
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
               <input 
                 className="AssetProperty-ModalInput" 
@@ -349,7 +349,8 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
               {validationErrors.estimatedLife && (
                 <div className="AssetProperty-ErrorText">{validationErrors.estimatedLife}</div>
               )}
-
+            </div>
+            <div>
               <label className="AssetProperty-ModalLabel">Status</label>
               <select 
                 className="AssetProperty-ModalInput AssetProperty-ModalSelect" 
@@ -364,6 +365,15 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
                 <option value="For Repair">For Repair</option>
                 <option value="Condemned">Condemned</option>
               </select>
+
+              <label className="AssetProperty-ModalLabel">Remarks</label>
+              <textarea 
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
+                rows={3} 
+                name="remarks" 
+                value={formData.remarks} 
+                onChange={handleFormChange} 
+              />
 
               <label className="AssetProperty-ModalLabel">Document ID</label>
               <input 
