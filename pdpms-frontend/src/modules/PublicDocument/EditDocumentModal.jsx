@@ -38,6 +38,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
   const [errors, setErrors] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
   const [initialData, setInitialData] = useState(null);
+  const [originalRemarks, setOriginalRemarks] = useState('');
 
   // Initialize form data when doc changes
   useEffect(() => {
@@ -51,6 +52,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
       };
       setFormData(newData);
       setInitialData(newData);
+      setOriginalRemarks(doc.remarks || '');
     }
   }, [doc]);
 
@@ -66,10 +68,41 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    // Special handling for remarks to protect original text
+    if (name === 'remarks') {
+      // If there's original remarks text, ensure it cannot be modified
+      if (originalRemarks && originalRemarks.length > 0) {
+        // Check if the new value still contains the original text at the beginning
+        if (value.startsWith(originalRemarks)) {
+          // Allow this change - original text is preserved
+          setFormData(prev => ({
+            ...prev,
+            [name]: value
+          }));
+        } else {
+          // Don't allow this change - original text would be modified
+          // Keep the original text and only allow additions after it
+          setFormData(prev => ({
+            ...prev,
+            [name]: originalRemarks
+          }));
+          return;
+        }
+      } else {
+        // No original remarks, allow any change
+        setFormData(prev => ({
+          ...prev,
+          [name]: value
+        }));
+      }
+    } else {
+      // For all other fields, handle normally
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
 
     // Clear error when user types
     if (errors[name]) {
@@ -261,12 +294,12 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               }
 
               <label className="PublicDocument-ModalLabel">Remarks</label>
-              <textarea
-                className="PublicDocument-ModalInput PublicDocument-ModalTextarea"
-                rows={4}
-                name="remarks"
-                value={formData.remarks}
-                onChange={handleChange}
+                <textarea
+                  className="PublicDocument-ModalInput PublicDocument-ModalTextarea"
+                  rows={4}
+                  name="remarks"
+                  value={formData.remarks}
+                  onChange={handleChange}
               />
             </div>
           </div>
