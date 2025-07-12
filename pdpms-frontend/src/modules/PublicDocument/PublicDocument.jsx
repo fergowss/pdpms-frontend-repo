@@ -93,7 +93,16 @@ export default function PublicDocument() {
               })
               .filter((item) => item !== null)
           : [];
-        setAllData(fetchedData);
+        
+        // Sort by date to ensure consistent ordering - newest first, oldest last
+        const sortedData = fetchedData.sort((a, b) => {
+          // Use received date first, then document date as fallback
+          const dateA = new Date(a.received || a.date || '1900-01-01');
+          const dateB = new Date(b.received || b.date || '1900-01-01');
+          return dateB - dateA; // Descending order (newest first, oldest last)
+        });
+        
+        setAllData(sortedData); // Latest documents will be at the top
         setIsLoading(false);
       })
       .catch((error) => {
@@ -250,6 +259,7 @@ export default function PublicDocument() {
     // Format dates to YYYY-MM-DD
     const formatDate = (date) => {
       if (!date) return '';
+      // Check for invalid date format
       const d = new Date(date);
       return isNaN(d) ? '' : d.toISOString().split('T')[0];
     };
