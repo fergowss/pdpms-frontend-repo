@@ -75,10 +75,11 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
       if (originalRemarks && originalRemarks.length > 0) {
         // Check if the new value still contains the original text at the beginning
         if (value.startsWith(originalRemarks)) {
+          const newText = value.slice(originalRemarks.length).replace(/^\n*/, '');
           // Allow this change - original text is preserved
           setFormData(prev => ({
             ...prev,
-            [name]: value
+            [name]: originalRemarks + '\n\n' + newText
           }));
         } else {
           // Don't allow this change - original text would be modified
