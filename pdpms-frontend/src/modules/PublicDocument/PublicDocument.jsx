@@ -436,7 +436,7 @@ export default function PublicDocument() {
             <tr>
               <th>Document ID</th>
               <th>Reference Code</th>
-              <th>Subject</th>
+              <th>Subject/Description</th>
               <th>Document Type</th>
               <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowDocDateFilter(prev => !prev); }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>

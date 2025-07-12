@@ -179,7 +179,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               />
               {errors.referenceCode && <div className="PublicDocument-ErrorText">{errors.referenceCode}</div>}
 
-              <label className="PublicDocument-ModalLabel">Subject</label>
+              <label className="PublicDocument-ModalLabel">Subject/Description</label>
               <textarea 
                 className="PublicDocument-ModalInput PublicDocument-ModalTextarea" 
                 rows={3}
@@ -260,7 +260,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
                 </div>
               }
 
-              <label className="PublicDocument-ModalLabel"> New Remarks</label>
+              <label className="PublicDocument-ModalLabel">New Remarks</label>
               <textarea
                 className="PublicDocument-ModalInput PublicDocument-ModalTextarea"
                 rows={4}

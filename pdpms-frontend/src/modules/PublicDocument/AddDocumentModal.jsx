@@ -218,7 +218,6 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 name="referenceCode"
                 value={formData.referenceCode}
                 readOnly
-                style={{ background: '#f5f5f5', cursor: 'not-allowed' }}
               />
               {errors.referenceCode && (
                 <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.referenceCode}</div>
@@ -252,7 +251,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 <option value="Property Records">Property Records</option>
                 <option value="Others">Others</option>
               </select>
-              <label className="PublicDocument-ModalLabel">Date *</label>
+              <label className="PublicDocument-ModalLabel">Date</label>
               <input
                 className={`PublicDocument-ModalInput ${errors.date ? 'PublicDocument-InputError' : ''}`}
                 type="date"
@@ -262,7 +261,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 onBlur={handleBlur}
                 max={maxDate}
               />
-              <label className="PublicDocument-ModalLabel">Date Received *</label>
+              <label className="PublicDocument-ModalLabel">Date Received</label>
               <input
                 className={`PublicDocument-ModalInput ${errors.dateReceived ? 'PublicDocument-InputError' : ''}`}
                 type="date"
@@ -274,7 +273,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
               />
             </div>
             <div>
-              <label className="PublicDocument-ModalLabel">Received by *</label>
+              <label className="PublicDocument-ModalLabel">Received by</label>
               <input
                 className={`PublicDocument-ModalInput ${errors.receivedBy ? 'PublicDocument-InputError' : ''}`}
                 type="text"
@@ -282,7 +281,6 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 value={formData.receivedBy}
                 onChange={handleChange}
                 onBlur={handleBlur}
-                style={{ background: '#fff' }}
               />
               {errors.receivedBy && (
                 <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.receivedBy}</div>
