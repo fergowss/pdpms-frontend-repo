@@ -222,7 +222,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
               {errors.referenceCode && (
                 <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.referenceCode}</div>
               )}
-              <label className="PublicDocument-ModalLabel">Subject</label>
+              <label className="PublicDocument-ModalLabel"> Subject/Description</label>
               <textarea
                 className={`PublicDocument-ModalInput PublicDocument-ModalTextarea ${
                   errors.subject ? 'PublicDocument-InputError' : ''
