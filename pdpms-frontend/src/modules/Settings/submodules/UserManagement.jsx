@@ -30,6 +30,17 @@ export default function UserManagement() {
   const [manageModalOpen, setManageModalOpen] = useState(false);
   const [userToManage, setUserToManage] = useState(null);
 
+  // Helper function to sort users by status (Activated first, then Deactivated) and then by employee_id descending
+  const sortUsersByStatusAndId = (usersList) => {
+    return usersList.sort((a, b) => {
+      // Sort by status: Activated before Deactivated
+      if (a.status === 'Activated' && b.status === 'Deactivated') return -1;
+      if (a.status === 'Deactivated' && b.status === 'Activated') return 1;
+      // Within same status, sort by employee_id descending (newer IDs first)
+      return b.id.localeCompare(a.id);
+    });
+  };
+
   // Fetch users from API
   useEffect(() => {
     setIsLoading(true);
@@ -44,11 +55,13 @@ export default function UserManagement() {
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
           user_password: u.user_password
         })) : [];
-        setUsers(transformed);
-        setFilteredUsers(transformed);
+        const sortedUsers = sortUsersByStatusAndId(transformed);
+        setUsers(sortedUsers);
+        setFilteredUsers(sortedUsers);
         setIsLoading(false);
       })
       .catch(err => {
+        console.error('Failed to fetch users:', err);
         setIsLoading(false);
         setUsers([]);
         setFilteredUsers([]);
@@ -68,11 +81,13 @@ export default function UserManagement() {
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
           user_password: u.user_password
         })) : [];
-        setUsers(transformed);
-        setFilteredUsers(transformed);
+        const sortedUsers = sortUsersByStatusAndId(transformed);
+        setUsers(sortedUsers);
+        setFilteredUsers(sortedUsers);
         setIsLoading(false);
       })
       .catch(err => {
+        console.error('Failed to fetch users:', err);
         setIsLoading(false);
         setUsers([]);
         setFilteredUsers([]);
@@ -82,18 +97,17 @@ export default function UserManagement() {
   const handleSearch = () => {
     const keyword = searchKeyword.trim().toLowerCase();
     if (!keyword) {
-      setFilteredUsers(users);
+      setFilteredUsers(sortUsersByStatusAndId([...users]));
       return;
     }
-    setFilteredUsers(
-      users.filter(
-        (user) =>
-          user.name.toLowerCase().includes(keyword) ||
-          user.id.toLowerCase().includes(keyword) ||
-          user.role.toLowerCase().includes(keyword) ||
-          user.status.toLowerCase().includes(keyword)
-      )
+    const filtered = users.filter(
+      (user) =>
+        user.name.toLowerCase().includes(keyword) ||
+        user.id.toLowerCase().includes(keyword) ||
+        user.role.toLowerCase().includes(keyword) ||
+        user.status.toLowerCase().includes(keyword)
     );
+    setFilteredUsers(sortUsersByStatusAndId(filtered));
   };
 
   const handleSearchKeyDown = (e) => {
@@ -277,7 +291,7 @@ export default function UserManagement() {
             flexShrink: 0
           }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 7L18.1327 19.1425C18.0579 20.189 treble clef 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="#223354" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="#223354" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span>
           <span style={{
