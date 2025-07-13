@@ -128,3 +128,17 @@
   background: #eaf0fa;
   color: #2a5db0;
 }
+
+.EmployeeEditModal-ValidationText--valid {
+  color: #1b9e3d;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
+
+.EmployeeEditModal-ValidationText--invalid {
+  color: #e74c3c;
+  font-size: 0.9rem;
+  margin-top: 0.2rem;
+  font-weight: 500;
+}
