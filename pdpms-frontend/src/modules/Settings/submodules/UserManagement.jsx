@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './UserManagement.css';
-import UserEditNotification from './UserEditNotification';
 
 // SVG for user icon
 const UserIcon = (
@@ -12,7 +11,6 @@ const UserIcon = (
 );
 
 export default function UserManagement() {
-  const [showEditConfirm, setShowEditConfirm] = useState(false);
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -31,6 +29,7 @@ export default function UserManagement() {
           name: u.username,
           role: u.access_level,
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
+          user_password: u.user_password // Include user_password in the user object
         })) : [];
         setUsers(transformed);
         setFilteredUsers(transformed);
@@ -54,6 +53,7 @@ export default function UserManagement() {
           name: u.username,
           role: u.access_level,
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
+          user_password: u.user_password // Include user_password in the user object
         })) : [];
         setUsers(transformed);
         setFilteredUsers(transformed);
@@ -131,7 +131,7 @@ export default function UserManagement() {
           username: form.username,
           employee_id: form.employeeId,
           current_password: form.currentPassword,
-          user_password: form.newPassword,
+          user_password: form.newPassword || form.currentPassword, // Use newPassword if provided, else keep currentPassword
           access_level: form.role,
           user_status: 'Active'
         }
@@ -222,22 +222,22 @@ export default function UserManagement() {
   return (
     <div className="User-Management-Container">
       {showAddNotif && (
-  <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowDeactivateNotif(false)}>
-    <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
-      <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="12" cy="8" r="4" fill="#223354" />
-          <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
-        </svg>
-      </span>
-      <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
-        New User Has Been Added.
-      </span>
-    </div>
-  </div>
-)}
+        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowAddNotif(false)}>
+          <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
+            <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" fill="#223354" />
+                <rect x="4" y="16" width="16" height="4" rx="2" fill="#223354" />
+              </svg>
+            </span>
+            <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
+              New User Has Been Added.
+            </span>
+          </div>
+        </div>
+      )}
       {showUpdateNotif && (
-        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowDeactivateNotif(false)}>
+        <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowUpdateNotif(false)}>
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
             <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -296,10 +296,10 @@ export default function UserManagement() {
       {showDeactivateNotif && (
         <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setShowDeactivateNotif(false)}>
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
-          <span style={{display:'flex',alignItems:'center',height:'24px'}}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
-                </svg>
+            <span style={{display:'flex',alignItems:'center',height:'24px'}}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
+              </svg>
             </span>
             <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
               {deactivateNotifMessage}
@@ -342,7 +342,7 @@ export default function UserManagement() {
                   </tr>
                 ) : (
                   filteredUsers.map((user, idx) => (
-                    <tr key={idx} onClick={() => { setSelectedUser(user); setShowEditConfirm(true); }} style={{ cursor: 'pointer' }}>
+                    <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
                       <td>{user.id}</td>
                       <td>{user.name}</td>
                       <td>{user.role}</td>
@@ -379,15 +379,6 @@ export default function UserManagement() {
       onClose={() => setEditModalOpen(false)}
       onUpdate={handleUpdateUser}
       user={selectedUser}
-    />
-    {/* Edit Confirmation Modal */}
-    <UserEditNotification
-      open={showEditConfirm}
-      onClose={() => setShowEditConfirm(false)}
-      onEdit={() => {
-        setShowEditConfirm(false);
-        setEditModalOpen(true);
-      }}
     />
     <DeleteUserModal
       open={deleteModalOpen}
@@ -496,7 +487,7 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
       setForm({
         employeeId: user.id || '',
         username: user.name || '',
-        currentPassword: '',
+        currentPassword: user.user_password || '', // Pre-fill with user_password from API
         newPassword: '',
         role: user.role || ''
       });
@@ -562,6 +553,8 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                   value={form.username}
                   onChange={handleChange}
                   autoFocus
+                  readOnly
+                  disabled
                 />
               </div>
             </div>
@@ -576,6 +569,8 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                   name="currentPassword"
                   value={form.currentPassword}
                   onChange={handleChange}
+                  readOnly
+                  disabled
                 />
                 <button
                   type="button"
@@ -709,11 +704,12 @@ function AddUserModal({ open, onClose, onAdd }) {
   return (
     <div className="UserManagement-ModalOverlay">
       <div className="UserManagement-ModalBox">
-      <form className="UserManagement-ModalForm UserManagement-AddUserForm" onSubmit={handleSubmit} autoComplete="off" style={{          display: 'flex',
-            flexDirection: 'column',
-            width: '100%',
-            gap: '1.2rem'
-          }}>
+        <form className="UserManagement-ModalForm UserManagement-AddUserForm" onSubmit={handleSubmit} autoComplete="off" style={{
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          gap: '1.2rem'
+        }}>
           <div className="UserManagement-ModalGrid" style={{
             display: 'flex',
             flexDirection: 'column',
@@ -822,12 +818,12 @@ function AddUserModal({ open, onClose, onAdd }) {
           {/* Form Actions */}
           <div className="UserManagement-ModalActions">
             <button 
-               type="submit" 
-               className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
-               disabled={!form.employeeId || !form.username || !form.password || !form.role}
-             >
-               ADD
-             </button>
+              type="submit" 
+              className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
+              disabled={!form.employeeId || !form.username || !form.role}
+            >
+              ADD
+            </button>
             <button 
               type="button" 
               className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
