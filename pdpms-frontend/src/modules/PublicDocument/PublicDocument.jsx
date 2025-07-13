@@ -282,21 +282,34 @@ export default function PublicDocument() {
   };
 
   const handleAddFollowUp = async (formData) => {
-    if (!addFollowUpDocId) return;
+    if (!addFollowUpDocId) {
+      console.error('No document ID provided for follow-up');
+      setValidation({
+        isOpen: true,
+        type: 'error',
+        title: 'Follow-Up Error',
+        message: 'No document ID provided. Please select a document and try again.',
+      });
+      return;
+    }
 
-    const baseId = addFollowUpDocId;
+    const updateId = addFollowUpDocId; // Document to update status (e.g., PUBL-DOCU-2025-7e5021-0001)
+    // For base_document_id, use the root base document ID
+    const baseId = updateId.includes('-') ? updateId.split('-').slice(0, 4).join('-') : updateId;
+    console.log('Document ID to update status:', updateId);
+    console.log('Base document ID for follow-up:', baseId);
+
     const submissionData = new FormData();
 
     // Format dates to YYYY-MM-DD
     const formatDate = (date) => {
       if (!date) return '';
-      // Check for invalid date format
       const d = new Date(date);
       return isNaN(d) ? '' : d.toISOString().split('T')[0];
     };
 
     // Log formData for debugging
-    console.log('FormData:', {
+    console.log('FormData for follow-up:', {
       base_document_id: baseId,
       reference_code: formData.referenceCode,
       subject: formData.subject,
@@ -306,7 +319,7 @@ export default function PublicDocument() {
       received_by: formData.receivedBy,
       document_status: formData.status,
       remarks: formData.remarks,
-      pdf_file: formData.file
+      pdf_file: formData.file,
     });
 
     submissionData.append('base_document_id', baseId);
@@ -321,14 +334,44 @@ export default function PublicDocument() {
     if (formData.file) submissionData.append('pdf_file', formData.file);
 
     try {
+      // Create the follow-up document
+      console.log('Sending POST request to create follow-up document');
       const response = await axios.post(
         'http://127.0.0.1:8000/pdpms/manila-city-hall/documents/',
         submissionData,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       );
-      console.log('Created document ID:', response.data.document_id);
+      console.log('Created follow-up document ID:', response.data.document_id);
+
+      // Update the status of the document receiving the follow-up
+      console.log(`Attempting to update document ${updateId} to Completed`);
+      try {
+        const updateResponse = await axios.patch(
+          `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${updateId}/`,
+          {
+            document_status: 'Completed',
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        console.log(`Document ${updateId} status updated successfully:`, updateResponse.data);
+      } catch (updateError) {
+        console.error('Failed to update document status:', updateError);
+        console.error('Update error response:', updateError.response?.data || updateError.message);
+        setValidation({
+          isOpen: true,
+          type: 'warning',
+          title: 'Partial Success',
+          message: `Follow-up document created, but failed to update document status: ${updateError.response?.data?.detail || updateError.response?.data?.message || updateError.message}`,
+        });
+      }
+
+      // Delay fetchDocuments to ensure the PATCH request is processed
+      setTimeout(() => {
+        console.log('Refreshing documents after follow-up creation');
+        fetchDocuments();
+      }, 1000);
+
       setShowFollowUpNotif(true);
-      fetchDocuments();
       setTimeout(() => setShowFollowUpNotif(false), 3000);
     } catch (err) {
       console.error('Follow-up creation error:', err);
@@ -571,7 +614,13 @@ export default function PublicDocument() {
                 }}>
                   EDIT
                 </button>
-                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { const baseId = selectedRow?.id.includes('-') ? selectedRow.id.split('-').slice(0, 4).join('-'): selectedRow.id; setAddFollowUpDocId(baseId); setSelectedRow(null); setAddFollowUpModalOpen(true); }}>
+                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { 
+                  const docId = selectedRow.id; // Use the full document ID
+                  console.log('Setting docId for follow-up:', docId); 
+                  setAddFollowUpDocId(docId); 
+                  setSelectedRow(null); 
+                  setAddFollowUpModalOpen(true); 
+                }}>
                   ADD FOLLOW-UP
                 </button>
               </div>
