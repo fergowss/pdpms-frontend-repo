@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './EmployeeManagement.css';
 import AddEmployeeModal from './AddEmployeeModal';
-
 import EmployeeEditNotification from './EmployeeEditNotification';
 import './EmployeeEditNotification.css';
 import EmployeeEditModal from './EmployeeEditModal';
@@ -21,6 +20,17 @@ export default function EmployeeManagement() {
   const [updateNotifOpen, setUpdateNotifOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Helper function to sort employees by status (Active first, then Inactive) and then by employee_id descending
+  const sortEmployeesByStatusAndId = (employeesList) => {
+    return employeesList.sort((a, b) => {
+      // Sort by status: Active before Inactive
+      if (a.status === 'Active' && b.status === 'Inactive') return -1;
+      if (a.status === 'Inactive' && b.status === 'Active') return 1;
+      // Within same status, sort by employee_id descending (newer IDs first)
+      return b.id.localeCompare(a.id);
+    });
+  };
+
   // Fetch and transform employees from API
   useEffect(() => {
     setIsLoading(true);
@@ -37,7 +47,10 @@ export default function EmployeeManagement() {
           lastName: emp.last_name,
           employeeId: emp.employee_id,
         })) : [];
-        setEmployees(transformed);
+        
+        // Sort the initial data by status and ID
+        const sortedEmployees = sortEmployeesByStatusAndId(transformed);
+        setEmployees(sortedEmployees);
         setIsLoading(false);
       })
       .catch(err => {
@@ -70,19 +83,22 @@ export default function EmployeeManagement() {
       return;
     }
 
-    setEmployees(prev => [
-      ...prev,
-      {
-        id: newEmp.employeeId,
-        name: `${newEmp.firstName} ${newEmp.lastName}`,
-        position: newEmp.position,
-        contact: newEmp.contact,
-        status: newEmp.status,
-        firstName: newEmp.firstName,
-        lastName: newEmp.lastName,
-        employeeId: newEmp.employeeId,
-      },
-    ]);
+    const newEmployee = {
+      id: newEmp.employeeId,
+      name: `${newEmp.firstName} ${newEmp.lastName}`,
+      position: newEmp.position,
+      contact: newEmp.contact,
+      status: newEmp.status,
+      firstName: newEmp.firstName,
+      lastName: newEmp.lastName,
+      employeeId: newEmp.employeeId,
+    };
+
+    setEmployees(prev => {
+      const updatedEmployees = [newEmployee, ...prev];
+      return sortEmployeesByStatusAndId(updatedEmployees);
+    });
+    
     setAddNotifOpen(true);
     setTimeout(() => setAddNotifOpen(false), 2500);
   };
@@ -97,20 +113,23 @@ export default function EmployeeManagement() {
       return;
     }
 
-    setEmployees(prev => prev.map(emp =>
-      emp.id === updatedEmp.employeeId
-        ? {
-            ...emp,
-            name: `${updatedEmp.firstName} ${updatedEmp.lastName}`,
-            position: updatedEmp.position,
-            contact: updatedEmp.contact,
-            status: updatedEmp.status,
-            firstName: updatedEmp.firstName,
-            lastName: updatedEmp.lastName,
-            employeeId: updatedEmp.employeeId,
-          }
-        : emp
-    ));
+    setEmployees(prev => {
+      const otherEmployees = prev.filter(emp => emp.id !== updatedEmp.employeeId);
+      const updatedEmployee = {
+        id: updatedEmp.employeeId,
+        name: `${updatedEmp.firstName} ${updatedEmp.lastName}`,
+        position: updatedEmp.position,
+        contact: updatedEmp.contact,
+        status: updatedEmp.status,
+        firstName: updatedEmp.firstName,
+        lastName: updatedEmp.lastName,
+        employeeId: updatedEmp.employeeId,
+      };
+
+      const updatedEmployees = [updatedEmployee, ...otherEmployees];
+      return sortEmployeesByStatusAndId(updatedEmployees);
+    });
+    
     setUpdateNotifOpen(true);
     setTimeout(() => setUpdateNotifOpen(false), 2500);
   };
