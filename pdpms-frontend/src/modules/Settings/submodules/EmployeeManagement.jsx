@@ -60,7 +60,16 @@ export default function EmployeeManagement() {
     setSearchKeyword(value);
   };
 
+  const isValidContact = (contact) => {
+    return /^\d{11}$/.test(contact); // only 11-digit numbers
+  };
+
   const handleAddEmployee = (newEmp) => {
+    if (!isValidContact(newEmp.contact)) {
+      alert('Contact number must be exactly 11 digits and contain only numbers.');
+      return;
+    }
+
     setEmployees(prev => [
       ...prev,
       {
@@ -83,6 +92,11 @@ export default function EmployeeManagement() {
   };
 
   const handleUpdateEmployee = (updatedEmp) => {
+    if (!isValidContact(updatedEmp.contact)) {
+      alert('Contact number must be exactly 11 digits and contain only numbers.');
+      return;
+    }
+
     setEmployees(prev => prev.map(emp =>
       emp.id === updatedEmp.employeeId
         ? {
