@@ -27,8 +27,8 @@ export default function UserManagement() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
-  const [manageModalOpen, setManageModalOpen] = useState(false); // New state for manage modal
-  const [userToManage, setUserToManage] = useState(null); // New state for user to manage
+  const [manageModalOpen, setManageModalOpen] = useState(false);
+  const [userToManage, setUserToManage] = useState(null);
 
   // Fetch users from API
   useEffect(() => {
@@ -211,7 +211,6 @@ export default function UserManagement() {
     }
   };
 
-  // Handler to open EditUserModal from ManageUserModal
   const handleEditConfirm = (user) => {
     setManageModalOpen(false);
     setSelectedUser(user);
@@ -278,7 +277,7 @@ export default function UserManagement() {
             flexShrink: 0
           }}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M19 7L18.1327 19.1425C18.0579 20.1891 17.187 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="#223354" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <path d="M19 7L18.1327 19.1425C18.0579 20.189 treble clef 21 16.1378 21H7.86224C6.81296 21 5.94208 20.1891 5.86732 19.1425L5 7M10 11V17M14 11V17M15 7V4C15 3.44772 14.5523 3 14 3H10C9.44772 3 9 3.44772 9 4V7M4 7H20" stroke="#223354" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </span>
           <span style={{
@@ -679,27 +678,66 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
 }
 
 function AddUserModal({ open, onClose, onAdd }) {
+  const PREFIX = 'EDPS-EMPL-';
   const [showPassword, setShowPassword] = useState(false);
-  const initialForm = { employeeId: '', username: '', password: '', role: '' };
+  const initialForm = { employeeIdSuffix: '', username: '', password: '', role: '' };
   const [form, setForm] = useState(initialForm);
+  const [employeeIdStatus, setEmployeeIdStatus] = useState('');
+  const [employeeIdMessage, setEmployeeIdMessage] = useState('');
 
   React.useEffect(() => {
     if (open) {
       setForm(initialForm);
       setShowPassword(false);
+      setEmployeeIdStatus('');
+      setEmployeeIdMessage('');
     }
   }, [open]);
 
   if (!open) return null;
 
+  const isEmployeeIdValid = (suffix) => /^\d{4}$/.test(suffix);
+
+  const checkEmployeeIdExists = async (fullId) => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/employees/');
+      const exists = res.data.some(emp => emp.employee_id === fullId);
+      if (exists) {
+        setEmployeeIdStatus('valid');
+        setEmployeeIdMessage('Employee ID exists.');
+      } else {
+        setEmployeeIdStatus('invalid');
+        setEmployeeIdMessage('Employee ID does not exist.');
+      }
+    } catch (error) {
+      setEmployeeIdStatus('invalid');
+      setEmployeeIdMessage('Error checking Employee ID.');
+    }
+  };
+
   const handleChange = e => {
     const { name, value } = e.target;
-    setForm(prev => ({ ...prev, [name]: value }));
+    if (name === 'employeeIdSuffix') {
+      const numericPart = value.replace(/\D/g, '').slice(0, 4);
+      setForm(prev => ({ ...prev, employeeIdSuffix: numericPart }));
+      const fullId = `${PREFIX}${numericPart}`;
+      if (numericPart.length === 4) {
+        checkEmployeeIdExists(fullId);
+      } else {
+        setEmployeeIdStatus('');
+        setEmployeeIdMessage('');
+      }
+    } else {
+      setForm(prev => ({ ...prev, [name]: value }));
+    }
   };
+
+  const fullEmployeeId = `${PREFIX}${form.employeeIdSuffix}`;
 
   const handleSubmit = e => {
     e.preventDefault();
-    if (onAdd) onAdd(form);
+    if (!form.employeeIdSuffix || !form.username || !form.password || !form.role || employeeIdStatus !== 'valid') return;
+    if (onAdd) onAdd({ ...form, employeeId: fullEmployeeId });
     onClose();
   };
 
@@ -729,12 +767,18 @@ function AddUserModal({ open, onClose, onAdd }) {
                 <input
                   className="UserManagement-ModalInput"
                   type="text"
-                  name="employeeId"
-                  value={form.employeeId}
+                  name="employeeIdSuffix"
+                  value={fullEmployeeId}
                   onChange={handleChange}
                   autoFocus
                   required
+                  maxLength={PREFIX.length + 4}
                 />
+                {employeeIdMessage && (
+                  <div className={`AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--${employeeIdStatus}`}>
+                    {employeeIdMessage}
+                  </div>
+                )}
               </div>
               <div className="UserManagement-FormGroup">
                 <label className="UserManagement-ModalLabel">Username</label>
@@ -815,7 +859,7 @@ function AddUserModal({ open, onClose, onAdd }) {
             <button
               type="submit"
               className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
-              disabled={!form.employeeId || !form.username || !form.role}
+              disabled={!form.employeeIdSuffix || !form.username || !form.password || !form.role || employeeIdStatus !== 'valid'}
             >
               ADD
             </button>
