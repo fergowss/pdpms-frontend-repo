@@ -11,7 +11,7 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
     contact: employee?.contact || '',
     status: employee?.status || 'Active',
   }));
-  
+
   // Update form when employee prop changes
   // local overlay flag
   const [blockNotif, setBlockNotif] = useState(false);
@@ -31,9 +31,19 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
 
   if (!open) return null;
 
+  const isContactValid = (number) => {
+    return /^09\d{9}$/.test(number) && !/^09(\d)\1{8}$/.test(number);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm(f => ({ ...f, [name]: value }));
+    if (name === 'contact') {
+      if (/^\d*$/.test(value)) {
+        setForm(f => ({ ...f, [name]: value }));
+      }
+    } else {
+      setForm(f => ({ ...f, [name]: value }));
+    }
   };
 
   const isFormChanged = () => {
@@ -49,9 +59,8 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (isFormChanged()) {
+    if (isFormChanged() && isContactValid(form.contact)) {
       try {
-        // If attempting to set employee Inactive, ensure no properties remain
         if (form.status === 'Inactive') {
           try {
             const propsRes = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/properties/');
@@ -59,7 +68,7 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             const stillOwned = propsData.filter(p => p && (p.end_user === form.employeeId));
             if (stillOwned.length > 0) {
               setBlockNotif(true);
-                setTimeout(() => setBlockNotif(false), 3000);
+              setTimeout(() => setBlockNotif(false), 3000);
               return;
             }
           } catch (propErr) {
@@ -108,31 +117,31 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
         <form className="EmployeeEditModal-Form" onSubmit={handleSubmit}>
           <div className="EmployeeEditModal-Row">
             <label className="EmployeeEditModal-Label">Employee ID</label>
-            <input 
-              className="EmployeeEditModal-Input EmployeeEditModal-Disabled" 
-              name="employeeId" 
-              value={form.employeeId} 
-              disabled 
+            <input
+              className="EmployeeEditModal-Input EmployeeEditModal-Disabled"
+              name="employeeId"
+              value={form.employeeId}
+              disabled
             />
           </div>
           <div className="EmployeeEditModal-Grid">
             <div>
               <label className="EmployeeEditModal-Label">First Name</label>
-              <input 
-                className="EmployeeEditModal-Input EmployeeEditModal-Disabled" 
-                name="firstName" 
-                value={form.firstName} 
-                onChange={handleChange} 
+              <input
+                className="EmployeeEditModal-Input EmployeeEditModal-Disabled"
+                name="firstName"
+                value={form.firstName}
+                onChange={handleChange}
                 disabled
               />
             </div>
             <div>
               <label className="EmployeeEditModal-Label">Last Name</label>
-              <input 
-                className="EmployeeEditModal-Input EmployeeEditModal-Disabled" 
-                name="lastName" 
-                value={form.lastName} 
-                onChange={handleChange} 
+              <input
+                className="EmployeeEditModal-Input EmployeeEditModal-Disabled"
+                name="lastName"
+                value={form.lastName}
+                onChange={handleChange}
                 disabled
               />
             </div>
@@ -162,7 +171,19 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             </div>
             <div>
               <label className="EmployeeEditModal-Label">Contact No.</label>
-              <input className="EmployeeEditModal-Input" name="contact" value={form.contact} onChange={handleChange} />
+              <input
+                className={`EmployeeEditModal-Input ${form.contact && !isContactValid(form.contact) ? 'InputError' : ''}`}
+                name="contact"
+                value={form.contact}
+                onChange={handleChange}
+                maxLength={11}
+              />
+              
+              {form.contact && (
+                <div className={`EmployeeEditModal-ValidationText--${isContactValid(form.contact) ? 'valid' : 'invalid'}`}>
+                  {isContactValid(form.contact) ? 'Valid contact number' : 'Enter a valid contact number (e.g. 09123456789)'}
+                </div>
+              )}
             </div>
           </div>
           <div className="EmployeeEditModal-Row">
@@ -174,20 +195,26 @@ export default function EmployeeEditModal({ open, employee, onClose, onUpdate })
             </select>
           </div>
           <div className="EmployeeEditModal-Actions">
-            <button type="submit" className="EmployeeEditModal-UpdateBtn" disabled={!(isFormChanged() && form.position && form.contact && form.status)}>UPDATE</button>
+            <button
+              type="submit"
+              className="EmployeeEditModal-UpdateBtn"
+              disabled={!(isFormChanged() && form.position && isContactValid(form.contact) && form.status)}
+            >
+              UPDATE
+            </button>
             <button type="button" className="EmployeeEditModal-CancelBtn" onClick={onClose}>CANCEL</button>
           </div>
         </form>
 
         {blockNotif && (
-          <div className="AssetProperty-NotificationOverlay" style={{justifyContent:'center',alignItems:'center'}} onClick={()=>setBlockNotif(false)}>
-            <div className="AssetProperty-NotificationBox" style={{display:'flex',flexDirection:'row',alignItems:'center',justifyContent:'center',gap:'0.7rem',padding:'1.2rem 1.8rem'}}>
-              <span style={{display:'flex',alignItems:'center',height:'24px'}}>
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <div className="AssetProperty-NotificationOverlay" style={{ justifyContent: 'center', alignItems: 'center' }} onClick={() => setBlockNotif(false)}>
+            <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
+              <span style={{ display: 'flex', alignItems: 'center', height: '24px' }}>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
                 </svg>
               </span>
-              <span style={{fontSize:'1.05rem',color:'#223354',fontWeight:400,display:'flex',alignItems:'center'}}>Deactivation could not be completed as this user still has properties associated with their account.</span>
+              <span style={{ fontSize: '1.05rem', color: '#223354', fontWeight: 400 }}>Deactivation could not be completed as this user still has properties associated with their account.</span>
             </div>
           </div>
         )}
