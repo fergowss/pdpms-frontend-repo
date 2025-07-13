@@ -43,10 +43,16 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
   useEffect(() => {
     if (row) {
+      // Split documentNo into base and extension. If extension exists (e.g., "ABC123 - 01"),
+      // we treat the segment before the first " - " as the base Document ID and drop the rest.
+      // This effectively clears any previous extension, allowing the user to enter a new one.
+      const rawDocNo = row.documentNo || '';
+      const [baseDocNo] = rawDocNo.split(' - '); // grabs text before the first hyphen (or full string if none)
+
       setDocExtension('');
       setFormData({
         propertyNo: row.propertyNo || '',
-        documentNo: row.documentNo || '',
+        documentNo: baseDocNo,
         parNo: '',  // Always set to empty string
         serialNo: row.serialNo || '',
         dateAcquired: row.dateAcquired || '',
@@ -276,7 +282,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                 className="AssetProperty-ModalInput"
                 type="text"
                 name="documentNoCombined"
-                value={`${formData.documentNo} - ${docExtension}`}
+                value={docExtension.trim() !== '' ? `${formData.documentNo} - ${docExtension}` : formData.documentNo}
                 onChange={handleInputChange}
                 style={{}}
               />
