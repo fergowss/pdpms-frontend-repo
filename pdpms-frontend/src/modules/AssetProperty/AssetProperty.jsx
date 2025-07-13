@@ -498,6 +498,7 @@ export default function AssetProperty() {
         onClose={closeAll} 
         onAdd={handleAddProperty} 
         existingDocIds={allData.map(item => item.documentNo?.toLowerCase()).filter(Boolean)}
+        existingParNos={allData.map(item => item.parNo?.toLowerCase()).filter(Boolean)}
       />
       
       {showEditConfirm && selectedRow && (
@@ -562,6 +563,7 @@ export default function AssetProperty() {
         <TransferPropertyModal
           open={transferModalOpen}
           onClose={() => setTransferModalOpen(false)}
+          existingParNos={allData.map(item => item.parNo?.toLowerCase()).filter(Boolean)}
           row={selectedRow}
           onTransfer={(data) => {
             setTransferModalOpen(false);
