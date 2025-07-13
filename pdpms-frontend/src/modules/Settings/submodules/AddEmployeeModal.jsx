@@ -76,19 +76,6 @@ export default function AddEmployeeModal({ open, onClose, onAdd }) {
       }
     } else {
       setForm(prev => ({ ...prev, [name]: value }));
-      // Clear employee ID message when user starts typing in another field
-      if (employeeIdStatus === 'valid') {
-        setEmployeeIdStatus('');
-        setEmployeeIdMessage('');
-      }
-    }
-  };
-
-  const handleEmployeeIdBlur = () => {
-    // Clear the "Employee ID is available" message on blur if valid
-    if (employeeIdStatus === 'valid') {
-      setEmployeeIdStatus('');
-      setEmployeeIdMessage('');
     }
   };
 
@@ -132,7 +119,6 @@ export default function AddEmployeeModal({ open, onClose, onAdd }) {
                 name="employeeIdSuffix"
                 value={fullEmployeeId}
                 onChange={handleChange}
-                onBlur={handleEmployeeIdBlur}
                 maxLength={PREFIX.length + 4}
                 required
               />
