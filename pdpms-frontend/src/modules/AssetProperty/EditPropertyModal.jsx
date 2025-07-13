@@ -20,6 +20,9 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   const [hasChanges, setHasChanges] = useState(false);
   const [initialData, setInitialData] = useState(null);
   const [validationErrors, setValidationErrors] = useState({ unitCost: '', estimatedLife: '' });
+  // Track whether the unit cost field is still editable
+  const [unitCostEditable, setUnitCostEditable] = useState(true);
+  const [lifeEditable, setLifeEditable] = useState(true);
   const [employees, setEmployees] = useState([]);
   const [employeeSearchInput, setEmployeeSearchInput] = useState('');
   const [employeeSearchResults, setEmployeeSearchResults] = useState([]);
@@ -83,6 +86,10 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
       setFormData(newData);
       setInitialData(newData);
       setEmployeeSearchInput(newData.endUser);
+      // Unit cost is editable only if initial value is empty
+      setUnitCostEditable(!Boolean(newData.unitCost));
+      // Estimated life is editable only if initial value is empty
+      setLifeEditable(!Boolean(newData.estimatedLife));
       const requiredFields = ['endUser', 'status', 'remarks'];
       const isValid = requiredFields.every(field => newData[field]?.toString().trim() !== '');
       setFormValid(isValid);
@@ -211,22 +218,44 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
 
   const validateNumericInput = (name, value) => {
     let error = '';
-    if (value.trim() === '') {
+    const trimmed = value.trim();
+
+    if (trimmed === '') {
+      // Empty is acceptable (handled as null later)
       error = '';
-    } else if (/^-/.test(value)) {
+    } else if (/^-/.test(trimmed)) {
       error = 'Negative values are not allowed';
-    } else if (!/^[0-9.,]+$/.test(value)) {
-      error = 'Only numbers, comma, and decimal point are allowed';
-    } else if ((value.match(/\./g) || []).length > 1) {
-      error = 'Only one decimal point is allowed';
+    } else if (name === 'estimatedLife') {
+      // Positive whole numbers only
+      if (!/^[0-9]+$/.test(trimmed)) {
+        error = 'Only whole numbers are allowed';
+      } else if (parseInt(trimmed, 10) === 0) {
+        error = '0 is not allowed';
+      }
+    } else if (name === 'unitCost') {
+      // Allow decimals and comma separators but > 0
+      if (!/^[0-9.,]+$/.test(trimmed)) {
+        error = 'Only numbers, comma, and decimal point are allowed';
+      } else if ((trimmed.match(/\./g) || []).length > 1) {
+        error = 'Only one decimal point is allowed';
+      } else {
+        const numeric = parseFloat(trimmed.replace(/,/g, ''));
+        if (numeric === 0) {
+          error = '0 is not allowed';
+        }
+      }
     }
+
     setValidationErrors(prev => ({ ...prev, [name]: error }));
     return error === '';
   };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'unitCost' || name === 'estimatedLife') {
+    if (name === 'unitCost') {
+    // Once a non-empty value is entered, lock the field
+    validateNumericInput(name, value);
+  } else if (name === 'estimatedLife') {
       validateNumericInput(name, value);
     }
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -276,8 +305,15 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
         remarks: formData.remarks
       };
       onUpdate(updatedData);
+    // After successful update, lock the unit cost field
+    if (formData.unitCost) {
+      setUnitCostEditable(false);
     }
-  };
+    if (formData.estimatedLife) {
+      setLifeEditable(false);
+    }
+  }
+};
 
   if (!open || !row) return null;
 
@@ -341,6 +377,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.unitCost}
                 onChange={handleInputChange}
                 placeholder="0.00"
+                disabled={!unitCostEditable}
+                style={{ background: !unitCostEditable ? '#e8eef7' : 'white' }}
               />
               {validationErrors.unitCost && (
                 <div className="AssetProperty-ErrorText">{validationErrors.unitCost}</div>
@@ -397,6 +435,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.estimatedLife}
                 onChange={handleInputChange}
                 placeholder="0 Years"
+                disabled={!lifeEditable}
+                style={{ background: !lifeEditable ? '#e8eef7' : 'white' }}
               />
               {validationErrors.estimatedLife && (
                 <div className="AssetProperty-ErrorText">{validationErrors.estimatedLife}</div>
