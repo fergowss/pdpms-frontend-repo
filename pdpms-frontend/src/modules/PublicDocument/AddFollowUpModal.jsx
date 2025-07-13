@@ -1,6 +1,34 @@
 import React, { useState, useEffect } from 'react';
 import './PublicDocument.css';
 
+function isOver5Years(dateString) {
+  if (!dateString) return false;
+  let docDate;
+  if (dateString.includes('-')) {
+    docDate = new Date(dateString);
+  } else if (dateString.split('/').length === 3) {
+    const parts = dateString.split('/');
+    let year = parts[2];
+    if (year.length === 2) {
+      year = +year < 50 ? '20' + year : '19' + year;
+    }
+    docDate = new Date(`${year}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
+  } else {
+    docDate = new Date(dateString);
+  }
+  if (isNaN(docDate.getTime())) return false;
+  const now = new Date();
+  const yearsDiff = (now - docDate) / (1000 * 60 * 60 * 24 * 365.25);
+  return yearsDiff >= 5;
+}
+
+function validatePdfFile(file) {
+  if (!file) return '';
+  if (file.type !== 'application/pdf') return 'Only PDF files are allowed';
+  if (file.size > 10 * 1024 * 1024) return 'File size must be 10MB or less';
+  return '';
+}
+
 export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }) {
   const [formData, setFormData] = useState({
     referenceCode: '',
@@ -15,6 +43,43 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
   });
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      setFormData({
+        referenceCode: '',
+        subject: '',
+        documentType: '',
+        date: '',
+        dateReceived: '',
+        receivedBy: '',
+        status: '',
+        remarks: '',
+        file: null,
+      });
+      setErrors({});
+      setIsFormValid(false);
+    }
+  }, [open]);
+
+  const currentDate = new Date().toLocaleDateString('en-CA');
+
+  useEffect(() => {
+    if (formData.date) {
+      const date = new Date(formData.date);
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      setFormData(prev => ({
+        ...prev,
+        referenceCode: `REF-CD-${year}-${month}`
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        referenceCode: ''
+      }));
+    }
+  }, [formData.date]);
 
   useEffect(() => {
     const requiredFields = [
@@ -37,10 +102,33 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
+
+    if (name === 'file') {
+      const file = files[0];
+      const fileError = validatePdfFile(file);
+      setFormData(prev => ({ ...prev, file }));
+      setErrors(prev => ({ ...prev, file: fileError }));
+      return;
+    }
+
+    if (name === 'date' || name === 'dateReceived') {
+      const selectedDate = new Date(value);
+      const currentDateObj = new Date(currentDate);
+      selectedDate.setHours(0, 0, 0, 0);
+      currentDateObj.setHours(0, 0, 0, 0);
+      if (selectedDate > currentDateObj) {
+        setErrors(prev => ({
+          ...prev,
+          [name]: 'Future dates are not allowed'
+        }));
+      }
+    }
+
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'file' ? files[0] : value
+      [name]: value
     }));
+
     if (name === 'date' || name === 'dateReceived') {
       const isValidDate = value.match(/^\d{4}-\d{2}-\d{2}$/);
       setErrors(prev => ({
@@ -49,6 +137,17 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
       }));
     } else if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
+    }
+
+    if (name === 'status' && value === 'Archived' && !isOver5Years(formData.date)) {
+      setErrors(prev => ({
+        ...prev,
+        status: 'Cannot set as Archived unless the document date is at least 5 years ago.'
+      }));
+      setFormData(prev => ({
+        ...prev,
+        status: ''
+      }));
     }
   };
 
@@ -66,6 +165,32 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
     if (formData.dateReceived && !formData.dateReceived.match(/^\d{4}-\d{2}-\d{2}$/)) {
       newErrors.dateReceived = 'Invalid date format (YYYY-MM-DD)';
     }
+    if (formData.date) {
+      const selectedDate = new Date(formData.date);
+      const currentDateObj = new Date(currentDate);
+      selectedDate.setHours(0, 0, 0, 0);
+      currentDateObj.setHours(0, 0, 0, 0);
+      if (selectedDate > currentDateObj) {
+        newErrors.date = 'Future dates are not allowed';
+      }
+    }
+    if (formData.dateReceived) {
+      const selectedDate = new Date(formData.dateReceived);
+      const currentDateObj = new Date(currentDate);
+      selectedDate.setHours(0, 0, 0, 0);
+      currentDateObj.setHours(0, 0, 0, 0);
+      if (selectedDate > currentDateObj) {
+        newErrors.dateReceived = 'Future dates are not allowed';
+      }
+    }
+    if (formData.status === 'Archived' && !isOver5Years(formData.date)) {
+      newErrors.status = 'Cannot set as Archived unless the document date is at least 5 years ago.';
+    }
+    if (formData.file) {
+      const fileError = validatePdfFile(formData.file);
+      if (fileError) newErrors.file = fileError;
+    }
+
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
       onAddFollowUp(formData);
@@ -98,11 +223,12 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 type="text"
                 name="referenceCode"
                 value={formData.referenceCode}
+                onChange={handleChange}
                 disabled
-                style={{ maxWidth: '100%', boxSizing: 'border-box', background: '#e8eef7', cursor: 'not-allowed' }}
+                style={{ maxWidth: '100%', boxSizing: 'border-box', background: '#e8eef7' }}
               />
-              {errors.referenceCode && <span className="PublicDocument-ErrorText">{errors.referenceCode}</span>}
-              <label className="PublicDocument-ModalLabel">Subject/Description</label>
+              {errors.referenceCode && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.referenceCode}</div>}
+              <label className="PublicDocument-ModalLabel">Subject</label>
               <textarea
                 className={`PublicDocument-ModalInput ${errors.subject ? 'PublicDocument-InputError' : ''}`}
                 name="subject"
@@ -110,7 +236,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ minHeight: '5.5rem', resize: 'none', maxWidth: '100%', boxSizing: 'border-box' }}
               />
-              {errors.subject && <span className="PublicDocument-ErrorText">{errors.subject}</span>}
+              {errors.subject && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.subject}</div>}
               <label className="PublicDocument-ModalLabel">Document Type</label>
               <select
                 className={`PublicDocument-ModalInput ${errors.documentType ? 'PublicDocument-InputError' : ''}`}
@@ -129,7 +255,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 <option value="Property Records">Property Records</option>
                 <option value="Others">Others</option>
               </select>
-              {errors.documentType && <span className="PublicDocument-ErrorText">{errors.documentType}</span>}
+              {errors.documentType && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.documentType}</div>}
               <label className="PublicDocument-ModalLabel">Date</label>
               <input
                 className={`PublicDocument-ModalInput ${errors.date ? 'PublicDocument-InputError' : ''}`}
@@ -137,9 +263,10 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 name="date"
                 value={formData.date}
                 onChange={handleChange}
+                max={currentDate}
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
-              {errors.date && <span className="PublicDocument-ErrorText">{errors.date}</span>}
+              {errors.date && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.date}</div>}
             </div>
             <div style={{ maxWidth: '100%' }}>
               <label className="PublicDocument-ModalLabel">Date Received</label>
@@ -149,9 +276,10 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 name="dateReceived"
                 value={formData.dateReceived}
                 onChange={handleChange}
+                max={currentDate}
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
-              {errors.dateReceived && <span className="PublicDocument-ErrorText">{errors.dateReceived}</span>}
+              {errors.dateReceived && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.dateReceived}</div>}
               <label className="PublicDocument-ModalLabel">Received by</label>
               <input
                 className={`PublicDocument-ModalInput ${errors.receivedBy ? 'PublicDocument-InputError' : ''}`}
@@ -161,7 +289,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ maxWidth: '100%', boxSizing: 'border-box' }}
               />
-              {errors.receivedBy && <span className="PublicDocument-ErrorText">{errors.receivedBy}</span>}
+              {errors.receivedBy && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.receivedBy}</div>}
               <label className="PublicDocument-ModalLabel">Status</label>
               <select
                 className={`PublicDocument-ModalInput ${errors.status ? 'PublicDocument-InputError' : ''}`}
@@ -173,9 +301,11 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 <option value="">Select Status</option>
                 <option value="Completed">Completed</option>
                 <option value="Ongoing">Ongoing</option>
-                <option value="Archived">Archived</option>
+                {isOver5Years(formData.date) && (
+                  <option value="Archived">Archived</option>
+                )}
               </select>
-              {errors.status && <span className="PublicDocument-ErrorText">{errors.status}</span>}
+              {errors.status && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.status}</div>}
               <label className="PublicDocument-ModalLabel">Remarks</label>
               <textarea
                 className={`PublicDocument-ModalInput ${errors.remarks ? 'PublicDocument-InputError' : ''}`}
@@ -184,8 +314,8 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 onChange={handleChange}
                 style={{ minHeight: '5.5rem', resize: 'none', maxWidth: '100%', boxSizing: 'border-box' }}
               />
-              {errors.remarks && <span className="PublicDocument-ErrorText">{errors.remarks}</span>}
-              <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only, Optional)</span></label>
+              {errors.remarks && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.remarks}</div>}
+              <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(Optional, PDF Only, Max 10MB)</span></label>
               <div style={{ width: '100%', overflow: 'hidden' }}>
                 <input
                   className={`PublicDocument-ModalInput ${errors.file ? 'PublicDocument-InputError' : ''}`}
@@ -195,13 +325,29 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                   onChange={handleChange}
                   style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }}
                 />
-                {errors.file && <span className="PublicDocument-ErrorText">{errors.file}</span>}
+                {errors.file && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.file}</div>}
               </div>
             </div>
           </div>
           <div className="PublicDocument-ModalActions">
-            <button type="submit" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary" disabled={!isFormValid} style={{ opacity: isFormValid ? 1 : 0.6, cursor: isFormValid ? 'pointer' : 'not-allowed' }}>ADD FOLLOW-UP</button>
-            <button type="button" className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" onClick={onClose}>CANCEL</button>
+            <button 
+              type="submit" 
+              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary" 
+              disabled={!isFormValid} 
+              style={{ 
+                opacity: isFormValid ? 1 : 0.6, 
+                cursor: isFormValid ? 'pointer' : 'not-allowed' 
+              }}
+            >
+              ADD FOLLOW-UP
+            </button>
+            <button 
+              type="button" 
+              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" 
+              onClick={onClose}
+            >
+              CANCEL
+            </button>
           </div>
         </form>
       </div>
