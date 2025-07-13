@@ -322,7 +322,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                 name="unitCost"
                 value={formData.unitCost}
                 onChange={handleInputChange}
-                disabled={unitCostLocked}
+                disabled
                 style={unitCostLocked ? { background: '#e8eef7' } : {}}
               />
 
