@@ -3,6 +3,7 @@ import './AssetProperty.css';
 import axios from 'axios';
 
 export default function TransferPropertyModal({ open, onClose, row, onTransfer }) {
+  // State for base data
   const [formData, setFormData] = useState({
     propertyNo: '',
     documentNo: '',
@@ -16,6 +17,14 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     remarks: '',
     description: ''
   });
+  // State only for the editable extension after the hyphen
+  const [docExtension, setDocExtension] = useState('');
+  // Controls whether Unit Cost is locked after submission
+  const [unitCostLocked, setUnitCostLocked] = useState(false);
+  // List of used extensions for this Document ID
+  const [usedExtensions, setUsedExtensions] = useState([]);
+  // Flag for duplicate extension
+  const [isDocDuplicate, setIsDocDuplicate] = useState(false);
   const [formValid, setFormValid] = useState(false);
   const [employees, setEmployees] = useState([]);
   const [employeeSearchInput, setEmployeeSearchInput] = useState('');
@@ -30,9 +39,11 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
   const API_URL = 'http://127.0.0.1:8000';
   const EMPLOYEES_ENDPOINT = `${API_URL}/pdpms/manila-city-hall/employees/`;
+  const DOCUMENTS_ENDPOINT = `${API_URL}/pdpms/manila-city-hall/documents/`;
 
   useEffect(() => {
     if (row) {
+      setDocExtension('');
       setFormData({
         propertyNo: row.propertyNo || '',
         documentNo: row.documentNo || '',
@@ -49,16 +60,43 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     }
   }, [row]);
 
+  // Fetch used document extensions whenever modal opens or base documentNo changes
+  useEffect(() => {
+    if (!open || !formData.documentNo) return;
+
+    const fetchUsedExtensions = async () => {
+      try {
+        const res = await axios.get(DOCUMENTS_ENDPOINT);
+        const data = Array.isArray(res.data) ? res.data : [];
+        const basePrefix = `${formData.documentNo} - `;
+        const extensions = data
+          .map(doc => doc.document_no || doc.documentNo || '')
+          .filter(docId => docId.startsWith(basePrefix))
+          .map(docId => docId.slice(basePrefix.length).trim())
+          .filter(ext => ext !== '');
+        setUsedExtensions(extensions);
+      } catch (err) {
+        console.error('Failed to fetch document IDs:', err);
+        setUsedExtensions([]);
+      }
+    };
+
+    fetchUsedExtensions();
+  }, [open, formData.documentNo]);
+
   // Form validation
   useEffect(() => {
-    // Only validate if the user has started typing or selected an employee
+    // Require non-empty Document ID extension
+    const hasDocumentId = docExtension.trim() !== '' && !isDocDuplicate;
+
+    // Validate end user only if user interacted with search input
     const hasInteracted = employeeSearchInput.trim() !== '';
-    const isValid = hasInteracted 
+    const hasValidEndUser = hasInteracted
       ? formData.endUser?.toString().trim() !== '' && employeeValidationStatus === 'valid'
       : false;
-    
-    setFormValid(isValid);
-  }, [formData, employeeValidationStatus, employeeSearchInput]);
+
+    setFormValid(hasDocumentId && hasValidEndUser);
+  }, [docExtension, isDocDuplicate, formData.endUser, employeeValidationStatus, employeeSearchInput]);
 
   // Load employees when modal opens
   useEffect(() => {
@@ -159,7 +197,13 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'endUser') {
+    if (name === 'documentNoCombined') {
+      const prefix = `${formData.documentNo} - `;
+      if (!value.startsWith(prefix)) return;
+      const ext = value.slice(prefix.length);
+      setDocExtension(ext);
+      setIsDocDuplicate(usedExtensions.includes(ext.trim()));
+    } else if (name === 'endUser') {
       setEmployeeSearchInput(value);
       setFormData(prev => ({
         ...prev,
@@ -207,9 +251,12 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   };
 
   const handleSubmit = (e) => {
+    // lock unit cost so it becomes read-only after clicking TRANSFER
+    setUnitCostLocked(true);
     e.preventDefault();
     if (formValid && onTransfer) {
-      onTransfer({ ...formData });
+      const fullDocumentNo = docExtension.trim() ? `${formData.documentNo} - ${docExtension.trim()}` : formData.documentNo;
+      onTransfer({ ...formData, documentNo: fullDocumentNo });
     }
   };
 
@@ -225,14 +272,17 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">Document ID</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="documentNo"
-                value={formData.documentNo} 
-                disabled
-                style={{background:'#e8eef7'}}
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                name="documentNoCombined"
+                value={`${formData.documentNo} - ${docExtension}`}
+                onChange={handleInputChange}
+                style={{}}
               />
+              {isDocDuplicate && (
+                <div className="validation-error">This Document ID extension has already been used</div>
+              )}
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
               <input 
@@ -260,7 +310,15 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               <input className="AssetProperty-ModalInput" type="date" value={formData.dateAcquired} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
-              <input className="AssetProperty-ModalInput" type="text" value={formData.unitCost} disabled style={{background:'#e8eef7'}} />
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                name="unitCost"
+                value={formData.unitCost}
+                onChange={handleInputChange}
+                disabled={unitCostLocked}
+                style={unitCostLocked ? { background: '#e8eef7' } : {}}
+              />
 
               <label className="AssetProperty-ModalLabel">End User</label>
               <div className="AssetProperty-EmployeeSearchContainer">
@@ -328,7 +386,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
             <button
               type="submit"
               className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary"
-              disabled={!formValid}
+              disabled={!formValid || isDocDuplicate}
             >
               TRANSFER
             </button>

@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './AssetProperty.css';
 
-export default function AddPropertyModal({ open, onClose, onAdd }) {
+export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds = [] }) {
+  // Today's date in YYYY-MM-DD format
+  const todayStr = new Date().toISOString().split('T')[0];
   const [employees, setEmployees] = useState([]);
   const [employeeSearchInput, setEmployeeSearchInput] = useState('');
   const [employeeSearchResults, setEmployeeSearchResults] = useState([]);
@@ -13,6 +15,18 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
   const [formValid, setFormValid] = useState(false);
   const dropdownRef = useRef(null);
   const inputRef = useRef(null);
+
+  // --- Document ID dropdown states ---
+  const [docIds, setDocIds] = useState([]);
+  const [docSearchInput, setDocSearchInput] = useState('');
+  const [docSearchResults, setDocSearchResults] = useState([]);
+  const [showDocDropdown, setShowDocDropdown] = useState(false);
+  const [docValidationStatus, setDocValidationStatus] = useState('');
+  const [docValidationMessage, setDocValidationMessage] = useState('');
+  const [docFocusedSuggestionIndex, setDocFocusedSuggestionIndex] = useState(-1);
+  const [isDocDuplicate, setIsDocDuplicate] = useState(false);
+  const docDropdownRef = useRef(null);
+  const docInputRef = useRef(null);
 
   const initialFormData = {
     documentNo: '',
@@ -31,10 +45,11 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
 
   const API_URL = 'http://127.0.0.1:8000';
   const EMPLOYEES_ENDPOINT = `${API_URL}/pdpms/manila-city-hall/employees/`;
+  const DOCUMENTS_ENDPOINT = `${API_URL}/pdpms/manila-city-hall/documents/`;
 
   useEffect(() => {
     if (open) {
-      setFormData(initialFormData);
+      setFormData({ ...initialFormData, dateAcquired: todayStr });
       setEmployeeSearchInput('');
       setEmployeeValidationStatus('');
       setEmployeeValidationMessage('');
@@ -84,17 +99,42 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     return () => clearTimeout(timeoutId);
   }, [employeeSearchInput]);
 
+  // Debounced search for document IDs
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const trimmed = docSearchInput.trim();
+      if (trimmed === '') {
+        setDocSearchResults([]);
+        setShowDocDropdown(false);
+        setDocValidationStatus('');
+        setDocValidationMessage('');
+        setIsDocDuplicate(false);
+        return;
+      }
+
+      searchDocuments(trimmed);
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [docSearchInput]);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target) && !inputRef.current.contains(e.target)) {
         setShowEmployeeDropdown(false);
         setFocusedSuggestionIndex(-1);
       }
+      // Document dropdown
+      if (docDropdownRef.current && !docDropdownRef.current.contains(e.target) && !docInputRef.current.contains(e.target)) {
+        setShowDocDropdown(false);
+        setDocFocusedSuggestionIndex(-1);
+      }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // --- Employee search helpers ---
   const searchEmployees = (searchTerm) => {
     const term = searchTerm.toLowerCase();
     const results = employees.filter(emp =>
@@ -115,6 +155,7 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     }
   };
 
+  // --- Employee handlers ---
   const handleEmployeeSelect = (employee) => {
     setEmployeeSearchInput(employee.id);
     const newFormData = {
@@ -149,7 +190,7 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setFocusedSuggestionIndex(prev => 
+      setFocusedSuggestionIndex(prev =>
         prev < employeeSearchResults.length - 1 ? prev + 1 : prev
       );
     } else if (e.key === 'ArrowUp') {
@@ -161,6 +202,107 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     } else if (e.key === 'Escape') {
       setShowEmployeeDropdown(false);
       setFocusedSuggestionIndex(-1);
+    }
+  };
+
+  // --- Document ID search helpers ---
+  const searchDocuments = (searchTerm) => {
+    const term = searchTerm.toLowerCase();
+    axios
+      .get(DOCUMENTS_ENDPOINT)
+      .then((res) => {
+        const data = Array.isArray(res.data) ? res.data : [];
+        const ids = data
+          .filter(doc => doc.document_id && doc.document_id.toLowerCase().includes(term))
+          .map(doc => doc.document_id);
+
+        setDocSearchResults(ids);
+        setShowDocDropdown(ids.length > 0);
+        setDocFocusedSuggestionIndex(-1);
+
+        // Check for duplicate in the asset properties table
+        const isDuplicate = existingDocIds.some(id => id.toLowerCase() === term);
+        setIsDocDuplicate(isDuplicate);
+        if (isDuplicate) {
+          setDocValidationStatus('invalid');
+          setDocValidationMessage('The Document ID has been used');
+        } else if (ids.some(id => id.toLowerCase() === term)) {
+          setDocValidationStatus('valid');
+          setDocValidationMessage('');
+        } else {
+          setDocValidationStatus('invalid');
+          setDocValidationMessage('No document found.');
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to fetch documents:', err);
+      });
+  };
+
+  // --- Document ID handlers ---
+  const handleDocSelect = (id) => {
+    setDocSearchInput(id);
+    const newFormData = {
+      ...formData,
+      documentNo: id
+    };
+    setFormData(newFormData);
+    setShowDocDropdown(false);
+    setDocFocusedSuggestionIndex(-1);
+    // Check duplicate again on exact select
+    const duplicate = existingDocIds.some(existing => existing === id.toLowerCase());
+    setIsDocDuplicate(duplicate);
+    if (duplicate) {
+      setDocValidationStatus('invalid');
+      setDocValidationMessage('The Document ID has been used');
+    } else {
+      setDocValidationStatus('valid');
+      setDocValidationMessage('');
+    }
+    updateFormValidation('documentNo', id);
+    if (docInputRef.current) {
+      docInputRef.current.focus();
+    }
+  };
+
+  const handleDocInputChange = (e) => {
+    const value = e.target.value;
+    setDocSearchInput(value);
+    setFormData(prev => ({
+      ...prev,
+      documentNo: value
+    }));
+
+    const duplicate = existingDocIds.some(existing => existing === value.trim().toLowerCase());
+    setIsDocDuplicate(duplicate);
+    if (duplicate) {
+      setDocValidationStatus('invalid');
+      setDocValidationMessage('The Document ID has been used');
+    } else {
+      setDocValidationStatus('');
+      setDocValidationMessage('');
+    }
+
+    updateFormValidation('documentNo', value);
+  };
+
+  const handleDocKeyDown = (e) => {
+    if (!showDocDropdown || docSearchResults.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setDocFocusedSuggestionIndex(prev =>
+        prev < docSearchResults.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setDocFocusedSuggestionIndex(prev => (prev > 0 ? prev - 1 : -1));
+    } else if (e.key === 'Enter' && docFocusedSuggestionIndex >= 0) {
+      e.preventDefault();
+      handleDocSelect(docSearchResults[docFocusedSuggestionIndex]);
+    } else if (e.key === 'Escape') {
+      setShowDocDropdown(false);
+      setDocFocusedSuggestionIndex(-1);
     }
   };
 
@@ -189,16 +331,17 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
   };
 
   const updateFormValidation = (changedField, changedValue) => {
-    const requiredFields = ['endUser', 'status', 'remarks'];
+    const requiredFields = ['parNo', 'serialNo', 'endUser', 'status'];
     const isValid = requiredFields.every(field => {
       const fieldValue = changedField === field ? changedValue : formData[field];
       return fieldValue?.toString().trim() !== '';
     });
 
     const employeeValid = employeeValidationStatus === 'valid';
+    const docValid = docValidationStatus === 'valid' && !isDocDuplicate;
     const numericValid = Object.values(validationErrors).every(err => err === '');
 
-    setFormValid(isValid && employeeValid && numericValid);
+    setFormValid(isValid && employeeValid && docValid && numericValid);
   };
 
   const handleSubmit = (e) => {
@@ -207,6 +350,14 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
       setEmployeeValidationStatus('invalid');
       if (!employeeValidationMessage) {
         setEmployeeValidationMessage('No employee found.');
+      }
+      return;
+    }
+
+    if (docValidationStatus !== 'valid' || isDocDuplicate) {
+      setDocValidationStatus('invalid');
+      if (!docValidationMessage) {
+        setDocValidationMessage(isDocDuplicate ? 'The Document ID has been used' : 'No document found.');
       }
       return;
     }
@@ -229,6 +380,10 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
       setEmployeeSearchInput('');
       setEmployeeValidationStatus('');
       setEmployeeValidationMessage('');
+      setDocSearchInput('');
+      setDocValidationStatus('');
+      setDocValidationMessage('');
+      setIsDocDuplicate(false);
       setFormValid(false);
     }
   };
@@ -238,6 +393,10 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
     setEmployeeSearchInput('');
     setEmployeeValidationStatus('');
     setEmployeeValidationMessage('');
+    setDocSearchInput('');
+    setDocValidationStatus('');
+    setDocValidationMessage('');
+    setIsDocDuplicate(false);
     setFormValid(false);
     onClose();
   };
@@ -251,49 +410,50 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
           <div className="AssetProperty-ModalGrid">
             <div>
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="parNo" 
-                value={formData.parNo} 
-                onChange={handleFormChange} 
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                name="parNo"
+                value={formData.parNo}
+                onChange={handleFormChange}
               />
 
               <label className="AssetProperty-ModalLabel">Description</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                rows={3} 
-                name="description" 
-                value={formData.description} 
-                onChange={handleFormChange} 
+              <textarea
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea"
+                rows={3}
+                name="description"
+                value={formData.description}
+                onChange={handleFormChange}
               />
 
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                rows={3} 
-                name="serialNo" 
-                value={formData.serialNo} 
-                onChange={handleFormChange} 
+              <textarea
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea"
+                rows={3}
+                name="serialNo"
+                value={formData.serialNo}
+                onChange={handleFormChange}
               />
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="date" 
-                name="dateAcquired" 
-                value={formData.dateAcquired} 
-                onChange={handleFormChange} 
+              <input
+                className="AssetProperty-ModalInput"
+                type="date"
+                name="dateAcquired"
+                value={formData.dateAcquired}
+                onChange={handleFormChange}
+                max={todayStr}
               />
 
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="unitCost" 
-                value={formData.unitCost} 
-                onChange={handleFormChange} 
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                name="unitCost"
+                value={formData.unitCost}
+                onChange={handleFormChange}
                 placeholder="0.00"
               />
               {validationErrors.unitCost && (
@@ -302,13 +462,13 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
 
               <label className="AssetProperty-ModalLabel">End User</label>
               <div className="AssetProperty-EmployeeSearchContainer">
-                <input 
+                <input
                   ref={inputRef}
                   className={`AssetProperty-ModalInput AssetProperty-ModalInput--${employeeValidationStatus || 'default'}`}
-                  type="text" 
-                  placeholder="Type employee name or ID…" 
-                  name="endUser" 
-                  value={employeeSearchInput} 
+                  type="text"
+                  placeholder="Type employee name or ID…"
+                  name="endUser"
+                  value={employeeSearchInput}
                   onChange={handleEmployeeInputChange}
                   onKeyDown={handleKeyDown}
                   autoComplete="off"
@@ -338,13 +498,13 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
               </div>
 
               <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="estimatedLife" 
-                value={formData.estimatedLife} 
-                onChange={handleFormChange} 
-                placeholder="0 Years" 
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                name="estimatedLife"
+                value={formData.estimatedLife}
+                onChange={handleFormChange}
+                placeholder="0 Years"
               />
               {validationErrors.estimatedLife && (
                 <div className="AssetProperty-ErrorText">{validationErrors.estimatedLife}</div>
@@ -352,10 +512,10 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
             </div>
             <div>
               <label className="AssetProperty-ModalLabel">Status</label>
-              <select 
-                className="AssetProperty-ModalInput AssetProperty-ModalSelect" 
-                name="status" 
-                value={formData.status} 
+              <select
+                className="AssetProperty-ModalInput AssetProperty-ModalSelect"
+                name="status"
+                value={formData.status}
                 onChange={handleFormChange}
                 required
               >
@@ -367,33 +527,53 @@ export default function AddPropertyModal({ open, onClose, onAdd }) {
               </select>
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                rows={3} 
-                name="remarks" 
-                value={formData.remarks} 
-                onChange={handleFormChange} 
+              <textarea
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea"
+                rows={3}
+                name="remarks"
+                value={formData.remarks}
+                onChange={handleFormChange}
               />
 
               <label className="AssetProperty-ModalLabel">Document ID</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                name="documentNo" 
-                value={formData.documentNo} 
-                onChange={handleFormChange} 
-              />
+              <div className="AssetProperty-EmployeeSearchContainer">
+                <input
+                  ref={docInputRef}
+                  className={`AssetProperty-ModalInput AssetProperty-ModalInput--${docValidationStatus || 'default'}`}
+                  type="text"
+                  placeholder="Type document ID…"
+                  name="documentNo"
+                  value={docSearchInput}
+                  onChange={handleDocInputChange}
+                  onKeyDown={handleDocKeyDown}
+                  autoComplete="off"
+                />
+                {showDocDropdown && docSearchResults.length > 0 && (
+                  <div className="AssetProperty-EmployeeDropdown" ref={docDropdownRef}>
+                    {docSearchResults.map((id, index) => (
+                      <div
+                        key={id}
+                        className={`AssetProperty-EmployeeOption ${index === docFocusedSuggestionIndex ? 'AssetProperty-EmployeeOption--focused' : ''}`}
+                        onClick={() => handleDocSelect(id)}
+                      >
+                        <div className="AssetProperty-EmployeeOption-Name">{id}</div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {docValidationStatus && (
+                  <div className={`AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--${docValidationStatus}`}>
+                    {docValidationMessage}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           <div className="AssetProperty-ModalActions">
-            <button 
-              type="submit" 
-              className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary" 
-              disabled={!formValid || employeeValidationStatus === 'invalid' || Object.values(validationErrors).some(err => err)}
-              style={{ 
-                opacity: (formValid && employeeValidationStatus !== 'invalid') ? 1 : 0.6, 
-                cursor: (formValid && employeeValidationStatus !== 'invalid') ? 'pointer' : 'not-allowed' 
-              }}
+            <button
+              type="submit"
+              className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary"
+              disabled={!formValid || employeeValidationStatus === 'invalid' || docValidationStatus === 'invalid' || isDocDuplicate || Object.values(validationErrors).some(err => err)}
             >
               ADD
             </button>

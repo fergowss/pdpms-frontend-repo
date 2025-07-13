@@ -119,8 +119,8 @@ export default function AssetProperty() {
   const handleAddProperty = async (newProperty) => {
     try {
       // Validate required fields
-      if (!newProperty.endUser || !newProperty.status || !newProperty.remarks) {
-        throw new Error('End User, Status, and Remarks are required.');
+      if (!newProperty.endUser || !newProperty.status) {
+        throw new Error('End User and Status are required.');
       }
       const backendProperty = {
         document_id: newProperty.documentNo,
@@ -132,7 +132,7 @@ export default function AssetProperty() {
         end_user: newProperty.endUser,
         estimated_life_use: newProperty.estimatedLife ? parseInt(newProperty.estimatedLife) : null,
         property_status: newProperty.status || 'Serviceable',
-        remarks: newProperty.remarks,
+        remarks: newProperty.remarks?.trim() || 'N/A',
       };
       console.log('Adding property with payload:', backendProperty);
       const response = await axios.post(PROPERTIES_ENDPOINT, backendProperty);
@@ -189,7 +189,7 @@ export default function AssetProperty() {
         isOpen: true,
         type: 'error',
         title: 'Add Property Error',
-        message: error.message || 'Failed to add property. Please try again.',
+        message: error.response?.data?.detail || JSON.stringify(error.response?.data) || error.message || 'Failed to add property. Please try again.',
       });
       // Refetch properties to sync frontend with backend
       axios.get(PROPERTIES_ENDPOINT)
@@ -225,8 +225,8 @@ export default function AssetProperty() {
   const handleUpdateProperty = async (updatedData) => {
     try {
       // Validate required fields
-      if (!updatedData.endUser || !updatedData.status || !updatedData.remarks) {
-        throw new Error('End User, Status, and Remarks are required.');
+      if (!updatedData.endUser || !updatedData.status) {
+        throw new Error('End User and Status are required.');
       }
       console.log('Updating property with propertyNo:', updatedData.propertyNo);
       const response = await axios.get(`${PROPERTIES_ENDPOINT}${updatedData.propertyNo}/`);
@@ -243,7 +243,7 @@ export default function AssetProperty() {
         end_user: updatedData.endUser || '',
         estimated_life_use: updatedData.estimatedLife ? parseInt(updatedData.estimatedLife) : null,
         property_status: updatedData.status || 'Serviceable',
-        remarks: updatedData.remarks || '',
+        remarks: updatedData.remarks?.trim() || 'N/A',
       };
 
       await axios.put(`${PROPERTIES_ENDPOINT}${updatedData.propertyNo}/`, backendUpdate);
@@ -497,6 +497,7 @@ export default function AssetProperty() {
         open={addModalOpen} 
         onClose={closeAll} 
         onAdd={handleAddProperty} 
+        existingDocIds={allData.map(item => item.documentNo?.toLowerCase()).filter(Boolean)}
       />
       
       {showEditConfirm && selectedRow && (

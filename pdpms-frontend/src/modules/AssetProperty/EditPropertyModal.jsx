@@ -23,6 +23,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   // Track whether the unit cost field is still editable
   const [unitCostEditable, setUnitCostEditable] = useState(true);
   const [lifeEditable, setLifeEditable] = useState(true);
+  const [serialEditable, setSerialEditable] = useState(true);
+  const [endUserEditable, setEndUserEditable] = useState(true);
   const [employees, setEmployees] = useState([]);
   const [employeeSearchInput, setEmployeeSearchInput] = useState('');
   const [employeeSearchResults, setEmployeeSearchResults] = useState([]);
@@ -90,6 +92,10 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
       setUnitCostEditable(!Boolean(newData.unitCost));
       // Estimated life is editable only if initial value is empty
       setLifeEditable(!Boolean(newData.estimatedLife));
+      // Serial No. editable only if empty
+      setSerialEditable(!Boolean(newData.serialNo));
+      // End User editable only if empty
+      setEndUserEditable(!Boolean(newData.endUser));
       const requiredFields = ['endUser', 'status', 'remarks'];
       const isValid = requiredFields.every(field => newData[field]?.toString().trim() !== '');
       setFormValid(isValid);
@@ -312,6 +318,12 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
     if (formData.estimatedLife) {
       setLifeEditable(false);
     }
+    if (formData.serialNo) {
+      setSerialEditable(false);
+    }
+    if (formData.endUser) {
+      setEndUserEditable(false);
+    }
   }
 };
 
@@ -357,6 +369,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.serialNo}
                 onChange={handleInputChange}
                 rows={3}
+                disabled={!serialEditable}
+                style={{ background: !serialEditable ? '#e8eef7' : 'white' }}
               />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
@@ -392,10 +406,12 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                   type="text" 
                   name="endUser" 
                   value={employeeSearchInput}
-                  onChange={handleEmployeeInputChange}
-                  onKeyDown={handleKeyDown}
+                  onChange={endUserEditable ? handleEmployeeInputChange : undefined}
+                  onKeyDown={endUserEditable ? handleKeyDown : undefined}
                   placeholder="Enter employee name or ID"
                   autoComplete="off"
+                  disabled={!endUserEditable}
+                  style={{ background: !endUserEditable ? '#e8eef7' : 'white' }}
   
                 />
                 {showEmployeeDropdown && employeeSearchResults.length > 0 && (
