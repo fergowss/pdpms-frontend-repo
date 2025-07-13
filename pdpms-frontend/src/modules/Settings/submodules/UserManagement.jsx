@@ -15,6 +15,20 @@ export default function UserManagement() {
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const [showAddNotif, setShowAddNotif] = useState(false);
+  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
+  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
+  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
+  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
+  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
+  const [userToDeactivate, setUserToDeactivate] = useState(null);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
+  const [manageModalOpen, setManageModalOpen] = useState(false); // New state for manage modal
+  const [userToManage, setUserToManage] = useState(null); // New state for user to manage
 
   // Fetch users from API
   useEffect(() => {
@@ -22,14 +36,13 @@ export default function UserManagement() {
     axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/users/')
       .then(res => {
         const data = res.data;
-        // Transform API data to match table structure
         const transformed = Array.isArray(data) ? data.map(u => ({
           id: u.employee_id,
           username: u.username,
           name: u.username,
           role: u.access_level,
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
-          user_password: u.user_password // Include user_password in the user object
+          user_password: u.user_password
         })) : [];
         setUsers(transformed);
         setFilteredUsers(transformed);
@@ -53,7 +66,7 @@ export default function UserManagement() {
           name: u.username,
           role: u.access_level,
           status: u.user_status === 'Active' ? 'Activated' : 'Deactivated',
-          user_password: u.user_password // Include user_password in the user object
+          user_password: u.user_password
         })) : [];
         setUsers(transformed);
         setFilteredUsers(transformed);
@@ -88,33 +101,19 @@ export default function UserManagement() {
       handleSearch();
     }
   };
-  const [addModalOpen, setAddModalOpen] = useState(false);
-  const [showAddNotif, setShowAddNotif] = useState(false);
-  const [showUpdateNotif, setShowUpdateNotif] = useState(false);
-  const [showDeleteNotif, setShowDeleteNotif] = useState(false);
-  const [showDeactivateNotif, setShowDeactivateNotif] = useState(false);
-  const [deactivateNotifMessage, setDeactivateNotifMessage] = useState('');
-  const [deactivateModalOpen, setDeactivateModalOpen] = useState(false);
-  const [userToDeactivate, setUserToDeactivate] = useState(null);
-  
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [userToDelete, setUserToDelete] = useState(null);
 
-  // Handler for when a user is added
   const handleAddUser = async (form) => {
     try {
       await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/users/', {
         employee_id: form.employeeId,
         username: form.username,
-        user_password: form.password, 
+        user_password: form.password,
         access_level: form.role,
         user_status: "Active"
       });
       setAddModalOpen(false);
       setShowAddNotif(true);
-      fetchUsers(); 
+      fetchUsers();
       setTimeout(() => setShowAddNotif(false), 3000);
     } catch (error) {
       console.error('Add user error:', error.response ? error.response.data : error.message);
@@ -122,7 +121,6 @@ export default function UserManagement() {
     }
   };
 
-  // Handler for when a user is updated
   const handleUpdateUser = async (form) => {
     try {
       await axios.put(
@@ -131,7 +129,7 @@ export default function UserManagement() {
           username: form.username,
           employee_id: form.employeeId,
           current_password: form.currentPassword,
-          user_password: form.newPassword || form.currentPassword, // Use newPassword if provided, else keep currentPassword
+          user_password: form.newPassword || form.currentPassword,
           access_level: form.role,
           user_status: 'Active'
         }
@@ -146,7 +144,6 @@ export default function UserManagement() {
     }
   };
 
-  // Handler for when a user is deleted
   const handleDeleteUser = () => {
     setDeleteModalOpen(false);
     setUserToDelete(null);
@@ -154,7 +151,6 @@ export default function UserManagement() {
     setTimeout(() => setShowDeleteNotif(false), 3000);
   };
 
-  // Handler for when a user is deactivated/reactivated
   const handleDeactivateUser = (user) => {
     setUserToDeactivate(user);
     setDeactivateModalOpen(true);
@@ -168,8 +164,6 @@ export default function UserManagement() {
 
   const handleToggleUserStatus = async (user) => {
     const newStatus = user.status === 'Activated' ? 'Deactivated' : 'Activated';
-
-    // If trying to deactivate, ensure user has no remaining properties
     if (newStatus === 'Deactivated') {
       try {
         const propsRes = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/properties/');
@@ -193,7 +187,6 @@ export default function UserManagement() {
           user_status: newStatus === 'Activated' ? 'Active' : 'Deactivated'
         }
       );
-      // Sync linked employee status
       try {
         await axios.patch(
           `http://127.0.0.1:8000/pdpms/manila-city-hall/employees/${user.id}/`,
@@ -204,7 +197,6 @@ export default function UserManagement() {
       } catch (empErr) {
         console.warn('Employee status sync failed:', empErr.response?.data || empErr.message);
       }
-
       setDeactivateModalOpen(false);
       setDeactivateNotifMessage(
         newStatus === 'Activated'
@@ -217,6 +209,13 @@ export default function UserManagement() {
     } catch (error) {
       alert('Failed to update user status.');
     }
+  };
+
+  // Handler to open EditUserModal from ManageUserModal
+  const handleEditConfirm = (user) => {
+    setManageModalOpen(false);
+    setSelectedUser(user);
+    setEditModalOpen(true);
   };
 
   return (
@@ -342,7 +341,14 @@ export default function UserManagement() {
                   </tr>
                 ) : (
                   filteredUsers.map((user, idx) => (
-                    <tr key={idx} onClick={() => { setSelectedUser(user); setEditModalOpen(true); }} style={{ cursor: 'pointer' }}>
+                    <tr
+                      key={idx}
+                      onClick={() => {
+                        setUserToManage(user);
+                        setManageModalOpen(true);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
                       <td>{user.id}</td>
                       <td>{user.name}</td>
                       <td>{user.role}</td>
@@ -352,8 +358,8 @@ export default function UserManagement() {
                         </span>
                       </td>
                       <td>
-                        <button 
-                          className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`} 
+                        <button
+                          className={`UserManagement-${user.status === 'Activated' ? 'Deactivate' : 'Reactivate'}`}
                           onClick={e => {
                             e.stopPropagation();
                             handleDeactivateUser(user);
@@ -373,52 +379,57 @@ export default function UserManagement() {
           <button className="UserManagement-AddUser" onClick={() => setAddModalOpen(true)}>ADD USER</button>
         </div>
       </div>
-    
-    <EditUserModal
-      open={editModalOpen}
-      onClose={() => setEditModalOpen(false)}
-      onUpdate={handleUpdateUser}
-      user={selectedUser}
-    />
-    <DeleteUserModal
-      open={deleteModalOpen}
-      onClose={() => setDeleteModalOpen(false)}
-      user={userToDelete}
-      onConfirm={handleDeleteUser}
-    />
-    
-    {/* Deactivate Confirmation Modal */}
-    {deactivateModalOpen && userToDeactivate && (
-      <div className="UserManagement-ModalOverlay" onClick={() => setDeactivateModalOpen(false)}>
-        <div className="UserManagement-DeactivateModalBox" onClick={e => e.stopPropagation()}>
-          <button 
-            className="UserManagement-DeactivateModalClose" 
-            onClick={() => setDeactivateModalOpen(false)}
-            aria-label="Close"
-          >
-            ×
-          </button>
-          <div className="UserManagement-DeactivateModalContent">
-            <div 
-              className="UserManagement-DeactivateModalSubtext"
-              dangerouslySetInnerHTML={{
-                __html: userToDeactivate.status === 'Activated'
-                  ? `Are you sure you want to deactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
-                  : `Are you sure you want to reactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
-              }}
-            />
-          </div>
-          <div className="UserManagement-DeactivateModalActions">
-            <button 
-              className={`UserManagement-DeactivateModalBtn UserManagement-DeactivateModalBtn--${userToDeactivate.status === 'Activated' ? 'deactivate' : 'reactivate'}`}
-              onClick={confirmDeactivate}
+      <ManageUserModal
+        open={manageModalOpen}
+        onClose={() => {
+          setManageModalOpen(false);
+          setUserToManage(null);
+        }}
+        onEdit={() => handleEditConfirm(userToManage)}
+      />
+      <EditUserModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onUpdate={handleUpdateUser}
+        user={selectedUser}
+      />
+      <DeleteUserModal
+        open={deleteModalOpen}
+        onClose={() => setDeleteModalOpen(false)}
+        user={userToDelete}
+        onConfirm={handleDeleteUser}
+      />
+      {deactivateModalOpen && userToDeactivate && (
+        <div className="UserManagement-ModalOverlay" onClick={() => setDeactivateModalOpen(false)}>
+          <div className="UserManagement-DeactivateModalBox" onClick={e => e.stopPropagation()}>
+            <button
+              className="UserManagement-DeactivateModalClose"
+              onClick={() => setDeactivateModalOpen(false)}
+              aria-label="Close"
             >
-              {userToDeactivate.status === 'Activated' ? 'DEACTIVATE' : 'REACTIVATE'}
+              ×
             </button>
+            <div className="UserManagement-DeactivateModalContent">
+              <div
+                className="UserManagement-DeactivateModalSubtext"
+                dangerouslySetInnerHTML={{
+                  __html: userToDeactivate.status === 'Activated'
+                    ? `Are you sure you want to deactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+                    : `Are you sure you want to reactivate <strong>${userToDeactivate.name} (${userToDeactivate.id})</strong>?`
+                }}
+              />
+            </div>
+            <div className="UserManagement-DeactivateModalActions">
+              <button
+                className={`UserManagement-DeactivateModalBtn UserManagement-DeactivateModalBtn--${userToDeactivate.status === 'Activated' ? 'deactivate' : 'reactivate'}`}
+                onClick={confirmDeactivate}
+              >
+                {userToDeactivate.status === 'Activated' ? 'DEACTIVATE' : 'REACTIVATE'}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-    )}
+      )}
     </div>
   );
 }
@@ -432,8 +443,8 @@ function ManageUserModal({ open, onClose, onEdit }) {
         <button className="UserManagement-ManageModalClose" onClick={onClose} aria-label="Close">X</button>
         <div className="UserManagement-ManageModalTitle">Edit User Info?</div>
         <div className="UserManagement-ManageModalActions" style={{ justifyContent: 'center' }}>
-          <button 
-            className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--edit" 
+          <button
+            className="UserManagement-ManageModalBtn UserManagement-ManageModalBtn--edit"
             onClick={onEdit}
             style={{ margin: '0' }}
           >
@@ -487,7 +498,7 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
       setForm({
         employeeId: user.id || '',
         username: user.name || '',
-        currentPassword: user.user_password || '', // Pre-fill with user_password from API
+        currentPassword: user.user_password || '',
         newPassword: '',
         role: user.role || ''
       });
@@ -510,10 +521,10 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
   return (
     <div className="UserManagement-ModalOverlay">
       <div className="UserManagement-ModalBox">
-        <form 
-          className="UserManagement-ModalForm UserManagement-EditUserForm" 
-          onSubmit={handleSubmit} 
-          autoComplete="off" 
+        <form
+          className="UserManagement-ModalForm UserManagement-EditUserForm"
+          onSubmit={handleSubmit}
+          autoComplete="off"
           style={{
             display: 'flex',
             flexDirection: 'column',
@@ -526,7 +537,6 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
             width: '100%',
             gap: '1.2rem'
           }}>
-            {/* First Row - Employee ID and Username */}
             <div className="UserManagement-FormRow" style={{
               display: 'flex',
               flexDirection: 'row',
@@ -558,8 +568,6 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                 />
               </div>
             </div>
-
-            {/* Current Password */}
             <div className="UserManagement-FormGroup">
               <label className="UserManagement-ModalLabel">Current Password</label>
               <div className="UserManagement-PasswordWrapper">
@@ -587,8 +595,6 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                 </button>
               </div>
             </div>
-
-            {/* New Password */}
             <div className="UserManagement-FormGroup">
               <label className="UserManagement-ModalLabel">New Password</label>
               <div className="UserManagement-PasswordWrapper">
@@ -614,8 +620,6 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
                 </button>
               </div>
             </div>
-
-            {/* User Role */}
             <div className="UserManagement-FormGroup" style={{
               width: '100%',
               display: 'flex',
@@ -653,17 +657,15 @@ function EditUserModal({ open, onClose, onUpdate, user }) {
               </select>
             </div>
           </div>
-          
-          {/* Form Actions */}
           <div className="UserManagement-ModalActions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
             >
               UPDATE
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
               onClick={onClose}
             >
@@ -716,7 +718,6 @@ function AddUserModal({ open, onClose, onAdd }) {
             width: '100%',
             gap: '1.2rem'
           }}>
-            {/* First Row - Employee ID and Username */}
             <div className="UserManagement-FormRow" style={{
               display: 'flex',
               flexDirection: 'row',
@@ -747,8 +748,6 @@ function AddUserModal({ open, onClose, onAdd }) {
                 />
               </div>
             </div>
-
-            {/* Password Field */}
             <div className="UserManagement-FormGroup">
               <label className="UserManagement-ModalLabel">Set Password</label>
               <div className="UserManagement-PasswordWrapper">
@@ -775,8 +774,6 @@ function AddUserModal({ open, onClose, onAdd }) {
                 </button>
               </div>
             </div>
-
-            {/* User Role */}
             <div className="UserManagement-FormGroup" style={{
               width: '100%',
               display: 'flex',
@@ -814,18 +811,16 @@ function AddUserModal({ open, onClose, onAdd }) {
               </select>
             </div>
           </div>
-          
-          {/* Form Actions */}
           <div className="UserManagement-ModalActions">
-            <button 
-              type="submit" 
+            <button
+              type="submit"
               className="UserManagement-ModalBtn UserManagement-ModalBtn--primary"
               disabled={!form.employeeId || !form.username || !form.role}
             >
               ADD
             </button>
-            <button 
-              type="button" 
+            <button
+              type="button"
               className="UserManagement-ModalBtn UserManagement-ModalBtn--secondary"
               onClick={onClose}
             >
