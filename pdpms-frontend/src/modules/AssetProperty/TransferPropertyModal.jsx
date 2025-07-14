@@ -2,12 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import './AssetProperty.css';
 import axios from 'axios';
 
-export default function TransferPropertyModal({ open, onClose, row, onTransfer }) {
+export default function TransferPropertyModal({ open, onClose, row, onTransfer, existingParNos = [] }) {
   // State for base data
   const [formData, setFormData] = useState({
     propertyNo: '',
     documentNo: '',
-    parNo: '',  // Empty by default
+    parNo: '',
     serialNo: '',
     dateAcquired: '',
     unitCost: '',
@@ -40,8 +40,11 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   const [isTransferring, setIsTransferring] = useState(false);
   const [transferError, setTransferError] = useState('');
   const [transferSuccess, setTransferSuccess] = useState(false);
+  // PAR No validation states
+  const [isParDuplicate, setIsParDuplicate] = useState(false);
+  const [parValidationMessage, setParValidationMessage] = useState('');
 
-  // --- Document ID dropdown states ---
+  // Document ID dropdown states
   const [docIds, setDocIds] = useState([]);
   const [docSearchInput, setDocSearchInput] = useState('');
   const [docSearchResults, setDocSearchResults] = useState([]);
@@ -81,10 +84,12 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
       setDocValidationMessage('');
       setShowDocDropdown(false);
       setDocFocusedSuggestionIndex(-1);
+      setIsParDuplicate(false);
+      setParValidationMessage('');
     }
   }, [open]);
 
-  // Parse row data
+  // Parse row data and clear remarks
   useEffect(() => {
     if (row) {
       const rawDocNo = row.documentNo || '';
@@ -111,7 +116,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
         endUser: row.endUser || '',
         estimatedLife: row.estimatedLife || '',
         status: row.status || '',
-        remarks: row.remarks || '',
+        remarks: '', // Clear remarks on modal open
         description: row.description || ''
       });
     }
@@ -154,7 +159,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   // Fetch employees
   useEffect(() => {
     if (!open) return;
-    
+
     const loadEmployees = async () => {
       try {
         const res = await axios.get(EMPLOYEES_ENDPOINT);
@@ -170,7 +175,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
         setEmployees([]);
       }
     };
-    
+
     loadEmployees();
   }, [open]);
 
@@ -197,18 +202,18 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   // Handle click outside for dropdowns
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target) && 
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target) &&
           inputRef.current && !inputRef.current.contains(e.target)) {
         setShowEmployeeDropdown(false);
         setFocusedSuggestionIndex(-1);
       }
-      if (docDropdownRef.current && !docDropdownRef.current.contains(e.target) && 
+      if (docDropdownRef.current && !docDropdownRef.current.contains(e.target) &&
           docInputRef.current && !docInputRef.current.contains(e.target)) {
         setShowDocDropdown(false);
         setDocFocusedSuggestionIndex(-1);
       }
     };
-    
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
@@ -222,17 +227,16 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
         const propertyRecords = data.filter(doc => doc.document_type === 'Property Records');
-        
-        // Filter to only show document IDs with increment suffixes (e.g., PUBL-DOCU-2025-9ab552-0001)
+
         const incrementedDocIds = propertyRecords
           .filter(doc => {
             const docNo = (
-              doc.document_no || 
-              doc.documentNo || 
-              doc.document_id || 
-              doc.id || 
-              doc.public_document_id || 
-              doc.doc_id || 
+              doc.document_no ||
+              doc.documentNo ||
+              doc.document_id ||
+              doc.id ||
+              doc.public_document_id ||
+              doc.doc_id ||
               ''
             ).trim();
             const parts = docNo.split('-');
@@ -244,12 +248,12 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
           })
           .map(doc => {
             const docNo = (
-              doc.document_no || 
-              doc.documentNo || 
-              doc.document_id || 
-              doc.id || 
-              doc.public_document_id || 
-              doc.doc_id || 
+              doc.document_no ||
+              doc.documentNo ||
+              doc.document_id ||
+              doc.id ||
+              doc.public_document_id ||
+              doc.doc_id ||
               ''
             ).trim();
             return docNo;
@@ -291,7 +295,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     const parts = id.split('-');
     const extension = parts.pop().trim();
     const base = parts.join('-').trim();
-    
+
     const isValidIncrement = /^\d{4}$/.test(extension);
     if (!isValidIncrement) {
       setDocValidationStatus('invalid');
@@ -302,7 +306,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
     setBaseDocumentId(base);
     setDocExtension(extension);
-    
+
     const newFormData = {
       ...formData,
       documentNo: id
@@ -310,7 +314,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     setFormData(newFormData);
     setShowDocDropdown(false);
     setDocFocusedSuggestionIndex(-1);
-    
+
     axios.get(`${DOCUMENTS_ENDPOINT}${id}/`)
       .then(res => {
         if (res.data.document_type !== 'Property Records') {
@@ -335,7 +339,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
         setDocValidationMessage('Unable to validate document type.');
         setIsDocumentValid(false);
       });
-    
+
     if (docInputRef.current) {
       docInputRef.current.focus();
     }
@@ -345,7 +349,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   const handleDocumentInputChange = (e) => {
     const value = e.target.value;
     setDocSearchInput(value);
-    
+
     const parts = value.split('-');
     if (parts.length < 2) {
       setBaseDocumentId(value.trim());
@@ -356,17 +360,17 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
       setDocValidationMessage('');
       return;
     }
-    
+
     const extension = parts.pop().trim();
     const base = parts.join('-').trim();
 
     setBaseDocumentId(base);
     setDocExtension(extension);
     setFormData(prev => ({ ...prev, documentNo: `${base}-${extension}` }));
-    
+
     const isValidExtension = /^\d{4}$/.test(extension);
     setIsDocDuplicate(isValidExtension && usedExtensions.includes(extension));
-    
+
     if (!isValidExtension && extension !== '') {
       setDocValidationStatus('invalid');
       setDocValidationMessage('Document ID must have a 4-digit increment suffix (e.g., 0001)');
@@ -406,11 +410,11 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   const searchEmployees = (searchTerm) => {
     const term = searchTerm.toLowerCase();
     const results = employees.filter(emp =>
-      emp.id.toLowerCase().includes(term) || 
+      emp.id.toLowerCase().includes(term) ||
       emp.name.toLowerCase().includes(term) ||
       (emp.department && emp.department.toLowerCase().includes(term))
     );
-    
+
     setEmployeeSearchResults(results);
     setShowEmployeeDropdown(results.length > 0);
     setFocusedSuggestionIndex(-1);
@@ -432,14 +436,14 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
       setEmployeeValidationMessage('');
       return;
     }
-    
+
     const exactMatch = employees.find(emp => emp.name === formData.endUser);
     if (exactMatch) {
       setEmployeeValidationStatus('valid');
       setEmployeeValidationMessage('');
       return;
     }
-    
+
     setEmployeeValidationStatus('invalid');
     setEmployeeValidationMessage('Please select a valid employee from the dropdown.');
   }, [formData.endUser, employees]);
@@ -464,9 +468,9 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
   const handleEmployeeSelect = (employee) => {
     setFormData(prev => ({
       ...prev,
-      endUser: employee.id // Store employee_id (e.g., "EDPS-EMPL-0004")
+      endUser: employee.id
     }));
-    setEmployeeSearchInput(employee.name); // Display name (e.g., "Jericho Ambrocio")
+    setEmployeeSearchInput(employee.name);
     setShowEmployeeDropdown(false);
     setEmployeeValidationStatus('valid');
     setEmployeeValidationMessage('');
@@ -478,12 +482,12 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
     if (e.key === 'ArrowDown') {
       e.preventDefault();
-      setFocusedSuggestionIndex(prev => 
+      setFocusedSuggestionIndex(prev =>
         prev < employeeSearchResults.length - 1 ? prev + 1 : prev
       );
     } else if (e.key === 'ArrowUp') {
       e.preventDefault();
-      setFocusedSuggestionIndex(prev => 
+      setFocusedSuggestionIndex(prev =>
         prev > 0 ? prev - 1 : 0
       );
     } else if (e.key === 'Enter' && focusedSuggestionIndex >= 0) {
@@ -503,26 +507,75 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
         ...prev,
         endUser: value
       }));
+    } else if (name === 'parNo') {
+      setFormData(prev => ({ ...prev, [name]: value }));
+      validateParNo(value);
     } else {
       setFormData(prev => ({ ...prev, [name]: value }));
     }
   };
 
+  // PAR No validation
+  const validateParNo = (value) => {
+    const trimmed = value.trim();
+    let isValid = true;
+
+    const isDuplicate = existingParNos.some(parNo => parNo.toLowerCase() === trimmed.toLowerCase());
+    setIsParDuplicate(isDuplicate);
+
+    if (trimmed === '') {
+      setParValidationMessage('');
+      isValid = false;
+    } else if (isDuplicate) {
+      setParValidationMessage('PAR No. has already been used');
+      isValid = false;
+    } else {
+      setParValidationMessage('');
+    }
+
+    return isValid;
+  };
+
   // Form validation
   useEffect(() => {
     const hasDocumentId = baseDocumentId.trim() !== '' && docExtension.trim() !== '';
-    const hasValidEndUser = employeeSearchInput.trim() !== '' && 
-      formData.endUser?.toString().trim() !== '' && 
+    const hasValidEndUser = employeeSearchInput.trim() !== '' &&
+      formData.endUser?.toString().trim() !== '' &&
       employeeValidationStatus === 'valid';
+    const hasValidParNo = !isParDuplicate;
 
-    setFormValid(hasDocumentId && hasValidEndUser && !isTransferring && isDocumentValid && !isDocumentLoading && docValidationStatus === 'valid' && !isDocDuplicate);
-  }, [baseDocumentId, docExtension, formData.endUser, employeeValidationStatus, employeeSearchInput, isTransferring, isDocumentValid, isDocumentLoading, docValidationStatus, isDocDuplicate]);
+    setFormValid(
+      hasDocumentId &&
+      hasValidEndUser &&
+      hasValidParNo &&
+      !isTransferring &&
+      isDocumentValid &&
+      !isDocumentLoading &&
+      docValidationStatus === 'valid' &&
+      !isDocDuplicate
+    );
+  }, [
+    baseDocumentId,
+    docExtension,
+    formData.endUser,
+    employeeValidationStatus,
+    employeeSearchInput,
+    isTransferring,
+    isDocumentValid,
+    isDocumentLoading,
+    docValidationStatus,
+    isDocDuplicate,
+    isParDuplicate
+  ]);
 
   // Handle submit
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!formValid || isDocDuplicate || isTransferring || !isDocumentValid || isDocumentLoading || docValidationStatus !== 'valid') {
+
+    if (!formValid || isDocDuplicate || isTransferring || !isDocumentValid || isDocumentLoading || docValidationStatus !== 'valid' || isParDuplicate) {
+      if (isParDuplicate) {
+        setParValidationMessage('PAR No. has already been used');
+      }
       return;
     }
 
@@ -530,14 +583,14 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     setTransferError('');
     setTransferSuccess(false);
     setUnitCostLocked(true);
-    
+
     try {
       const fullDocumentNo = `${baseDocumentId}-${docExtension.trim()}`;
       const fullPropertyNo = `${basePropertyNo} - ${propExtension}`;
-      
-      const transferData = { 
-        ...formData, 
-        documentNo: fullDocumentNo, 
+
+      const transferData = {
+        ...formData,
+        documentNo: fullDocumentNo,
         propertyNo: fullPropertyNo,
         originalPropertyNo: row.propertyNo
       };
@@ -548,11 +601,10 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
       setTransferSuccess(true);
       setIsTransferring(false);
-      
+
       setTimeout(() => {
         onClose();
       }, 1500);
-      
     } catch (error) {
       console.error('Transfer failed:', error);
       setTransferError(error.message || 'Transfer failed. Please try again.');
@@ -570,12 +622,12 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
           <div className="AssetProperty-ModalGrid AssetProperty-ModalGrid--3col">
             <div>
               <label className="AssetProperty-ModalLabel">Property No.</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                value={`${basePropertyNo} - ${propExtension}`} 
-                disabled 
-                style={{background:'#e8eef7'}} 
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                value={`${basePropertyNo} - ${propExtension}`}
+                disabled
+                style={{ background: '#e8eef7' }}
               />
 
               <label className="AssetProperty-ModalLabel">Document ID</label>
@@ -618,42 +670,47 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               </div>
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
+              <input
+                className={`AssetProperty-ModalInput ${isParDuplicate ? 'AssetProperty-ModalInput--invalid' : ''}`}
+                type="text"
                 name="parNo"
-                value={formData.parNo} 
+                value={formData.parNo}
                 onChange={handleInputChange}
                 disabled={isTransferring}
               />
+              {parValidationMessage && (
+                <div className="AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--invalid">
+                  {parValidationMessage}
+                </div>
+              )}
 
               <label className="AssetProperty-ModalLabel">Description</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                rows={3} 
-                value={formData.description} 
-                disabled 
-                style={{background:'#e8eef7', resize: 'none'}} 
+              <textarea
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea"
+                rows={3}
+                value={formData.description}
+                disabled
+                style={{ background: '#e8eef7', resize: 'none' }}
               />
             </div>
-            
+
             <div>
               <label className="AssetProperty-ModalLabel">Serial No.</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                value={formData.serialNo} 
-                disabled 
-                style={{background:'#e8eef7', resize: 'none'}}
+              <textarea
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea"
+                value={formData.serialNo}
+                disabled
+                style={{ background: '#e8eef7', resize: 'none' }}
                 rows={3}
               />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="date" 
-                value={formData.dateAcquired} 
-                disabled 
-                style={{background:'#e8eef7'}} 
+              <input
+                className="AssetProperty-ModalInput"
+                type="date"
+                value={formData.dateAcquired}
+                disabled
+                style={{ background: '#e8eef7' }}
               />
 
               <label className="AssetProperty-ModalLabel">Unit Cost</label>
@@ -716,47 +773,48 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                 )}
               </div>
             </div>
-            
+
             <div>
               <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                value={formData.estimatedLife} 
-                disabled 
-                style={{background:'#e8eef7'}} 
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                value={formData.estimatedLife}
+                disabled
+                style={{ background: '#e8eef7' }}
               />
 
               <label className="AssetProperty-ModalLabel">Status</label>
-              <input 
-                className="AssetProperty-ModalInput" 
-                type="text" 
-                value={formData.status} 
-                disabled 
-                style={{background:'#e8eef7'}} 
+              <input
+                className="AssetProperty-ModalInput"
+                type="text"
+                value={formData.status}
+                disabled
+                style={{ background: '#e8eef7' }}
               />
 
               <label className="AssetProperty-ModalLabel">Remarks</label>
-              <textarea 
-                className="AssetProperty-ModalInput AssetProperty-ModalTextarea" 
-                rows={3} 
+              <textarea
+                className="AssetProperty-ModalInput AssetProperty-ModalTextarea"
+                rows={3}
                 name="remarks"
-                value={formData.remarks} 
+                value={formData.remarks}
                 onChange={handleInputChange}
                 disabled={isTransferring}
-                style={{resize: 'none'}} 
+                style={{ resize: 'none' }}
+                placeholder="Enter new remarks"
               />
             </div>
           </div>
 
           {transferError && (
-            <div className="AssetProperty-ValidationMessage AssetProperty-ValidationMessage--error" style={{marginTop: '10px'}}>
+            <div className="AssetProperty-ValidationMessage AssetProperty-ValidationMessage--error" style={{ marginTop: '10px' }}>
               {transferError}
             </div>
           )}
-          
+
           {transferSuccess && (
-            <div className="AssetProperty-ValidationMessage AssetProperty-ValidationMessage--success" style={{marginTop: '10px'}}>
+            <div className="AssetProperty-ValidationMessage AssetProperty-ValidationMessage--success" style={{ marginTop: '10px' }}>
               ✓ Transfer completed successfully! Closing modal...
             </div>
           )}
@@ -765,7 +823,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
             <button
               type="submit"
               className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary"
-              disabled={!formValid || isDocDuplicate || isTransferring || !isDocumentValid || isDocumentLoading || docValidationStatus !== 'valid'}
+              disabled={!formValid || isDocDuplicate || isTransferring || !isDocumentValid || isDocumentLoading || docValidationStatus !== 'valid' || isParDuplicate}
             >
               {isTransferring ? 'TRANSFERRING...' : 'TRANSFER'}
             </button>
