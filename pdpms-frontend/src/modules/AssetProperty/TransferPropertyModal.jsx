@@ -17,12 +17,18 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     remarks: '',
     description: ''
   });
-  // State only for the editable extension after the hyphen
+  // State for document extension
+  const [basePropertyNo, setBasePropertyNo] = useState('');
+  const [propExtension, setPropExtension] = useState('');
+  // State for document extension
+  const [baseDocumentId, setBaseDocumentId] = useState('');
   const [docExtension, setDocExtension] = useState('');
   // Controls whether Unit Cost is locked after submission
   const [unitCostLocked, setUnitCostLocked] = useState(false);
   // List of used extensions for this Document ID
   const [usedExtensions, setUsedExtensions] = useState([]);
+  // List of used extensions for this Property No
+  const [usedPropertyExtensions, setUsedPropertyExtensions] = useState([]);
   // Flag for duplicate extension
   const [isDocDuplicate, setIsDocDuplicate] = useState(false);
   const [formValid, setFormValid] = useState(false);
@@ -43,16 +49,23 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
   useEffect(() => {
     if (row) {
-      // Split documentNo into base and extension. If extension exists (e.g., "ABC123 - 01"),
-      // we treat the segment before the first " - " as the base Document ID and drop the rest.
-      // This effectively clears any previous extension, allowing the user to enter a new one.
+      // --- Parse Document No (existing logic) ---
       const rawDocNo = row.documentNo || '';
-      const [baseDocNo] = rawDocNo.split(' - '); // grabs text before the first hyphen (or full string if none)
+      const parts = rawDocNo.split(' - ');
+      setBaseDocumentId(parts[0] || '');
+      setDocExtension(parts[1] || '');
 
-      setDocExtension('');
+      // --- Parse Property No & prepare extension ---
+      const rawPropNo = row.propertyNo || '';
+      const propParts = rawPropNo.split(' - ');
+      const baseProp = propParts[0] || '';
+      setBasePropertyNo(baseProp);
+      // Temporarily set to existing extension (if any) until we compute next
+      setPropExtension(propParts[1] || '');
+      // Update form data (propertyNo will be finalized after extension fetch)
       setFormData({
         propertyNo: row.propertyNo || '',
-        documentNo: baseDocNo,
+        documentNo: rawDocNo,
         parNo: '',  // Always set to empty string
         serialNo: row.serialNo || '',
         dateAcquired: row.dateAcquired || '',
@@ -66,15 +79,51 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     }
   }, [row]);
 
+  // --- Fetch used PROPERTY extensions whenever modal opens or base propertyNo changes ---
+  useEffect(() => {
+    if (!open || !basePropertyNo) return;
+
+    const fetchUsedPropertyExtensions = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/pdpms/manila-city-hall/properties/`);
+        const data = Array.isArray(res.data) ? res.data : [];
+        const basePrefix = `${basePropertyNo} - `;
+        const extensions = data
+          .map(prop => prop.property_no || '')
+          .filter(no => no.startsWith(basePrefix))
+          .map(no => no.slice(basePrefix.length).trim())
+          .filter(ext => ext !== '');
+        setUsedPropertyExtensions(extensions);
+
+        // Determine next available numeric extension (4-digit)
+        const nums = extensions
+          .map(ext => parseInt(ext, 10))
+          .filter(n => !isNaN(n));
+        const nextNum = nums.length ? Math.max(...nums) + 1 : 1;
+        const nextExt = nextNum.toString().padStart(4, '0');
+        setPropExtension(nextExt);
+        setFormData(prev => ({ ...prev, propertyNo: `${basePropertyNo} - ${nextExt}` }));
+      } catch (err) {
+        console.error('Failed to fetch property numbers:', err);
+        // Fallback to 0001
+        const fallbackExt = '0001';
+        setPropExtension(fallbackExt);
+        setFormData(prev => ({ ...prev, propertyNo: `${basePropertyNo} - ${fallbackExt}` }));
+      }
+    };
+
+    fetchUsedPropertyExtensions();
+  }, [open, basePropertyNo]);
+
   // Fetch used document extensions whenever modal opens or base documentNo changes
   useEffect(() => {
-    if (!open || !formData.documentNo) return;
+    if (!open || !baseDocumentId) return;
 
     const fetchUsedExtensions = async () => {
       try {
         const res = await axios.get(DOCUMENTS_ENDPOINT);
         const data = Array.isArray(res.data) ? res.data : [];
-        const basePrefix = `${formData.documentNo} - `;
+        const basePrefix = `${baseDocumentId} - `;
         const extensions = data
           .map(doc => doc.document_no || doc.documentNo || '')
           .filter(docId => docId.startsWith(basePrefix))
@@ -88,21 +137,13 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     };
 
     fetchUsedExtensions();
-  }, [open, formData.documentNo]);
+  }, [open, baseDocumentId]);
 
-  // Form validation
+  // Re-evaluate duplicate status whenever the extension or the list of used extensions changes
   useEffect(() => {
-    // Require non-empty Document ID extension
-    const hasDocumentId = docExtension.trim() !== '' && !isDocDuplicate;
-
-    // Validate end user only if user interacted with search input
-    const hasInteracted = employeeSearchInput.trim() !== '';
-    const hasValidEndUser = hasInteracted
-      ? formData.endUser?.toString().trim() !== '' && employeeValidationStatus === 'valid'
-      : false;
-
-    setFormValid(hasDocumentId && hasValidEndUser);
-  }, [docExtension, isDocDuplicate, formData.endUser, employeeValidationStatus, employeeSearchInput]);
+    const duplicate = docExtension.trim() !== '' && usedExtensions.includes(docExtension.trim());
+    setIsDocDuplicate(duplicate);
+  }, [docExtension, usedExtensions]);
 
   // Load employees when modal opens
   useEffect(() => {
@@ -201,14 +242,28 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     setEmployeeValidationMessage('');
   }, [formData.endUser, employees]);
 
+  const handleDocumentInputChange = (e) => {
+    const { value } = e.target;
+    
+    // Split value into base and extension parts
+    const parts = value.split(' - ');
+    const base = parts[0]?.trim() || '';
+    const ext = parts[1]?.trim() || '';
+    
+    // Ensure we maintain exactly one hyphen between base and extension
+    const formattedValue = `${base} - ${ext}`;
+    
+    // Update states
+    setBaseDocumentId(base);
+    setDocExtension(ext);
+    setFormData(prev => ({ ...prev, documentNo: formattedValue }));
+    setIsDocDuplicate(ext !== '' && usedExtensions.includes(ext));
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     if (name === 'documentNoCombined') {
-      const prefix = `${formData.documentNo} - `;
-      if (!value.startsWith(prefix)) return;
-      const ext = value.slice(prefix.length);
-      setDocExtension(ext);
-      setIsDocDuplicate(usedExtensions.includes(ext.trim()));
+      handleDocumentInputChange(e);
     } else if (name === 'endUser') {
       setEmployeeSearchInput(value);
       setFormData(prev => ({
@@ -261,10 +316,22 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     setUnitCostLocked(true);
     e.preventDefault();
     if (formValid && onTransfer) {
-      const fullDocumentNo = docExtension.trim() ? `${formData.documentNo} - ${docExtension.trim()}` : formData.documentNo;
-      onTransfer({ ...formData, documentNo: fullDocumentNo });
+      const fullDocumentNo = `${baseDocumentId} - ${docExtension.trim()}`;
+      const fullPropertyNo = `${basePropertyNo} - ${propExtension}`;
+      onTransfer({ ...formData, documentNo: fullDocumentNo, propertyNo: fullPropertyNo });
     }
   };
+
+  // Form validation
+  useEffect(() => {
+    const hasDocumentId = baseDocumentId.trim() !== '' && docExtension.trim() !== '';
+    const hasInteracted = employeeSearchInput.trim() !== '';
+    const hasValidEndUser = hasInteracted
+      ? formData.endUser?.toString().trim() !== '' && employeeValidationStatus === 'valid'
+      : false;
+
+    setFormValid(hasDocumentId && hasValidEndUser);
+  }, [baseDocumentId, docExtension, formData.endUser, employeeValidationStatus, employeeSearchInput]);
 
   if (!open) return null;
 
@@ -275,19 +342,36 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
           <div className="AssetProperty-ModalGrid AssetProperty-ModalGrid--3col">
             <div>
               <label className="AssetProperty-ModalLabel">Property No.</label>
-              <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
+              <input className="AssetProperty-ModalInput" type="text" value={`${basePropertyNo} - ${propExtension}`} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">Document ID</label>
               <input
                 className="AssetProperty-ModalInput"
                 type="text"
                 name="documentNoCombined"
-                value={docExtension.trim() !== '' ? `${formData.documentNo} - ${docExtension}` : formData.documentNo}
+                value={`${baseDocumentId} - ${docExtension}`}
                 onChange={handleInputChange}
-                style={{}}
+                onKeyDown={(e) => {
+                  // Prevent deletion of the extension separator
+                  if (e.key === 'Backspace' || e.key === 'Delete') {
+                    const hyphenIndex = e.target.value.indexOf(' - ');
+                    if (hyphenIndex !== -1) {
+                      // Prevent deletion of the hyphen and spaces around it
+                      const selectionStart = e.target.selectionStart;
+                      const selectionEnd = e.target.selectionEnd;
+                      if (selectionStart <= hyphenIndex + 3 && selectionEnd >= hyphenIndex) {
+                        e.preventDefault();
+                      }
+                    }
+                  }
+                }}
+                autoComplete="off"
+                placeholder="Base Document ID - Extension (e.g., PUBL-DOCU-2025-4c2626 - 0001)"
               />
               {isDocDuplicate && (
-                <div className="validation-error">This Document ID extension has already been used</div>
+                <div className="AssetProperty-ValidationMessage AssetProperty-ValidationMessage--error">
+                  This document is already existing.
+                </div>
               )}
 
               <label className="AssetProperty-ModalLabel">PAR No.</label>
@@ -322,7 +406,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
                 name="unitCost"
                 value={formData.unitCost}
                 onChange={handleInputChange}
-                disabled={unitCostLocked}
+                disabled
                 style={unitCostLocked ? { background: '#e8eef7' } : {}}
               />
 

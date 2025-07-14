@@ -878,3 +878,35 @@ input[name="serialNo"] {
     font-size: 10px;
   }
 }
+
+/* Document ID Input Styles */
+.AssetProperty-DocumentInputContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.AssetProperty-DocumentSeparator {
+  color: #6c757d;
+  font-weight: 500;
+}
+
+/* Validation Messages */
+.AssetProperty-ValidationMessage {
+  margin-top: 4px;
+  font-size: 0.875rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.AssetProperty-ValidationMessage--error {
+  color: #dc3545;
+  background-color: #f8d7da;
+}
+
+.AssetProperty-ValidationMessage--success {
+  color: #198754;
+  background-color: #d1e7dd;
+}

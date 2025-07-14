@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import './AssetProperty.css';
 
-export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds = [] }) {
+export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds = [], existingParNos = [] }) {
   // Today's date in YYYY-MM-DD format
   const todayStr = new Date().toISOString().split('T')[0];
   const [employees, setEmployees] = useState([]);
@@ -27,6 +27,10 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
   const [isDocDuplicate, setIsDocDuplicate] = useState(false);
   const docDropdownRef = useRef(null);
   const docInputRef = useRef(null);
+
+  // --- PAR No validation states ---
+  const [isParDuplicate, setIsParDuplicate] = useState(false);
+  const [parValidationMessage, setParValidationMessage] = useState('');
 
   const initialFormData = {
     documentNo: '',
@@ -53,6 +57,12 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
       setEmployeeSearchInput('');
       setEmployeeValidationStatus('');
       setEmployeeValidationMessage('');
+      setDocSearchInput('');
+      setDocValidationStatus('');
+      setDocValidationMessage('');
+      setIsDocDuplicate(false);
+      setIsParDuplicate(false);
+      setParValidationMessage('');
       setFormValid(false);
     }
   }, [open]);
@@ -212,27 +222,37 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
       .get(DOCUMENTS_ENDPOINT)
       .then((res) => {
         const data = Array.isArray(res.data) ? res.data : [];
-        const ids = data
+        const propertyRecords = data.filter(doc => doc.document_type === 'Property Records');
+        
+        // Filter to only show main document IDs (no increment suffixes)
+        const mainDocIds = propertyRecords
           .filter(doc => doc.document_id && doc.document_id.toLowerCase().includes(term))
-          .map(doc => doc.document_id);
+          .map(doc => doc.document_id)
+          .filter(id => {
+            // Only allow main document IDs like PUBL-DOCU-2025-3cb3ac
+            // Exclude ones with increments like PUBL-DOCU-2025-3cb3ac-0001
+            const parts = id.split('-');
+            if (parts.length >= 4) {
+              const lastPart = parts[parts.length - 1];
+              // If last part is numeric (like 0001), it's an increment - exclude it
+              return !/^\d+$/.test(lastPart);
+            }
+            return true;
+          });
 
-        setDocSearchResults(ids);
-        setShowDocDropdown(ids.length > 0);
+        setDocSearchResults(mainDocIds);
+        setShowDocDropdown(mainDocIds.length > 0);
         setDocFocusedSuggestionIndex(-1);
 
-        // Check for duplicate in the asset properties table
         const isDuplicate = existingDocIds.some(id => id.toLowerCase() === term);
         setIsDocDuplicate(isDuplicate);
         if (isDuplicate) {
           setDocValidationStatus('invalid');
           setDocValidationMessage('The Document ID has been used');
-        } else if (ids.some(id => id.toLowerCase() === term)) {
+        } else if (mainDocIds.some(id => id.toLowerCase() === term)) {
           setDocValidationStatus('valid');
           setDocValidationMessage('');
-        } else {
-          setDocValidationStatus('invalid');
-          setDocValidationMessage('No document found.');
-        }
+        } 
       })
       .catch((err) => {
         console.error('Failed to fetch documents:', err);
@@ -249,16 +269,37 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
     setFormData(newFormData);
     setShowDocDropdown(false);
     setDocFocusedSuggestionIndex(-1);
-    // Check duplicate again on exact select
-    const duplicate = existingDocIds.some(existing => existing === id.toLowerCase());
+    const duplicate = existingDocIds.some(existing => existing.toLowerCase() === id.toLowerCase());
     setIsDocDuplicate(duplicate);
-    if (duplicate) {
+    
+    // Check if it's a main document ID (no increment suffix)
+    const parts = id.split('-');
+    const isMainDoc = parts.length >= 4 ? !/^\d+$/.test(parts[parts.length - 1]) : true;
+    
+    if (!isMainDoc) {
       setDocValidationStatus('invalid');
-      setDocValidationMessage('The Document ID has been used');
+      setDocValidationMessage('Only main document IDs are allowed (no increment suffixes)');
     } else {
-      setDocValidationStatus('valid');
-      setDocValidationMessage('');
+      axios.get(`${DOCUMENTS_ENDPOINT}${id}/`) // Assuming endpoint supports single doc fetch
+        .then(res => {
+          if (res.data.document_type !== 'Property Records') {
+            setDocValidationStatus('invalid');
+            setDocValidationMessage('Document ID must be a Property Records.');
+          } else if (duplicate) {
+            setDocValidationStatus('invalid');
+            setDocValidationMessage('The Document ID has been used');
+          } else {
+            setDocValidationStatus('valid');
+            setDocValidationMessage('');
+          }
+        })
+        .catch(err => {
+          console.error('Error validating document type:', err);
+          setDocValidationStatus('invalid');
+          setDocValidationMessage('Unable to validate document type.');
+        });
     }
+    
     updateFormValidation('documentNo', id);
     if (docInputRef.current) {
       docInputRef.current.focus();
@@ -273,16 +314,23 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
       documentNo: value
     }));
 
-    const duplicate = existingDocIds.some(existing => existing === value.trim().toLowerCase());
+    // Check if it's a main document ID (no increment suffix)
+    const parts = value.split('-');
+    const isMainDoc = parts.length >= 4 ? !/^\d+$/.test(parts[parts.length - 1]) : true;
+    
+    const duplicate = existingDocIds.some(existing => existing.toLowerCase() === value.trim().toLowerCase());
     setIsDocDuplicate(duplicate);
-    if (duplicate) {
+    
+    if (!isMainDoc) {
+      setDocValidationStatus('invalid');
+      setDocValidationMessage('Only main document IDs are allowed (no increment suffixes)');
+    } else if (duplicate) {
       setDocValidationStatus('invalid');
       setDocValidationMessage('The Document ID has been used');
     } else {
       setDocValidationStatus('');
       setDocValidationMessage('');
     }
-
     updateFormValidation('documentNo', value);
   };
 
@@ -306,6 +354,29 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
     }
   };
 
+  // --- PAR No validation ---
+  const validateParNo = (value) => {
+    const trimmed = value.trim();
+    let isValid = true;
+
+    console.log('Validating PAR No:', trimmed, 'Duplicate:', existingParNos.some(parNo => parNo.toLowerCase() === trimmed.toLowerCase()), 'Existing PAR Nos:', existingParNos); // Debug log
+
+    const isDuplicate = existingParNos.some(parNo => parNo.toLowerCase() === trimmed.toLowerCase());
+    setIsParDuplicate(isDuplicate);
+
+    if (trimmed === '') {
+      setParValidationMessage('');
+      isValid = false;
+    } else if (isDuplicate) {
+      setParValidationMessage('PAR No. has already been used');
+      isValid = false;
+    } else {
+      setParValidationMessage('');
+    }
+
+    return isValid;
+  };
+
   const validateNumericInput = (name, value) => {
     let error = '';
     if (value.trim() === '') {
@@ -323,15 +394,23 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
+
+    setFormData(prev => ({ ...prev, [name]: value }));
+
+    // Validate field directly
+    if (name === 'parNo') {
+      validateParNo(value); // triggers message + duplicate check
+    }
+
     if (name === 'unitCost' || name === 'estimatedLife') {
       validateNumericInput(name, value);
     }
-    setFormData(prev => ({ ...prev, [name]: value }));
-    updateFormValidation(name, value);
+
+    updateFormValidation(name, value); // update formValid status every change
   };
 
   const updateFormValidation = (changedField, changedValue) => {
-    const requiredFields = ['parNo', 'serialNo', 'endUser', 'status'];
+    const requiredFields = ['parNo', 'unitCost', 'estimatedLife', 'endUser', 'status'];
     const isValid = requiredFields.every(field => {
       const fieldValue = changedField === field ? changedValue : formData[field];
       return fieldValue?.toString().trim() !== '';
@@ -339,13 +418,23 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
 
     const employeeValid = employeeValidationStatus === 'valid';
     const docValid = docValidationStatus === 'valid' && !isDocDuplicate;
+    const parValid = !isParDuplicate;
     const numericValid = Object.values(validationErrors).every(err => err === '');
 
-    setFormValid(isValid && employeeValid && docValid && numericValid);
+    setFormValid(isValid && employeeValid && docValid && parValid && numericValid);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Re-validate PAR No. before submission
+    const isParValid = validateParNo(formData.parNo);
+    if (!isParValid) {
+      setIsParDuplicate(true);
+      setParValidationMessage('PAR No. has already been used');
+      return;
+    }
+
     if (employeeValidationStatus !== 'valid') {
       setEmployeeValidationStatus('invalid');
       if (!employeeValidationMessage) {
@@ -357,7 +446,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
     if (docValidationStatus !== 'valid' || isDocDuplicate) {
       setDocValidationStatus('invalid');
       if (!docValidationMessage) {
-        setDocValidationMessage(isDocDuplicate ? 'The Document ID has been used' : 'No document found.');
+        setDocValidationMessage(isDocDuplicate ? 'The Document ID has been used' : 'No Property Records document found.');
       }
       return;
     }
@@ -367,7 +456,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
         documentNo: formData.documentNo,
         parNo: formData.parNo,
         description: formData.description,
-        serialNo: formData.serialNo,
+        serialNo: formData.serialNo.trim() === '' ? 'N/A' : formData.serialNo,
         dateAcquired: formData.dateAcquired,
         unitCost: formData.unitCost ? parseFloat(formData.unitCost) : null,
         endUser: formData.endUser,
@@ -384,11 +473,13 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
       setDocValidationStatus('');
       setDocValidationMessage('');
       setIsDocDuplicate(false);
+      setIsParDuplicate(false);
+      setParValidationMessage('');
       setFormValid(false);
     }
   };
 
-  const handleClose = () => {
+  const handleClose = (e) => {
     setFormData(initialFormData);
     setEmployeeSearchInput('');
     setEmployeeValidationStatus('');
@@ -397,6 +488,8 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
     setDocValidationStatus('');
     setDocValidationMessage('');
     setIsDocDuplicate(false);
+    setIsParDuplicate(false);
+    setParValidationMessage('');
     setFormValid(false);
     onClose();
   };
@@ -409,14 +502,18 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
         <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} noValidate>
           <div className="AssetProperty-ModalGrid">
             <div>
-              <label className="AssetProperty-ModalLabel">PAR No.</label>
+              <label className="AssetProperty-ModalLabel">PAR No. *</label>
               <input
-                className="AssetProperty-ModalInput"
+                className={`AssetProperty-ModalInput ${isParDuplicate ? 'AssetProperty-ModalInput--invalid' : ''}`}
                 type="text"
                 name="parNo"
                 value={formData.parNo}
                 onChange={handleFormChange}
+                required
               />
+              {parValidationMessage && (
+                  <div className={`AssetProperty-EmployeeValidation AssetProperty-EmployeeValidation--invalid`}> {parValidationMessage} </div>
+              )}
 
               <label className="AssetProperty-ModalLabel">Description</label>
               <textarea
@@ -434,6 +531,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 name="serialNo"
                 value={formData.serialNo}
                 onChange={handleFormChange}
+                placeholder="Leave empty for N/A"
               />
             </div>
             <div>
@@ -447,7 +545,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 max={todayStr}
               />
 
-              <label className="AssetProperty-ModalLabel">Unit Cost</label>
+              <label className="AssetProperty-ModalLabel">Unit Cost *</label>
               <input
                 className="AssetProperty-ModalInput"
                 type="text"
@@ -455,12 +553,13 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 value={formData.unitCost}
                 onChange={handleFormChange}
                 placeholder="0.00"
+                required
               />
               {validationErrors.unitCost && (
                 <div className="AssetProperty-ErrorText">{validationErrors.unitCost}</div>
               )}
 
-              <label className="AssetProperty-ModalLabel">End User</label>
+              <label className="AssetProperty-ModalLabel">End User *</label>
               <div className="AssetProperty-EmployeeSearchContainer">
                 <input
                   ref={inputRef}
@@ -472,6 +571,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                   onChange={handleEmployeeInputChange}
                   onKeyDown={handleKeyDown}
                   autoComplete="off"
+                  required
                 />
                 {showEmployeeDropdown && employeeSearchResults.length > 0 && (
                   <div className="AssetProperty-EmployeeDropdown" ref={dropdownRef}>
@@ -497,7 +597,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 )}
               </div>
 
-              <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
+              <label className="AssetProperty-ModalLabel">Estimated Life Use *</label>
               <input
                 className="AssetProperty-ModalInput"
                 type="text"
@@ -505,13 +605,14 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 value={formData.estimatedLife}
                 onChange={handleFormChange}
                 placeholder="0 Years"
+                required
               />
               {validationErrors.estimatedLife && (
                 <div className="AssetProperty-ErrorText">{validationErrors.estimatedLife}</div>
               )}
             </div>
             <div>
-              <label className="AssetProperty-ModalLabel">Status</label>
+              <label className="AssetProperty-ModalLabel">Status *</label>
               <select
                 className="AssetProperty-ModalInput AssetProperty-ModalSelect"
                 name="status"
@@ -573,7 +674,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
             <button
               type="submit"
               className="AssetProperty-ModalBtn AssetProperty-ModalBtn--primary"
-              disabled={!formValid || employeeValidationStatus === 'invalid' || docValidationStatus === 'invalid' || isDocDuplicate || Object.values(validationErrors).some(err => err)}
+              disabled={!formValid || employeeValidationStatus === 'invalid' || docValidationStatus === 'invalid' || isDocDuplicate || isParDuplicate || Object.values(validationErrors).some(err => err)}
             >
               ADD
             </button>
