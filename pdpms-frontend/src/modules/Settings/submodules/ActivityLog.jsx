@@ -44,10 +44,18 @@ export default function ActivityLog({ refreshTrigger }) {
             details: log.action_log,
             date: fullDate,
             time: formattedTime,
+            timestamp: log.timestamp // Keep original timestamp for sorting
           };
         });
 
-        setRows(transformed);
+        // Sort logs by timestamp in descending order (newest first)
+        const sorted = transformed.sort((a, b) => {
+          const dateA = new Date(a.timestamp);
+          const dateB = new Date(b.timestamp);
+          return dateB - dateA; // Descending order
+        });
+
+        setRows(sorted);
       } catch (error) {
         console.error('Error fetching activity logs:', error);
         setRows([]);
