@@ -18,12 +18,17 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     description: ''
   });
   // State for document extension
+  const [basePropertyNo, setBasePropertyNo] = useState('');
+  const [propExtension, setPropExtension] = useState('');
+  // State for document extension
   const [baseDocumentId, setBaseDocumentId] = useState('');
   const [docExtension, setDocExtension] = useState('');
   // Controls whether Unit Cost is locked after submission
   const [unitCostLocked, setUnitCostLocked] = useState(false);
   // List of used extensions for this Document ID
   const [usedExtensions, setUsedExtensions] = useState([]);
+  // List of used extensions for this Property No
+  const [usedPropertyExtensions, setUsedPropertyExtensions] = useState([]);
   // Flag for duplicate extension
   const [isDocDuplicate, setIsDocDuplicate] = useState(false);
   const [formValid, setFormValid] = useState(false);
@@ -44,10 +49,20 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
 
   useEffect(() => {
     if (row) {
+      // --- Parse Document No (existing logic) ---
       const rawDocNo = row.documentNo || '';
       const parts = rawDocNo.split(' - ');
       setBaseDocumentId(parts[0] || '');
       setDocExtension(parts[1] || '');
+
+      // --- Parse Property No & prepare extension ---
+      const rawPropNo = row.propertyNo || '';
+      const propParts = rawPropNo.split(' - ');
+      const baseProp = propParts[0] || '';
+      setBasePropertyNo(baseProp);
+      // Temporarily set to existing extension (if any) until we compute next
+      setPropExtension(propParts[1] || '');
+      // Update form data (propertyNo will be finalized after extension fetch)
       setFormData({
         propertyNo: row.propertyNo || '',
         documentNo: rawDocNo,
@@ -63,6 +78,42 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
       });
     }
   }, [row]);
+
+  // --- Fetch used PROPERTY extensions whenever modal opens or base propertyNo changes ---
+  useEffect(() => {
+    if (!open || !basePropertyNo) return;
+
+    const fetchUsedPropertyExtensions = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/pdpms/manila-city-hall/properties/`);
+        const data = Array.isArray(res.data) ? res.data : [];
+        const basePrefix = `${basePropertyNo} - `;
+        const extensions = data
+          .map(prop => prop.property_no || '')
+          .filter(no => no.startsWith(basePrefix))
+          .map(no => no.slice(basePrefix.length).trim())
+          .filter(ext => ext !== '');
+        setUsedPropertyExtensions(extensions);
+
+        // Determine next available numeric extension (4-digit)
+        const nums = extensions
+          .map(ext => parseInt(ext, 10))
+          .filter(n => !isNaN(n));
+        const nextNum = nums.length ? Math.max(...nums) + 1 : 1;
+        const nextExt = nextNum.toString().padStart(4, '0');
+        setPropExtension(nextExt);
+        setFormData(prev => ({ ...prev, propertyNo: `${basePropertyNo} - ${nextExt}` }));
+      } catch (err) {
+        console.error('Failed to fetch property numbers:', err);
+        // Fallback to 0001
+        const fallbackExt = '0001';
+        setPropExtension(fallbackExt);
+        setFormData(prev => ({ ...prev, propertyNo: `${basePropertyNo} - ${fallbackExt}` }));
+      }
+    };
+
+    fetchUsedPropertyExtensions();
+  }, [open, basePropertyNo]);
 
   // Fetch used document extensions whenever modal opens or base documentNo changes
   useEffect(() => {
@@ -260,7 +311,8 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     e.preventDefault();
     if (formValid && onTransfer) {
       const fullDocumentNo = `${baseDocumentId} - ${docExtension.trim()}`;
-      onTransfer({ ...formData, documentNo: fullDocumentNo });
+      const fullPropertyNo = `${basePropertyNo} - ${propExtension}`;
+      onTransfer({ ...formData, documentNo: fullDocumentNo, propertyNo: fullPropertyNo });
     }
   };
 
@@ -284,7 +336,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
           <div className="AssetProperty-ModalGrid AssetProperty-ModalGrid--3col">
             <div>
               <label className="AssetProperty-ModalLabel">Property No.</label>
-              <input className="AssetProperty-ModalInput" type="text" value={formData.propertyNo} disabled style={{background:'#e8eef7'}} />
+              <input className="AssetProperty-ModalInput" type="text" value={`${basePropertyNo} - ${propExtension}`} disabled style={{background:'#e8eef7'}} />
 
               <label className="AssetProperty-ModalLabel">Document ID</label>
               <input
