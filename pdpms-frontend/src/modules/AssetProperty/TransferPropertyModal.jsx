@@ -139,6 +139,12 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     fetchUsedExtensions();
   }, [open, baseDocumentId]);
 
+  // Re-evaluate duplicate status whenever the extension or the list of used extensions changes
+  useEffect(() => {
+    const duplicate = docExtension.trim() !== '' && usedExtensions.includes(docExtension.trim());
+    setIsDocDuplicate(duplicate);
+  }, [docExtension, usedExtensions]);
+
   // Load employees when modal opens
   useEffect(() => {
     if (!open) return;
@@ -251,7 +257,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
     setBaseDocumentId(base);
     setDocExtension(ext);
     setFormData(prev => ({ ...prev, documentNo: formattedValue }));
-    setIsDocDuplicate(usedExtensions.includes(ext));
+    setIsDocDuplicate(ext !== '' && usedExtensions.includes(ext));
   };
 
   const handleInputChange = (e) => {
@@ -364,7 +370,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer }
               />
               {isDocDuplicate && (
                 <div className="AssetProperty-ValidationMessage AssetProperty-ValidationMessage--error">
-                  This extension has already been used
+                  This document is already existing.
                 </div>
               )}
 
