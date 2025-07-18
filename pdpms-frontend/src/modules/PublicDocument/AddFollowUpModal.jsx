@@ -315,7 +315,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
                 style={{ minHeight: '5.5rem', resize: 'none', maxWidth: '100%', boxSizing: 'border-box' }}
               />
               {errors.remarks && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.remarks}</div>}
-              <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(Optional, PDF Only, Max 10MB)</span></label>
+              <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only, Max 10MB)</span></label>
               <div style={{ width: '100%', overflow: 'hidden' }}>
                 <input
                   className={`PublicDocument-ModalInput ${errors.file ? 'PublicDocument-InputError' : ''}`}

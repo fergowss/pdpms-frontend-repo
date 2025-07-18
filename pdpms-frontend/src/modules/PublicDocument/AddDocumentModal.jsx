@@ -313,7 +313,7 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
                 onBlur={handleBlur}
               />
               <label className="PublicDocument-ModalLabel">
-                Upload File <span className="PublicDocument-ModalHint">(Optional, PDF Only, Max 10MB)</span>
+                Upload File <span className="PublicDocument-ModalHint">(PDF Only, Max 10MB)</span>
               </label>
               <div style={{ width: '100%', overflow: 'hidden' }}>
                 <input
