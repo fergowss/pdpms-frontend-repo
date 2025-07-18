@@ -502,7 +502,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
         <form className="AssetProperty-ModalForm" onSubmit={handleSubmit} noValidate>
           <div className="AssetProperty-ModalGrid">
             <div>
-              <label className="AssetProperty-ModalLabel">PAR No. *</label>
+              <label className="AssetProperty-ModalLabel">PAR No.</label>
               <input
                 className={`AssetProperty-ModalInput ${isParDuplicate ? 'AssetProperty-ModalInput--invalid' : ''}`}
                 type="text"
@@ -545,7 +545,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 max={todayStr}
               />
 
-              <label className="AssetProperty-ModalLabel">Unit Cost *</label>
+              <label className="AssetProperty-ModalLabel">Unit Cost</label>
               <input
                 className="AssetProperty-ModalInput"
                 type="text"
@@ -559,7 +559,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 <div className="AssetProperty-ErrorText">{validationErrors.unitCost}</div>
               )}
 
-              <label className="AssetProperty-ModalLabel">End User *</label>
+              <label className="AssetProperty-ModalLabel">End User</label>
               <div className="AssetProperty-EmployeeSearchContainer">
                 <input
                   ref={inputRef}
@@ -597,7 +597,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 )}
               </div>
 
-              <label className="AssetProperty-ModalLabel">Estimated Life Use *</label>
+              <label className="AssetProperty-ModalLabel">Estimated Life Use</label>
               <input
                 className="AssetProperty-ModalInput"
                 type="text"
@@ -612,7 +612,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
               )}
             </div>
             <div>
-              <label className="AssetProperty-ModalLabel">Status *</label>
+              <label className="AssetProperty-ModalLabel">Status</label>
               <select
                 className="AssetProperty-ModalInput AssetProperty-ModalSelect"
                 name="status"
