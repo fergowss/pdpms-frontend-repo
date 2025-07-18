@@ -531,7 +531,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
                 name="serialNo"
                 value={formData.serialNo}
                 onChange={handleFormChange}
-                placeholder="Leave empty for N/A"
+                placeholder="Put N/A if serial number is not available"
               />
             </div>
             <div>
