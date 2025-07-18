@@ -20,11 +20,24 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
   const [hasChanges, setHasChanges] = useState(false);
   const [initialData, setInitialData] = useState(null);
   const [validationErrors, setValidationErrors] = useState({ unitCost: '', estimatedLife: '' });
-  // Track whether the unit cost field is still editable
-  const [unitCostEditable, setUnitCostEditable] = useState(true);
-  const [lifeEditable, setLifeEditable] = useState(true);
-  const [serialEditable, setSerialEditable] = useState(true);
-  const [endUserEditable, setEndUserEditable] = useState(true);
+  
+  // Debug function to log form state
+  const logEditabilityState = (message) => {
+    console.log(`Form State - ${message}:`, {
+      formData: {
+        unitCost: formData.unitCost,
+        estimatedLife: formData.estimatedLife,
+        serialNo: formData.serialNo,
+        endUser: formData.endUser
+      },
+      initialData: initialData ? {
+        unitCost: initialData.unitCost,
+        estimatedLife: initialData.estimatedLife,
+        serialNo: initialData.serialNo,
+        endUser: initialData.endUser
+      } : 'No initialData'
+    });
+  };
   const [employees, setEmployees] = useState([]);
   const [employeeSearchInput, setEmployeeSearchInput] = useState('');
   const [employeeSearchResults, setEmployeeSearchResults] = useState([]);
@@ -88,14 +101,8 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
       setFormData(newData);
       setInitialData(newData);
       setEmployeeSearchInput(newData.endUser);
-      // Unit cost is editable only if initial value is empty
-      setUnitCostEditable(!Boolean(newData.unitCost));
-      // Estimated life is editable only if initial value is empty
-      setLifeEditable(!Boolean(newData.estimatedLife));
-      // Serial No. editable only if empty
-      setSerialEditable(!Boolean(newData.serialNo));
-      // End User editable only if empty
-      setEndUserEditable(!Boolean(newData.endUser));
+      
+      logEditabilityState('After initial data load');
       const requiredFields = ['endUser', 'status', 'remarks'];
       const isValid = requiredFields.every(field => newData[field]?.toString().trim() !== '');
       setFormValid(isValid);
@@ -258,12 +265,12 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name === 'unitCost') {
-    // Once a non-empty value is entered, lock the field
-    validateNumericInput(name, value);
-  } else if (name === 'estimatedLife') {
+    
+    // Validate numeric inputs
+    if (name === 'unitCost' || name === 'estimatedLife') {
       validateNumericInput(name, value);
     }
+    
     setFormData(prev => ({ ...prev, [name]: value }));
     updateFormValidation(name, value);
   };
@@ -311,19 +318,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
         remarks: formData.remarks
       };
       onUpdate(updatedData);
-    // After successful update, lock the unit cost field
-    if (formData.unitCost) {
-      setUnitCostEditable(false);
-    }
-    if (formData.estimatedLife) {
-      setLifeEditable(false);
-    }
-    if (formData.serialNo) {
-      setSerialEditable(false);
-    }
-    if (formData.endUser) {
-      setEndUserEditable(false);
-    }
   }
 };
 
@@ -369,8 +363,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.serialNo}
                 onChange={handleInputChange}
                 rows={3}
-                disabled={!serialEditable}
-                style={{ background: !serialEditable ? '#e8eef7' : 'white' }}
               />
 
               <label className="AssetProperty-ModalLabel">Date Acquired</label>
@@ -391,8 +383,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.unitCost}
                 onChange={handleInputChange}
                 placeholder="0.00"
-                disabled={!unitCostEditable}
-                style={{ background: !unitCostEditable ? '#e8eef7' : 'white' }}
               />
               {validationErrors.unitCost && (
                 <div className="AssetProperty-ErrorText">{validationErrors.unitCost}</div>
@@ -406,13 +396,10 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                   type="text" 
                   name="endUser" 
                   value={employeeSearchInput}
-                  onChange={endUserEditable ? handleEmployeeInputChange : undefined}
-                  onKeyDown={endUserEditable ? handleKeyDown : undefined}
+                  onChange={handleEmployeeInputChange}
+                  onKeyDown={handleKeyDown}
                   placeholder="Enter employee name or ID"
                   autoComplete="off"
-                  disabled={!endUserEditable}
-                  style={{ background: !endUserEditable ? '#e8eef7' : 'white' }}
-  
                 />
                 {showEmployeeDropdown && employeeSearchResults.length > 0 && (
                   <div className="AssetProperty-EmployeeDropdown" ref={dropdownRef}>
@@ -451,8 +438,6 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
                 value={formData.estimatedLife}
                 onChange={handleInputChange}
                 placeholder="0 Years"
-                disabled={!lifeEditable}
-                style={{ background: !lifeEditable ? '#e8eef7' : 'white' }}
               />
               {validationErrors.estimatedLife && (
                 <div className="AssetProperty-ErrorText">{validationErrors.estimatedLife}</div>
