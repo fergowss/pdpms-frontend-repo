@@ -719,9 +719,8 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer, 
                 type="text"
                 name="unitCost"
                 value={formData.unitCost}
-                onChange={handleInputChange}
-                disabled={unitCostLocked}
-                style={{ background: unitCostLocked ? '#e8eef7' : '' }}
+                disabled
+                style={{ background: '#e8eef7' }}
               />
 
               <label className="AssetProperty-ModalLabel">End User</label>
@@ -802,7 +801,7 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer, 
                 onChange={handleInputChange}
                 disabled={isTransferring}
                 style={{ resize: 'none' }}
-                placeholder="Enter new remarks"
+
               />
             </div>
           </div>
