@@ -355,7 +355,7 @@ export default function UserManagement() {
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
             <span style={{display:'flex',alignItems:'center',height:'24px'}}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 7 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
+                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
               </svg>
             </span>
             <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
