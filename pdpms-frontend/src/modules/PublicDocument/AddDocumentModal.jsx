@@ -28,7 +28,34 @@ function generateReferenceCodeFromDate(dateString) {
   return `REF-CD-${year}-${month}`;
 }
 
-export default function AddDocumentModal({ open, onClose, onAdd, user }) {
+function generateLogId() {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+  return `LOG-DOC-${year}-${random}`;
+}
+
+async function logActivity(username, action, documentId) {
+  if (!username) {
+    console.warn('Unable to log activity: No username available');
+    return;
+  }
+  const logId = generateLogId();
+  const timestamp = new Date().toISOString();
+  try {
+    await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/activity-logs/', {
+      log_id: logId,
+      username,
+      action_log: 'Added a Record in Public Documents',
+      timestamp,
+    });
+    console.log(`Activity logged: ${action} by ${username} for Document ID: ${documentId}`);
+  } catch (error) {
+    console.error('Failed to log activity:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.detail || 'Failed to log activity. Please try again.');
+  }
+}
+
+export default function AddDocumentModal({ open, onClose, onAdd, username }) {
   const [formData, setFormData] = useState({
     referenceCode: 'REF-CD-',
     subject: '',
@@ -182,6 +209,11 @@ export default function AddDocumentModal({ open, onClose, onAdd, user }) {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
         });
+        try {
+          await logActivity(username, `Added a Record in Public Documents (Document ID: ${documentId})`, documentId);
+        } catch (logError) {
+          setErrors({ ...errors, submit: logError.message });
+        }
         onAdd({ ...formData, document_id: documentId });
         onClose();
       } catch (error) {
