@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './PublicDocument.css';
 
 function isOver5Years(dateString) {
@@ -22,12 +23,39 @@ function isOver5Years(dateString) {
   return yearsDiff >= 5;
 }
 
+function generateLogId() {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+  return `LOG-DOC-${year}-${random}`;
+}
+
+async function logActivity(username, action, documentId) {
+  if (!username) {
+    console.warn('Unable to log activity: No username available');
+    throw new Error('No username provided. Please log in and try again.');
+  }
+  const logId = generateLogId();
+  const timestamp = new Date().toISOString();
+  try {
+    await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/activity-logs/', {
+      log_id: logId,
+      username,
+      action_log: 'Edited a Record in Public Documents',
+      timestamp,
+    });
+    console.log(`Activity logged: ${action} by ${username} for Document ID: ${documentId}`);
+  } catch (error) {
+    console.error('Failed to log activity:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.detail || 'Failed to log activity. Please try again.');
+  }
+}
+
 const getFileName = (fileUrl) => {
   if (!fileUrl || fileUrl === '#') return '';
   return fileUrl.split('/').pop();
 };
 
-export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
+export default function EditDocumentModal({ open, onClose, doc, onUpdate, username }) {
   const [formData, setFormData] = useState({
     referenceCode: '',
     date: '',
@@ -155,7 +183,7 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
   };
 
   // Submit handler with extra logic for archived status
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const newErrors = {};
@@ -181,11 +209,26 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
       newErrors.status = 'Cannot change status from Completed back to Ongoing.';
     }
 
+    // Check for username
+    if (!username) {
+      newErrors.submit = 'No username provided. Please log in and try again.';
+    }
+
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 && hasChanges && onUpdate) {
-      onUpdate(formData);
-      onClose();
+      try {
+        onUpdate(formData);
+        try {
+          await logActivity(username, `Edited a Record in Public Documents (Document ID: ${doc.id})`, doc.id);
+        } catch (logError) {
+          setErrors({ ...errors, submit: logError.message });
+        }
+        onClose();
+      } catch (error) {
+        const errorMessage = error.response?.data?.detail || 'Failed to update document. Please try again.';
+        setErrors({ ...errors, submit: errorMessage });
+      }
     }
   };
 
@@ -304,6 +347,11 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate }) {
               />
             </div>
           </div>
+          {errors.submit && (
+            <div className="PublicDocument-FormCenterError" style={{ color: 'red', textAlign: 'center', margin: '10px 0' }}>
+              {errors.submit}
+            </div>
+          )}
           <div className="PublicDocument-ModalActions">
             <button
               type="submit"
