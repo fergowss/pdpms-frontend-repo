@@ -375,7 +375,7 @@ export default function App() {
             ) : (
               {
                 'Dashboard': <Dashboard user={user} />,
-                'Public Document': <PublicDocument />,
+                'Public Document': <PublicDocument username={user?.username} />,
                 'Asset Property': <AssetProperty />,
                 'Masterlist': <Reports />,
                 'Admin': <ActivityLog key={activityLogRefreshKey} />,
