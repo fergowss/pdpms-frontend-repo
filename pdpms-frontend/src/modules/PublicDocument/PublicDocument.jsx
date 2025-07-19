@@ -5,7 +5,7 @@ import AddFollowUpModal from './AddFollowUpModal';
 import './PublicDocument.css';
 import axios from 'axios';
 
-export default function PublicDocument() {
+export default function PublicDocument({ username }) {
   const [activeTab, setActiveTab] = useState('all');
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
@@ -400,7 +400,7 @@ export default function PublicDocument() {
 
   return (
     <div className="Public-Document-Container">
-      <AddDocumentModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddDocument} />
+      <AddDocumentModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddDocument} username={username} />
       {/* Add Document Success Notification */}
       {showAddNotif && (
         <div className="PublicDocument-EditNotificationOverlay">
@@ -628,7 +628,7 @@ export default function PublicDocument() {
           </div>
         )}
         {activeTab === 'all' && editModalOpen && (
-          <EditDocumentModal open={editModalOpen} onClose={() => { setEditModalOpen(false); setSelectedRow(null); }} doc={selectedRow} onUpdate={handleUpdateDocument} />
+          <EditDocumentModal open={editModalOpen} onClose={() => { setEditModalOpen(false); setSelectedRow(null); }} doc={selectedRow} onUpdate={handleUpdateDocument} username={username} />
         )}
         {activeTab === 'archiving' && selectedRow && (
           <div className="PublicDocument-EditNotificationOverlay">
@@ -656,6 +656,7 @@ export default function PublicDocument() {
           setTimeout(() => setShowFollowUpNotif(false), 3000);
         }}
         docId={addFollowUpDocId}
+        username={username}
       />
 
       {/* Follow-Up Document Success Notification */}
