@@ -30,13 +30,38 @@ export default function UserManagement() {
   const [manageModalOpen, setManageModalOpen] = useState(false);
   const [userToManage, setUserToManage] = useState(null);
 
+  // Helper function to generate a unique log ID
+  const generateLogId = () => {
+    const random = Math.random().toString(36).substring(2, 8);
+    const timestamp = new Date().toISOString().replace(/[-:T.]/g, '').slice(0, 14);
+    return `LOG-USER-${timestamp}-${random}`;
+  };
+
+  // Helper function to log activity
+  const logActivity = async (action, affectedUsername) => {
+    try {
+      if (!affectedUsername) {
+        console.error('Affected username is invalid or not set. Cannot log activity.');
+        return;
+      }
+      const response = await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/activity-logs/', {
+        log_id: generateLogId(),
+        username: affectedUsername, // Log the affected user's username
+        action_log: action,
+        timestamp: new Date().toISOString(),
+      });
+      console.log('Activity logged successfully:', response.data);
+    } catch (error) {
+      console.error('Failed to log activity:', error.response ? error.response.data : error.message);
+      console.warn(`Activity "${action}" for user "${affectedUsername}" was not logged due to an error.`);
+    }
+  };
+
   // Helper function to sort users by status (Activated first, then Deactivated) and then by employee_id descending
   const sortUsersByStatusAndId = (usersList) => {
     return usersList.sort((a, b) => {
-      // Sort by status: Activated before Deactivated
       if (a.status === 'Activated' && b.status === 'Deactivated') return -1;
       if (a.status === 'Deactivated' && b.status === 'Activated') return 1;
-      // Within same status, sort by employee_id descending (newer IDs first)
       return b.id.localeCompare(a.id);
     });
   };
@@ -125,6 +150,7 @@ export default function UserManagement() {
         access_level: form.role,
         user_status: "Active"
       });
+      await logActivity('Added a user', form.username);
       setAddModalOpen(false);
       setShowAddNotif(true);
       fetchUsers();
@@ -148,6 +174,7 @@ export default function UserManagement() {
           user_status: 'Active'
         }
       );
+      await logActivity('Modified a user\'s credentials', form.username);
       setEditModalOpen(false);
       setShowUpdateNotif(true);
       fetchUsers();
@@ -158,11 +185,19 @@ export default function UserManagement() {
     }
   };
 
-  const handleDeleteUser = () => {
-    setDeleteModalOpen(false);
-    setUserToDelete(null);
-    setShowDeleteNotif(true);
-    setTimeout(() => setShowDeleteNotif(false), 3000);
+  const handleDeleteUser = async () => {
+    try {
+      await axios.delete(`http://127.0.0.1:8000/pdpms/manila-city-hall/users/${userToDelete.username}/`);
+      await logActivity('Deleted a user', userToDelete.username);
+      setDeleteModalOpen(false);
+      setUserToDelete(null);
+      setShowDeleteNotif(true);
+      fetchUsers();
+      setTimeout(() => setShowDeleteNotif(false), 3000);
+    } catch (error) {
+      console.error('Delete user error:', error.response ? error.response.data : error.message);
+      alert('Failed to delete user.');
+    }
   };
 
   const handleDeactivateUser = (user) => {
@@ -192,6 +227,11 @@ export default function UserManagement() {
         }
       } catch (propErr) {
         console.warn('Property check failed:', propErr.response?.data || propErr.message);
+        setDeactivateModalOpen(false);
+        setDeactivateNotifMessage('Failed to check associated properties. Please try again.');
+        setShowDeactivateNotif(true);
+        setTimeout(() => setShowDeactivateNotif(false), 2500);
+        return;
       }
     }
     try {
@@ -211,6 +251,7 @@ export default function UserManagement() {
       } catch (empErr) {
         console.warn('Employee status sync failed:', empErr.response?.data || empErr.message);
       }
+      await logActivity(newStatus === 'Activated' ? 'Activated a user' : 'Deactivated a user', user.username);
       setDeactivateModalOpen(false);
       setDeactivateNotifMessage(
         newStatus === 'Activated'
@@ -221,7 +262,11 @@ export default function UserManagement() {
       fetchUsers();
       setTimeout(() => setShowDeactivateNotif(false), 3000);
     } catch (error) {
-      alert('Failed to update user status.');
+      console.error('Update user status error:', error.response ? error.response.data : error.message);
+      setDeactivateModalOpen(false);
+      setDeactivateNotifMessage('Failed to update user status. Please check the console for details.');
+      setShowDeactivateNotif(true);
+      setTimeout(() => setShowDeactivateNotif(false), 3000);
     }
   };
 
@@ -310,7 +355,7 @@ export default function UserManagement() {
           <div className="AssetProperty-NotificationBox" style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.7rem', padding: '1.2rem 1.8rem' }}>
             <span style={{display:'flex',alignItems:'center',height:'24px'}}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
+                <path d="M12 2C6.48 2 7 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z" fill="#223354"/>
               </svg>
             </span>
             <span style={{ fontSize: '1.08rem', color: '#223354', fontWeight: 400, display: 'flex', alignItems: 'center', height: '24px' }}>
