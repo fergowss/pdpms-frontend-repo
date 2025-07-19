@@ -18,6 +18,7 @@ export default function PublicDocument({ username }) {
   const [addFollowUpModalOpen, setAddFollowUpModalOpen] = useState(false);
   const [addFollowUpDocId, setAddFollowUpDocId] = useState(null);
   const [showFollowUpNotif, setShowFollowUpNotif] = useState(false);
+  const [expandedRows, setExpandedRows] = useState(new Set());
   // Date filter states
   const [docDateFilter, setDocDateFilter] = useState('');
   const [receivedDateFilter, setReceivedDateFilter] = useState('');
@@ -26,7 +27,7 @@ export default function PublicDocument({ username }) {
   const docInputRef = React.useRef(null);
   const receivedInputRef = React.useRef(null);
 
-  // auto-open native picker when input appears
+  // Auto-open native picker when input appears
   useEffect(() => {
     if (showDocDateFilter && docInputRef.current) {
       docInputRef.current.focus();
@@ -59,7 +60,6 @@ export default function PublicDocument({ username }) {
     for (let i = 0; i < words.length; i += chunkSize) {
       lines.push(words.slice(i, i + chunkSize).join(' '));
     }
-    // Return as JSX with <br/> so browsers always render line breaks
     return lines.map((line, idx) => (
       idx === 0 ? line : [<br key={idx} />, line]
     ));
@@ -71,7 +71,7 @@ export default function PublicDocument({ username }) {
     axios
       .get('http://127.0.0.1:8000/pdpms/manila-city-hall/documents/')
       .then((response) => {
-        console.log('API response:', response.data); // Debug
+        console.log('API response:', response.data);
         const fetchedData = Array.isArray(response.data)
           ? response.data
               .filter((item) => item && typeof item === 'object')
@@ -87,33 +87,32 @@ export default function PublicDocument({ username }) {
                   receivedBy: item.received_by || '',
                   status: item.document_status || '',
                   remarks: item.remarks || '',
-                  file: item.pdf_file ? item.pdf_file.startsWith('http') 
-                    ? item.pdf_file // Use absolute URL as-is
-                    : `http://127.0.0.1:8000${item.pdf_file}` // Prepend only for relative URLs
+                  file: item.pdf_file
+                    ? item.pdf_file.startsWith('http')
+                      ? item.pdf_file
+                      : `http://127.0.0.1:8000${item.pdf_file}`
                     : '#',
-                  base_document_id: item.base_document_id || '', // New field
+                  base_document_id: item.base_document_id || '',
                 };
               })
               .filter((item) => item !== null)
           : [];
-        
-        // Sort by date to ensure consistent ordering - newest first, oldest last
+
         const sortedData = fetchedData.sort((a, b) => {
-          // Use received date first, then document date as fallback
           const dateA = new Date(a.received || a.date || '1900-01-01');
           const dateB = new Date(b.received || b.date || '1900-01-01');
-          return dateB - dateA; // Descending order (newest first, oldest last)
+          return dateB - dateA;
         });
-        
-        setAllData(sortedData); // Latest documents will be at the top
+
+        setAllData(sortedData);
         setIsLoading(false);
       })
       .catch((error) => {
         setIsLoading(false);
+        console.error('Fetch error:', error);
       });
   };
 
-  // Call fetchDocuments when the component mounts 
   useEffect(() => {
     fetchDocuments();
   }, []);
@@ -122,27 +121,26 @@ export default function PublicDocument({ username }) {
   function isOver5Years(dateString) {
     if (!dateString) return false;
     let docDate;
-    if (dateString.includes('-')) { // Assuming YYYY-MM-DD
-        docDate = new Date(dateString);
-    } else if (dateString.split('/').length === 3) { // Assuming MM/DD/YY or MM/DD/YYYY
-        const parts = dateString.split('/');
-        let year = parts[2];
-        if (year.length === 2) {
-            year = +year < 50 ? '20' + year : '19' + year; 
-        }
-        docDate = new Date(`${year}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
+    if (dateString.includes('-')) {
+      docDate = new Date(dateString);
+    } else if (dateString.split('/').length === 3) {
+      const parts = dateString.split('/');
+      let year = parts[2];
+      if (year.length === 2) {
+        year = +year < 50 ? '20' + year : '19' + year;
+      }
+      docDate = new Date(`${year}-${parts[0].padStart(2, '0')}-${parts[1].padStart(2, '0')}`);
     } else {
-        docDate = new Date(dateString); // Fallback for other formats Date constructor might handle
+      docDate = new Date(dateString);
     }
 
-    // Check for invalid date
     if (isNaN(docDate.getTime())) {
-        console.warn(`Invalid date format for: ${dateString}`);
-        return false; 
+      console.warn(`Invalid date format for: ${dateString}`);
+      return false;
     }
 
     const now = new Date();
-    const yearsDiff = (now - docDate) / (1000 * 60 * 60 * 24 * 365.25); // Account for leap years
+    const yearsDiff = (now - docDate) / (1000 * 60 * 60 * 24 * 365.25);
     return yearsDiff >= 5;
   }
 
@@ -167,7 +165,7 @@ export default function PublicDocument({ username }) {
   // Apply date filters if set
   if (docDateFilter) {
     console.log('Applying Document Date Filter:', docDateFilter);
-    data = data.filter(row => {
+    data = data.filter((row) => {
       if (!row.date) {
         console.log('No date for row:', row.id);
         return false;
@@ -184,7 +182,7 @@ export default function PublicDocument({ username }) {
   }
   if (receivedDateFilter) {
     console.log('Applying Received Date Filter:', receivedDateFilter);
-    data = data.filter(row => {
+    data = data.filter((row) => {
       if (!row.received) {
         console.log('No received date for row:', row.id);
         return false;
@@ -215,55 +213,52 @@ export default function PublicDocument({ username }) {
   const handleAddDocument = () => {
     closeAll();
     setShowAddNotif(true);
-    fetchDocuments(); // Refresh the data after adding
+    fetchDocuments();
     setTimeout(() => setShowAddNotif(false), 3000);
   };
 
   // Handler for when a document is updated
   const handleUpdateDocument = (updatedFields) => {
-    axios.patch(
-      `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${selectedRow.id}/`,
-      {
-        reference_code: updatedFields.referenceCode,
-        document_status: updatedFields.status,
-        remarks: updatedFields.remarks,
-      }
-    )
-    .then(() => {
-      setEditModalOpen(false);
-      setSelectedRow(null);
-      setShowUpdateNotif(true);
-      fetchDocuments(); // to refresh the data
-      setTimeout(() => setShowUpdateNotif(false), 3000);
-    })
-    .catch((error) => {
-      setValidation({
-        isOpen: true,
-        type: 'error',
-        title: 'Update Error',
-        message: 'Failed to update document. Please try again.',
+    axios
+      .patch(
+        `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${selectedRow.id}/`,
+        {
+          reference_code: updatedFields.referenceCode,
+          document_status: updatedFields.status,
+          remarks: updatedFields.remarks,
+        }
+      )
+      .then(() => {
+        setEditModalOpen(false);
+        setSelectedRow(null);
+        setShowUpdateNotif(true);
+        fetchDocuments();
+        setTimeout(() => setShowUpdateNotif(false), 3000);
+      })
+      .catch((error) => {
+        setValidation({
+          isOpen: true,
+          type: 'error',
+          title: 'Update Error',
+          message: 'Failed to update document. Please try again.',
+        });
+        console.error('Update error:', error);
       });
-      console.error('Update error:', error);
-    });
   };
 
   // Handler for archiving a document
   const handleArchiveDocument = async (docId) => {
     try {
       console.log(`Attempting to archive document by status change: ${docId}`);
-
-      // Perform a PATCH request to update the document_status to 'Archived'
       await axios.patch(
         `http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${docId}/`,
         {
-          document_status: 'Archived', // This is the only change needed
+          document_status: 'Archived',
         }
       );
-
-      // Close modal and show success notification
-      setSelectedRow(null); // Clear selected row after action
+      setSelectedRow(null);
       setShowArchiveNotif(true);
-      fetchDocuments(); // Re-fetch all documents to reflect the status change
+      fetchDocuments();
       setTimeout(() => setShowArchiveNotif(false), 3000);
     } catch (error) {
       console.error('Archive error:', error);
@@ -273,7 +268,7 @@ export default function PublicDocument({ username }) {
         type: 'error',
         title: 'Archive Error',
         message:
-          error.response?.data?.detail || // Common for Django REST Framework generic errors
+          error.response?.data?.detail ||
           error.response?.data?.message ||
           JSON.stringify(error.response?.data, null, 2) ||
           'Failed to archive document. Please try again.',
@@ -293,22 +288,19 @@ export default function PublicDocument({ username }) {
       return;
     }
 
-    const updateId = addFollowUpDocId; // Document to update status (e.g., PUBL-DOCU-2025-7e5021-0001)
-    // For base_document_id, use the root base document ID
+    const updateId = addFollowUpDocId;
     const baseId = updateId.includes('-') ? updateId.split('-').slice(0, 4).join('-') : updateId;
     console.log('Document ID to update status:', updateId);
     console.log('Base document ID for follow-up:', baseId);
 
     const submissionData = new FormData();
 
-    // Format dates to YYYY-MM-DD
     const formatDate = (date) => {
       if (!date) return '';
       const d = new Date(date);
       return isNaN(d) ? '' : d.toISOString().split('T')[0];
     };
 
-    // Log formData for debugging
     console.log('FormData for follow-up:', {
       base_document_id: baseId,
       reference_code: formData.referenceCode,
@@ -334,7 +326,6 @@ export default function PublicDocument({ username }) {
     if (formData.file) submissionData.append('pdf_file', formData.file);
 
     try {
-      // Create the follow-up document
       console.log('Sending POST request to create follow-up document');
       const response = await axios.post(
         'http://127.0.0.1:8000/pdpms/manila-city-hall/documents/',
@@ -343,7 +334,6 @@ export default function PublicDocument({ username }) {
       );
       console.log('Created follow-up document ID:', response.data.document_id);
 
-      // Update the status of the document receiving the follow-up
       console.log(`Attempting to update document ${updateId} to Completed`);
       try {
         const updateResponse = await axios.patch(
@@ -361,11 +351,12 @@ export default function PublicDocument({ username }) {
           isOpen: true,
           type: 'warning',
           title: 'Partial Success',
-          message: `Follow-up document created, but failed to update document status: ${updateError.response?.data?.detail || updateError.response?.data?.message || updateError.message}`,
+          message: `Follow-up document created, but failed to update document status: ${
+            updateError.response?.data?.detail || updateError.response?.data?.message || updateError.message
+          }`,
         });
       }
 
-      // Delay fetchDocuments to ensure the PATCH request is processed
       setTimeout(() => {
         console.log('Refreshing documents after follow-up creation');
         fetchDocuments();
@@ -398,61 +389,150 @@ export default function PublicDocument({ username }) {
     setSearchKeyword('');
   };
 
+  // Handle dropdown toggle for follow-up documents
+  const toggleRowExpansion = (rowId, event) => {
+    event.stopPropagation();
+    setExpandedRows((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(rowId)) {
+        newSet.delete(rowId);
+      } else {
+        newSet.add(rowId);
+      }
+      return newSet;
+    });
+  };
+
+  // Extract base document ID (without extension)
+  const getBaseDocumentId = (documentId) => {
+    if (!documentId) return '';
+    const parts = documentId.split('-');
+    if (parts.length >= 5) {
+      return parts.slice(0, 4).join('-');
+    }
+    return documentId;
+  };
+
+  // Extract extension from document ID
+  const getDocumentExtension = (documentId) => {
+    if (!documentId) return '';
+    const parts = documentId.split('-');
+    return parts.length >= 5 ? parts[parts.length - 1] : '';
+  };
+
+  // Group documents by base ID and separate mother documents from follow-ups
+  const groupDocuments = (documents) => {
+    const grouped = {};
+    const motherDocuments = [];
+
+    documents.forEach((doc) => {
+      const baseId = getBaseDocumentId(doc.id);
+      const extension = getDocumentExtension(doc.id);
+
+      if (!grouped[baseId]) {
+        grouped[baseId] = {
+          mother: null,
+          followUps: [],
+        };
+      }
+
+      if (!extension || extension === '0000') {
+        grouped[baseId].mother = doc;
+        motherDocuments.push(doc);
+      } else {
+        grouped[baseId].followUps.push(doc);
+      }
+    });
+
+    Object.keys(grouped).forEach((baseId) => {
+      grouped[baseId].followUps.sort((a, b) => {
+        const extA = getDocumentExtension(a.id);
+        const extB = getDocumentExtension(b.id);
+        return extA.localeCompare(extB);
+      });
+    });
+
+    return { grouped, motherDocuments };
+  };
+
+  // Get follow-up documents for a specific document
+  const getFollowUpDocuments = (documentId) => {
+    const baseId = getBaseDocumentId(documentId);
+    const { grouped } = groupDocuments(data);
+    return grouped[baseId]?.followUps || [];
+  };
+
   return (
     <div className="Public-Document-Container">
-      <AddDocumentModal open={modalOpen} onClose={() => setModalOpen(false)} onAdd={handleAddDocument} username={username} />
-      {/* Add Document Success Notification */}
+      <AddDocumentModal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onAdd={handleAddDocument}
+        username={username}
+      />
       {showAddNotif && (
         <div className="PublicDocument-EditNotificationOverlay">
-          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+          <div
+            className="PublicDocument-EditNotification"
+            style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}
+          >
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none" />
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000" />
+                <rect x="7" y="13" width="7" height="2 " rx="1" fill="#000000" />
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000" />
               </svg>
             </span>
-            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>New Public Document Has Been Added.</span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>
+              New Public Document Has Been Added.
+            </span>
           </div>
         </div>
       )}
 
-      {/* Update Document Success Notification */}
       {showUpdateNotif && (
         <div className="PublicDocument-EditNotificationOverlay">
-          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+          <div
+            className="PublicDocument-EditNotification"
+            style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}
+          >
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none" />
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000" />
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000" />
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000" />
               </svg>
             </span>
-            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Public Document Has Been Updated.</span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>
+              Public Document Has Been Updated.
+            </span>
           </div>
         </div>
       )}
 
-      {/* Archive Document Success Notification */}
       {showArchiveNotif && (
         <div className="PublicDocument-EditNotificationOverlay">
-          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+          <div
+            className="PublicDocument-EditNotification"
+            style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}
+          >
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none" />
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000" />
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000" />
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000" />
               </svg>
             </span>
-            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Document Has Been Moved to Archived.</span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>
+              Document Has Been Moved to Archived.
+            </span>
           </div>
         </div>
       )}
 
-      {/* Validation/Error Notification */}
       {validation.isOpen && (
         <div className="PublicDocument-EditNotificationOverlay">
           <div className="PublicDocument-EditNotification">
@@ -501,126 +581,313 @@ export default function PublicDocument({ username }) {
           </div>
         </div>
       </div>
-      <div className="PublicDocument-TableContainer" style={{position: 'relative'}}>
+      <div className="PublicDocument-TableContainer" style={{ position: 'relative' }}>
         {isLoading ? (
-          <div style={{textAlign: "center", padding: "2rem", color: "#888"}}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: '2rem', color: '#888' }}>Loading...</div>
         ) : (
-        <table className="PublicDocument-Table">
-          <thead>
-            <tr>
-              <th>Document ID</th>
-              <th>Reference Code</th>
-              <th>Subject/Description</th>
-              <th>Document Type</th>
-              <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowDocDateFilter(prev => !prev); }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  Date
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
-                {showDocDateFilter && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
-                    <input
-                      ref={docInputRef}
-                      type="date"
-                      value={docDateFilter}
-                      onChange={(e) => setDocDateFilter(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      onBlur={() => setShowDocDateFilter(false)}
-                      style={{ position: 'absolute', opacity: 0, width: '0', height: '0', pointerEvents: 'none' }}
-                    />
-                  </div>
-                )}
-              </th>
-              <th style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }} onClick={(e) => { e.stopPropagation(); setShowReceivedDateFilter(prev => !prev); }}>
-                <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                  Date Received
-                  <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                  </svg>
-                </span>
-                {showReceivedDateFilter && (
-                  <div style={{ position: 'absolute', top: '100%', left: 0, zIndex: 9999, backgroundColor: 'white', boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', width: 'max-content', minWidth: '160px', borderRadius: '4px' }}>
-                    <input
-                      ref={receivedInputRef}
-                      type="date"
-                      value={receivedDateFilter}
-                      onChange={(e) => setReceivedDateFilter(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      onBlur={() => setShowReceivedDateFilter(false)}
-                      style={{ position: 'absolute', opacity: 0, width: '0', height: '0', pointerEvents: 'none' }}
-                    />
-                  </div>
-                )}
-              </th>
-              <th>Received By</th>
-              <th>Status</th>
-              <th>Remarks</th>
-              <th>File</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data.map((row, i) => (
-              <tr key={row.id + i} onClick={activeTab === 'all' ? () => setSelectedRow(row) : activeTab === 'archiving' ? () => setSelectedRow(row) : undefined}>
-                <td>{row.id}</td>
-                <td>{row.ref}</td>
-                <td className="subject-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.subject)}</td>
-                <td>{row.type}</td>
-                <td>{row.date}</td>
-                <td>{row.received}</td>
-                <td className="receivedby-cell">{insertNewlines(row.receivedBy, true)}</td>
-                <td>{row.status}</td>
-                <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks)}</td>
-                <td>{row.file && row.file !== '#' ? ( 
-                <>
-                  {console.log('Rendering link for:', row.id, row.file)} {/* Debug */}
-                  <button
-                    className="PublicDocument-PDFLink"
-                    onClick={() => {
-                      try {
-                        window.open(row.file, '_blank', 'noopener,noreferrer');
-                      } catch (e) {
-                        console.error('Failed to open PDF:', e, row.file);
-                      }         
-                    }}
-                  >
-                    View PDF
-                  </button>
-                </>
-                ) : (
-                  <span className="PublicDocument-NoPDF">No PDF</span>
-                )}
-                </td>
+          <table className="PublicDocument-Table">
+            <thead>
+              <tr>
+                <th style={{ width: '40px', textAlign: 'center' }}></th>
+                <th>Document ID</th>
+                <th>Reference Code</th>
+                <th>Subject/Description</th>
+                <th>Document Type</th>
+                <th
+                  style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDocDateFilter((prev) => !prev);
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    Date
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  {showDocDateFilter && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        zIndex: 9999,
+                        backgroundColor: 'white',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                        width: 'max-content',
+                        minWidth: '160px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      <input
+                        ref={docInputRef}
+                        type="date"
+                        value={docDateFilter}
+                        onChange={(e) => setDocDateFilter(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onBlur={() => setShowDocDateFilter(false)}
+                        style={{ position: 'absolute', opacity: 0, width: '0', height: '0', pointerEvents: 'none' }}
+                      />
+                    </div>
+                  )}
+                </th>
+                <th
+                  style={{ position: 'sticky', top: 0, cursor: 'pointer', background: '#f6f8fa', zIndex: 2 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowReceivedDateFilter((prev) => !prev);
+                  }}
+                >
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                    Date Received
+                    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1L5 5L9 1" stroke="#223354" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  </span>
+                  {showReceivedDateFilter && (
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        left: 0,
+                        zIndex: 9999,
+                        backgroundColor: 'white',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                        width: 'max-content',
+                        minWidth: '160px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      <input
+                        ref={receivedInputRef}
+                        type="date"
+                        value={receivedDateFilter}
+                        onChange={(e) => setReceivedDateFilter(e.target.value)}
+                        onClick={(e) => e.stopPropagation()}
+                        onBlur={() => setShowReceivedDateFilter(false)}
+                        style={{ position: 'absolute', opacity: 0, width: '0', height: '0', pointerEvents: 'none' }}
+                      />
+                    </div>
+                  )}
+                </th>
+                <th>Received By</th>
+                <th>Status</th>
+                <th>Remarks</th>
+                <th>File</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {(() => {
+                const { motherDocuments } = groupDocuments(data);
+                return motherDocuments.flatMap((row, i) => {
+                  const followUps = getFollowUpDocuments(row.id);
+                  const isExpanded = expandedRows.has(row.id);
+
+                  const rows = [
+                    <tr
+                      key={row.id + i}
+                      onClick={
+                        activeTab === 'all'
+                          ? () => setSelectedRow(row)
+                          : activeTab === 'archiving'
+                          ? () => setSelectedRow(row)
+                          : undefined
+                      }
+                    >
+                      <td style={{ width: '40px', textAlign: 'center', padding: '8px' }}>
+                        <button
+                          onClick={(e) => toggleRowExpansion(row.id, e)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '3px',
+                            transition: 'background-color 0.2s',
+                            opacity: followUps.length > 0 ? 1 : 0.3,
+                          }}
+                          onMouseEnter={(e) => (e.target.style.backgroundColor = '#f0f0f0')}
+                          onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
+                          title={followUps.length > 0 ? `View ${followUps.length} follow-up document(s)` : 'No follow-up documents'}
+                          disabled={followUps.length === 0}
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{
+                              transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                              transition: 'transform 0.2s ease',
+                            }}
+                          >
+                            <path
+                              d="M4 2L8 6L4 10"
+                              stroke={followUps.length > 0 ? '#666' : '#ccc'}
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                      <td>{row.id}</td>
+                      <td>{row.ref}</td>
+                      <td className="subject-cell" style={{ textAlign: 'justify' }}>
+                        {insertNewlines(row.subject)}
+                      </td>
+                      <td>{row.type}</td>
+                      <td>{row.date}</td>
+                      <td>{row.received}</td>
+                      <td className="receivedby-cell">{insertNewlines(row.receivedBy, true)}</td>
+                      <td>{row.status}</td>
+                      <td className="remarks-cell" style={{ textAlign: 'justify' }}>
+                        {insertNewlines(row.remarks)}
+                      </td>
+                      <td>
+                        {row.file && row.file !== '#' ? (
+                          <>
+                            {console.log('Rendering link for:', row.id, row.file)}
+                            <button
+                              className="PublicDocument-PDFLink"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                try {
+                                  window.open(row.file, '_blank', 'noopener,noreferrer');
+                                } catch (e) {
+                                  console.error('Failed to open PDF:', e, row.file);
+                                }
+                              }}
+                            >
+                              View PDF
+                            </button>
+                          </>
+                        ) : (
+                          <span className="PublicDocument-NoPDF">No PDF</span>
+                        )}
+                      </td>
+                    </tr>,
+                  ];
+
+                  if (isExpanded && followUps.length > 0) {
+                    followUps.forEach((followUp, followUpIndex) => {
+                      rows.push(
+                        <tr
+                          key={`${row.id}-followup-${followUpIndex}`}
+                          style={{ backgroundColor: '#f8f9fa' }}
+                          onClick={
+                            activeTab === 'all'
+                              ? () => setSelectedRow(followUp)
+                              : activeTab === 'archiving'
+                              ? () => setSelectedRow(followUp)
+                              : undefined
+                          }
+                        >
+                          <td style={{ width: '40px', textAlign: 'center', padding: '8px' }}>
+                            <div
+                              style={{
+                                width: '6px',
+                                height: '6px',
+                                backgroundColor: '#666',
+                                borderRadius: '50%',
+                                margin: '0 auto',
+                                position: 'relative',
+                              }}
+                            ></div>
+                          </td>
+                          <td style={{ paddingLeft: '20px', fontStyle: 'italic', color: '#666' }}>
+                            {followUp.id}
+                          </td>
+                          <td style={{ color: '#666' }}>{followUp.ref}</td>
+                          <td className="subject-cell" style={{ textAlign: 'justify', color: '#666' }}>
+                            {insertNewlines(followUp.subject)}
+                          </td>
+                          <td style={{ color: '#666' }}>{followUp.type}</td>
+                          <td style={{ color: '#666' }}>{followUp.date}</td>
+                          <td style={{ color: '#666' }}>{followUp.received}</td>
+                          <td className="receivedby-cell" style={{ color: '#666' }}>
+                            {insertNewlines(followUp.receivedBy, true)}
+                          </td>
+                          <td style={{ color: '#666' }}>{followUp.status}</td>
+                          <td className="remarks-cell" style={{ textAlign: 'justify', color: '#666' }}>
+                            {insertNewlines(followUp.remarks)}
+                          </td>
+                          <td>
+                            {followUp.file && followUp.file !== '#' ? (
+                              <>
+                                <button
+                                  className="PublicDocument-PDFLink"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    try {
+                                      window.open(followUp.file, '_blank', 'noopener,noreferrer');
+                                    } catch (e) {
+                                      console.error('Failed to open PDF:', e, followUp.file);
+                                    }
+                                  }}
+                                >
+                                  View PDF
+                                </button>
+                              </>
+                            ) : (
+                              <span className="PublicDocument-NoPDF">No PDF</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    });
+                  }
+
+                  return rows;
+                });
+              })()}
+            </tbody>
+          </table>
         )}
         {activeTab === 'all' && selectedRow && !editModalOpen && selectedRow.status !== 'Archived' && (
           <div className="PublicDocument-EditNotificationOverlay" style={{ zIndex: 2100 }}>
             <div className="PublicDocument-EditNotification">
-              <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
-              <div className="PublicDocument-EditNotification-Title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem' }}>
+              <button
+                className="PublicDocument-EditNotification-Close"
+                onClick={() => setSelectedRow(null)}
+                title="Close"
+              >
+                ×
+              </button>
+              <div
+                className="PublicDocument-EditNotification-Title"
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.7rem' }}
+              >
                 <span>Manage Document</span>
                 <b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}?</b>
               </div>
               <div style={{ display: 'flex', gap: '0.7rem', justifyContent: 'center' }}>
-                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => {
-                  setEditModalOpen(true);
-                  setSelectedRow(selectedRow);
-                  setShowAddNotif(false);
-                  setShowUpdateNotif(false);
-                }}>
+                <button
+                  className="PublicDocument-EditNotification-EditBtn"
+                  onClick={() => {
+                    setEditModalOpen(true);
+                    setSelectedRow(selectedRow);
+                    setShowAddNotif(false);
+                    setShowUpdateNotif(false);
+                  }}
+                >
                   EDIT
                 </button>
-                <button className="PublicDocument-EditNotification-EditBtn" onClick={() => { 
-                  const docId = selectedRow.id; // Use the full document ID
-                  console.log('Setting docId for follow-up:', docId); 
-                  setAddFollowUpDocId(docId); 
-                  setSelectedRow(null); 
-                  setAddFollowUpModalOpen(true); 
-                }}>
+                <button
+                  className="PublicDocument-EditNotification-EditBtn"
+                  onClick={() => {
+                    const docId = selectedRow.id;
+                    console.log('Setting docId for follow-up:', docId);
+                    setAddFollowUpDocId(docId);
+                    setSelectedRow(null);
+                    setAddFollowUpModalOpen(true);
+                  }}
+                >
                   ADD FOLLOW-UP
                 </button>
               </div>
@@ -628,18 +895,37 @@ export default function PublicDocument({ username }) {
           </div>
         )}
         {activeTab === 'all' && editModalOpen && (
-          <EditDocumentModal open={editModalOpen} onClose={() => { setEditModalOpen(false); setSelectedRow(null); }} doc={selectedRow} onUpdate={handleUpdateDocument} username={username} />
+          <EditDocumentModal
+            open={editModalOpen}
+            onClose={() => {
+              setEditModalOpen(false);
+              setSelectedRow(null);
+            }}
+            doc={selectedRow}
+            onUpdate={handleUpdateDocument}
+            username={username}
+          />
         )}
         {activeTab === 'archiving' && selectedRow && (
           <div className="PublicDocument-EditNotificationOverlay">
             <div className="PublicDocument-EditNotification">
-              <button className="PublicDocument-EditNotification-Close" onClick={() => setSelectedRow(null)} title="Close">×</button>
+              <button
+                className="PublicDocument-EditNotification-Close"
+                onClick={() => setSelectedRow(null)}
+                title="Close"
+              >
+                ×
+              </button>
               <div className="PublicDocument-EditNotification-Title">
-                Archive Document<br/><b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>?
+                Archive Document<br />
+                <b style={{ color: '#000000', fontWeight: 500 }}>{selectedRow.id}</b>?
               </div>
-              <button className="PublicDocument-ArchiveBtn" onClick={() => {
-                handleArchiveDocument(selectedRow.id);
-              }}>
+              <button
+                className="PublicDocument-ArchiveBtn"
+                onClick={() => {
+                  handleArchiveDocument(selectedRow.id);
+                }}
+              >
                 ARCHIVE
               </button>
             </div>
@@ -659,24 +945,36 @@ export default function PublicDocument({ username }) {
         username={username}
       />
 
-      {/* Follow-Up Document Success Notification */}
       {showFollowUpNotif && (
         <div className="PublicDocument-EditNotificationOverlay">
-          <div className="PublicDocument-EditNotification" style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}>
+          <div
+            className="PublicDocument-EditNotification"
+            style={{ flexDirection: 'row', gap: '0.6rem', alignItems: 'center', padding: '1rem 1.5rem' }}
+          >
             <span style={{ display: 'flex', alignItems: 'center', marginRight: '0.4rem' }}>
               <svg width="24" height="28" viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none"/>
-                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000"/>
-                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000"/>
+                <rect x="3" y="4" width="18" height="20" rx="2" stroke="#000000" strokeWidth="2" fill="none" />
+                <rect x="7" y="8" width="10" height="2" rx="1" fill="#000000" />
+                <rect x="7" y="13" width="7" height="2" rx="1" fill="#000000" />
+                <rect x="7" y="18" width="5" height="2" rx="1" fill="#000000" />
               </svg>
             </span>
-            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>Follow-Up Document Has Been Added.</span>
+            <span style={{ fontSize: '0.97rem', color: '#000000', fontWeight: 500 }}>
+              Follow-Up Document Has Been Added.
+            </span>
           </div>
         </div>
       )}
       <div className="PublicDocument-AddBtnContainer">
-        <button className="PublicDocument-AddBtn" onClick={() => { closeAll(); setModalOpen(true); }}>ADD DOCUMENT</button>
+        <button
+          className="PublicDocument-AddBtn"
+          onClick={() => {
+            closeAll();
+            setModalOpen(true);
+          }}
+        >
+          ADD DOCUMENT
+        </button>
       </div>
     </div>
   );
