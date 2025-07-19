@@ -47,6 +47,9 @@ export default function Login({ onLogin }) {
         return;
       }
 
+      // Save to localStorage for activity logging
+      localStorage.setItem('user', JSON.stringify({ username: user.username }));
+
       // Pass user info to parent (App.jsx)
       if (onLogin) onLogin(user);
 
