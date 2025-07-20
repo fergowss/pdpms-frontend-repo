@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './PublicDocument.css';
 
 function isOver5Years(dateString) {
@@ -22,6 +23,33 @@ function isOver5Years(dateString) {
   return yearsDiff >= 5;
 }
 
+function generateLogId() {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+  return `LOG-DOC-${year}-${random}`;
+}
+
+async function logActivity(username, action, documentId) {
+  if (!username) {
+    console.warn('Unable to log activity: No username available');
+    return; // Changed to return instead of throw, aligning with AddDocumentModal
+  }
+  const logId = generateLogId();
+  const timestamp = new Date().toISOString();
+  try {
+    await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/activity-logs/', {
+      log_id: logId,
+      username,
+      action_log: 'Added a follow-up in Public Documents', // Corrected action_log
+      timestamp,
+    });
+    console.log(`Activity logged: ${action} by ${username} for Document ID: ${documentId}`);
+  } catch (error) {
+    console.error('Failed to log activity:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.detail || 'Failed to log activity. Please try again.');
+  }
+}
+
 function validatePdfFile(file) {
   if (!file) return '';
   if (file.type !== 'application/pdf') return 'Only PDF files are allowed';
@@ -29,7 +57,7 @@ function validatePdfFile(file) {
   return '';
 }
 
-export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }) {
+export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId, username }) {
   const [formData, setFormData] = useState({
     referenceCode: '',
     subject: '',
@@ -151,7 +179,7 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
     ['referenceCode', 'subject', 'documentType', 'date', 'dateReceived', 'receivedBy', 'status'].forEach(key => {
@@ -193,8 +221,13 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
 
     setErrors(newErrors);
     if (Object.keys(newErrors).length === 0) {
-      onAddFollowUp(formData);
-      onClose();
+      try {
+        await logActivity(username, `Added a Follow-up Record in Public Documents (Document ID: ${docId})`, docId);
+        onAddFollowUp(formData);
+        onClose();
+      } catch (logError) {
+        setErrors({ ...errors, submit: logError.message });
+      }
     }
   };
 
@@ -316,34 +349,37 @@ export default function AddFollowUpModal({ open, onClose, onAddFollowUp, docId }
               />
               {errors.remarks && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.remarks}</div>}
               <label className="PublicDocument-ModalLabel">Upload File <span className="PublicDocument-ModalHint">(PDF Only, Max 10MB)</span></label>
-              <div style={{ width: '100%', overflow: 'hidden' }}>
-                <input
-                  className={`PublicDocument-ModalInput ${errors.file ? 'PublicDocument-InputError' : ''}`}
-                  type="file"
-                  name="file"
-                  accept="application/pdf"
-                  onChange={handleChange}
-                  style={{ width: '100%', maxWidth: '100%', boxSizing: 'border-box', display: 'block' }}
-                />
-                {errors.file && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.file}</div>}
-              </div>
+              <input
+                className={`PublicDocument-ModalInput ${errors.file ? 'PublicDocument-InputError' : ''}`}
+                type="file"
+                name="file"
+                onChange={handleChange}
+                accept="application/pdf"
+                style={{ maxWidth: '100%', boxSizing: 'border-box' }}
+              />
+              {errors.file && <div className="PublicDocument-ErrorText" style={{ color: 'red' }}>{errors.file}</div>}
             </div>
           </div>
+          {errors.submit && (
+            <div className="PublicDocument-FormCenterError" style={{ color: 'red', textAlign: 'center', margin: '10px 0' }}>
+              {errors.submit}
+            </div>
+          )}
           <div className="PublicDocument-ModalActions">
-            <button 
-              type="submit" 
-              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary" 
-              disabled={!isFormValid} 
-              style={{ 
-                opacity: isFormValid ? 1 : 0.6, 
-                cursor: isFormValid ? 'pointer' : 'not-allowed' 
+            <button
+              type="submit"
+              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--primary"
+              disabled={!isFormValid}
+              style={{
+                opacity: isFormValid ? 1 : 0.6,
+                cursor: isFormValid ? 'pointer' : 'not-allowed'
               }}
             >
               ADD FOLLOW-UP
             </button>
-            <button 
-              type="button" 
-              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary" 
+            <button
+              type="button"
+              className="PublicDocument-ModalBtn PublicDocument-ModalBtn--secondary"
               onClick={onClose}
             >
               CANCEL
