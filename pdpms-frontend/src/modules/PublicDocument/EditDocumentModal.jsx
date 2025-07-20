@@ -182,6 +182,35 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate, userna
     }));
   };
 
+  // Utility helpers for follow-up validation
+  const getBaseDocumentId = (documentId) => {
+    if (!documentId) return '';
+    const parts = documentId.split('-');
+    if (parts.length >= 5) {
+      return parts.slice(0, 4).join('-');
+    }
+    return documentId;
+  };
+
+  const hasOngoingFollowUps = async (baseId) => {
+    try {
+      const res = await axios.get('http://127.0.0.1:8000/pdpms/manila-city-hall/ongoing-documents/');
+      return res.data.some((item) => {
+        const id = item.document_id || item.id || '';
+        if (!id.startsWith(baseId)) return false;
+        const parts = id.split('-');
+        const ext = parts.length >= 5 ? parts[parts.length - 1] : '';
+        if (!ext || ext === '0000') return false; // only follow-ups
+        const status = (item.document_status || item.status || '').replace(/\s/g,'').toLowerCase();
+        return status === 'ongoing';
+      });
+    } catch (err) {
+      console.error('Failed to check ongoing follow-ups:', err);
+      // If the check fails, be safe and treat as having ongoing follow-ups
+      return true;
+    }
+  };
+
   // Submit handler with extra logic for archived status
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -214,6 +243,16 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate, userna
       newErrors.submit = 'No username provided. Please log in and try again.';
     }
 
+        // Async validation: prevent archiving when ongoing follow-ups still exist
+    if (formData.status === 'Archived') {
+      const baseId = getBaseDocumentId(doc.id);
+      const ongoingExist = await hasOngoingFollowUps(baseId);
+      if (ongoingExist) {
+        newErrors.status = 'This document still has an ongoing file and cannot be moved to the archive section.';
+      }
+    }
+
+    // Always set errors after async validation
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0 && hasChanges && onUpdate) {
@@ -325,13 +364,17 @@ export default function EditDocumentModal({ open, onClose, doc, onUpdate, userna
                   Archived{formData.date && !isOver5Years(formData.date) ? ' (5+ yrs only)' : ''}
                 </option>
               </select>
-              {errors.status && <div className="PublicDocument-ErrorText">{errors.status}</div>}
-              {formData.status === 'Archived' &&
+              {errors.status && (
+                <div style={{ color: 'gray', marginTop: 4, fontSize: '0.9em' }}>
+                  {errors.status}
+                </div>
+              )}
+              {formData.status === 'Archived' && errors.status !== 'This document still has an ongoing file and cannot be moved to the archive section.' &&
                 <div className="PublicDocument-ErrorText" style={{color: 'gray', fontSize: '0.9em', marginTop: 3}}>
                   Status is archived and can no longer be changed.
                 </div>
               }
-              {initialData && initialData.status === 'Completed' && formData.status === 'Completed' &&
+              {initialData && initialData.status === 'Completed' && formData.status === 'Completed' && errors.status !== 'This document still has an ongoing file and cannot be moved to the archive section.' &&
                 <div className="PublicDocument-ErrorText" style={{color: 'gray', fontSize: '0.9em', marginTop: 3}}>
                   Status cannot be changed from Completed to Ongoing.
                 </div>

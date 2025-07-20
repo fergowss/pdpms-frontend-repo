@@ -237,6 +237,47 @@ export default function PublicDocument({ username }) {
     setTimeout(() => setShowAddNotif(false), 3000);
   };
 
+  // Utility: extract base (mother) document ID
+  function getBaseDocumentIdInternal(docId) {
+    if (!docId) return '';
+    const parts = docId.split('-');
+    // If last part is 4-digit numeric extension, remove it
+    if (parts.length && /^\d{4}$/.test(parts[parts.length - 1])) {
+      return parts.slice(0, -1).join('-');
+    }
+    return docId;
+  }
+
+  // Auto-archive related documents based on new rules
+  const autoArchiveRelated = async (updatedDoc, updatedFields) => {
+    try {
+      if (!updatedDoc) return;
+      const baseId = getBaseDocumentIdInternal(updatedDoc.id);
+      const isMother = updatedDoc.id === baseId;
+
+      // Helper to patch a doc to Archived
+      const archiveDoc = (doc) => axios.patch(`http://127.0.0.1:8000/pdpms/manila-city-hall/documents/${doc.id}/`, { document_status: 'Archived' });
+
+      if (!isMother) {
+        // Follow-up archived: if mother exists, completed, and over 5 yrs, archive mother as well
+        const mother = allData.find((d) => d.id === baseId);
+        if (mother && mother.status === 'Completed' && isOver5Years(mother.date)) {
+          await archiveDoc(mother);
+        }
+      } else {
+        // Mother archived: archive eligible follow-ups (Completed & >5 yrs)
+        const followUps = allData.filter((d) => getBaseDocumentIdInternal(d.id) === baseId && d.id !== baseId);
+
+        const patches = followUps
+          .filter((fu) => fu.status === 'Completed' && isOver5Years(fu.date))
+          .map((fu) => archiveDoc(fu));
+        if (patches.length) await Promise.all(patches);
+      }
+    } catch (err) {
+      console.error('Auto-archive related docs failed:', err);
+    }
+  };
+
   // Handler for when a document is updated
   const handleUpdateDocument = (updatedFields) => {
     axios
@@ -252,7 +293,12 @@ export default function PublicDocument({ username }) {
         setEditModalOpen(false);
         setSelectedRow(null);
         setShowUpdateNotif(true);
-        fetchDocuments();
+        // Auto-archive related docs when status changed to Archived
+        if (updatedFields.status === 'Archived') {
+          autoArchiveRelated(selectedRow, updatedFields).then(() => fetchDocuments());
+        } else {
+          fetchDocuments();
+        }
         setTimeout(() => setShowUpdateNotif(false), 3000);
       })
       .catch((error) => {

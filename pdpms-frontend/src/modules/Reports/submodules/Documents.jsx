@@ -150,6 +150,8 @@ export default function Documents() {
 
   // Handle dropdown toggle for follow-up documents
   const toggleRowExpansion = (rowId, event) => {
+    if (activeTab === 'On Going') return; // disable in On Going tab
+
     event.stopPropagation();
     setExpandedRows((prev) => {
       const newSet = new Set(prev);
@@ -274,10 +276,22 @@ export default function Documents() {
   }
 
   // ---------------- Pagination Logic ----------------
-  const motherDocumentsAll = filteredData.filter(doc => {
-    const extension = getDocumentExtension(doc.id);
-    return !extension || extension === '0000';
-  });
+  // Build the list of *base* rows we should actually render (either the true mother document or,
+  // if the mother lives in another tab, the first follow-up document).  By doing this, follow-up
+  // documents that belong to a mother that is in another status (e.g. Completed) will still be
+  // visible inside the On Going tab as a *temporary* mother row.
+  const { grouped: groupedForPagination } = groupDocuments(filteredData);
+  const motherDocumentsAll = Object.values(groupedForPagination).map((group) => {
+    if (group.mother) {
+      return group.mother; // real mother exists in this tab
+    }
+    if (group.followUps.length > 0) {
+      // Tag the first follow-up so we can give it special styling later
+      return { ...group.followUps[0], __tempMother: true };
+    }
+    // Should not happen but return null to be safe
+    return null;
+  }).filter(Boolean);
 
   const totalPages = Math.max(1, Math.ceil(motherDocumentsAll.length / itemsPerPage));
   const paginatedMotherDocuments = showAllPages
@@ -460,60 +474,80 @@ export default function Documents() {
                     const motherDocuments = paginatedMotherDocuments;
 
                     return motherDocuments.map((row, i) => {
-                      const followUps = getFollowUpDocuments(row.id);
-                      const isExpanded = expandedRows.has(row.id);
+                      let followUps = getFollowUpDocuments(row.id);
+                      // Remove self if this row is a temporary mother coming from follow-ups list
+                      if (row.__tempMother) {
+                        followUps = followUps.filter(fu => fu.id !== row.id);
+                      }
+                      const isExpanded = activeTab === 'On Going' ? true : expandedRows.has(row.id);
                       const rows = [
                         <tr key={row.id || i}>
                           <td style={{ width: '40px', textAlign: 'center', padding: '8px' }}>
-                            <button
-                              onClick={(e) => toggleRowExpansion(row.id, e)}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                cursor: 'pointer',
-                                padding: '4px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                borderRadius: '3px',
-                                transition: 'background-color 0.2s',
-                                opacity: followUps.length > 0 ? 1 : 0.3,
-                              }}
-                              onMouseEnter={(e) => (e.target.style.backgroundColor = '#f0f0f0')}
-                              onMouseLeave={(e) => (e.target.style.backgroundColor = 'transparent')}
-                              title={followUps.length > 0 ? `View ${followUps.length} follow-up document(s)` : 'No follow-up documents'}
-                              disabled={followUps.length === 0}
-                            >
-                              <svg
-                                width="12"
-                                height="12"
-                                viewBox="0 0 12 12"
-                                fill="none"
-                                xmlns="http://www.w3.org/2000/svg"
+                            {activeTab === 'On Going' ? (
+                              row.__tempMother ? (
+                                <div
+                                  style={{
+                                    width: '6px',
+                                    height: '6px',
+                                    backgroundColor: '#666',
+                                    borderRadius: '50%',
+                                    margin: '0 auto',
+                                  }}
+                                ></div>
+                              ) : (
+                                <span></span>
+                              )
+                            ) : (
+                              <button
+                                onClick={(e) => toggleRowExpansion(row.id, e)}
                                 style={{
-                                  transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
-                                  transition: 'transform 0.2s ease',
+                                  background: 'none',
+                                  border: 'none',
+                                  cursor: 'pointer',
+                                  padding: '4px',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  borderRadius: '3px',
+                                  transition: 'background-color 0.2s',
+                                  opacity: followUps.length > 0 ? 1 : 0.3,
                                 }}
+                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
+                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                                title={followUps.length > 0 ? `View ${followUps.length} follow-up document(s)` : 'No follow-up documents'}
+                                disabled={followUps.length === 0}
                               >
-                                <path
-                                  d="M4 2L8 6L4 10"
-                                  stroke={followUps.length > 0 ? '#666' : '#ccc'}
-                                  strokeWidth="1.5"
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                />
-                              </svg>
-                            </button>
+                                <svg
+                                  width="12"
+                                  height="12"
+                                  viewBox="0 0 12 12"
+                                  fill="none"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  style={{
+                                    transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                                    transition: 'transform 0.2s ease',
+                                  }}
+                                >
+                                  <path
+                                    d="M4 2L8 6L4 10"
+                                    stroke={followUps.length > 0 ? '#666' : '#ccc'}
+                                    strokeWidth="1.5"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                  />
+                                </svg>
+                              </button>
+                            )}
                           </td>
-                          <td>{row.id}</td>
-                          <td>{row.ref}</td>
-                          <td className="subject-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.subject)}</td>
-                          <td>{row.type}</td>
-                          <td>{row.date}</td>
-                          <td>{row.received}</td>
-                          <td className="receivedby-cell">{insertNewlines(row.receivedBy, true)}</td>
-                          <td>{row.status}</td>
-                          <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks)}</td>
+                          <td style={row.__tempMother ? { fontStyle: 'italic', color: '#666', paddingLeft: '20px' } : {}}>{row.id}</td>
+                          <td style={row.__tempMother ? { color: '#666' } : {}}>{row.ref}</td>
+                          <td className="subject-cell" style={{ textAlign: 'justify', ...(row.__tempMother ? { color: '#666' } : {}) }}>{insertNewlines(row.subject)}</td>
+                          <td style={row.__tempMother ? { color: '#666' } : {}}>{row.type}</td>
+                          <td style={row.__tempMother ? { color: '#666' } : {}}>{row.date}</td>
+                          <td style={row.__tempMother ? { color: '#666' } : {}}>{row.received}</td>
+                          <td className="receivedby-cell" style={row.__tempMother ? { color: '#666' } : {}}>{insertNewlines(row.receivedBy, true)}</td>
+                          <td style={row.__tempMother ? { color: '#666' } : {}}>{row.status}</td>
+                          <td className="remarks-cell" style={{ textAlign: 'justify', ...(row.__tempMother ? { color: '#666' } : {}) }}>{insertNewlines(row.remarks)}</td>
                           <td>
                             {row.file === '#' ? (
                               <span style={{ color: '#888' }}>No file</span>
