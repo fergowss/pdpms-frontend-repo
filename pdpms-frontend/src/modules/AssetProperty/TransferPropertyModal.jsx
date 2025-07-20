@@ -2,7 +2,36 @@ import React, { useState, useEffect, useRef } from 'react';
 import './AssetProperty.css';
 import axios from 'axios';
 
-export default function TransferPropertyModal({ open, onClose, row, onTransfer, existingParNos = [] }) {
+// Utility function to generate a unique log ID
+function generateLogId() {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+  return `LOG-ASSET-${year}-${random}`;
+}
+
+// Utility function to log activity
+async function logActivity(username, action, propertyNo) {
+  if (!username) {
+    console.warn('Unable to log activity: No username available');
+    return;
+  }
+  const logId = generateLogId();
+  const timestamp = new Date().toISOString();
+  try {
+    await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/activity-logs/', {
+      log_id: logId,
+      username,
+      action_log: 'Transferred an Asset Property',
+      timestamp,
+    });
+    console.log(`Activity logged: ${action} by ${username} for Property No: ${propertyNo}`);
+  } catch (error) {
+    console.error('Failed to log activity:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.detail || 'Failed to log activity. Please try again.');
+  }
+}
+
+export default function TransferPropertyModal({ open, onClose, row, onTransfer, existingParNos = [], username = '' }) {
   // State for base data
   const [formData, setFormData] = useState({
     propertyNo: '',
@@ -598,6 +627,17 @@ export default function TransferPropertyModal({ open, onClose, row, onTransfer, 
       if (onTransfer) {
         await onTransfer(transferData);
       }
+
+      try {
+        // Log activity
+        await logActivity(
+          username, 
+          `Transferred an Asset Property (Property No: ${formData.parNo}, Document ID: ${formData.documentNo})`,
+          formData.parNo
+          );
+        } catch (err) {
+          console.error('Failed to add property or log activity:', err);
+        }
 
       setTransferSuccess(true);
       setIsTransferring(false);
