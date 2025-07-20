@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './AssetProperty.css';
+import './AssetProperty_pagination.css';
 import AddPropertyModal from './AddPropertyModal';
 import EditPropertyModal from './EditPropertyModal';
 import TransferPropertyModal from './TransferPropertyModal';
@@ -37,6 +38,7 @@ export default function AssetProperty() {
   const [searchTerm, setSearchTerm] = useState('');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [allData, setAllData] = useState([]);
+  const [expandedRows, setExpandedRows] = useState(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [validation, setValidation] = useState({
     isOpen: false,
@@ -49,6 +51,11 @@ export default function AssetProperty() {
   const [showDateAcquiredFilter, setShowDateAcquiredFilter] = useState(false);
   const [datePickerPos, setDatePickerPos] = useState({ top: 0, left: 0 });
   const dateInputRef = useRef(null);
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [showAllPages, setShowAllPages] = useState(false);
+  const itemsPerPage = 100;
 
   useEffect(() => {
     if (showDateAcquiredFilter && dateInputRef.current) {
@@ -90,7 +97,21 @@ export default function AssetProperty() {
               .filter((item) => item !== null)
           : [];
         console.log('Processed allData:', fetchedData);
-        setAllData(fetchedData);
+        // Deduplicate so that for each base Document ID (without numeric numeric extension) only one main record exists.
+        const dedupedData = fetchedData.filter((item, idx, arr) => {
+          const extension = getDocumentExtension(item.documentNo);
+          // Always keep items that have a numeric extension (e.g., 0001) because they represent transferred assets.
+          if (/^\d+$/.test(extension)) {
+            return true;
+          }
+          const baseId = getBaseDocumentId(item.documentNo).toLowerCase();
+          // Keep the first occurrence of this baseId that also has no numeric extension.
+          return arr.findIndex((it) => {
+            const itExt = getDocumentExtension(it.documentNo);
+            return !/^\d+$/.test(itExt) && getBaseDocumentId(it.documentNo).toLowerCase() === baseId;
+          }) === idx;
+        });
+        setAllData(dedupedData);
         setIsLoading(false);
       })
       .catch((error) => {
@@ -105,6 +126,63 @@ export default function AssetProperty() {
     setSearchKeyword(value);
   };
 
+  // Handle dropdown toggle for asset transfers
+  const toggleRowExpansion = (rowId, event) => {
+    event.stopPropagation(); // Prevent row selection when clicking dropdown
+    setExpandedRows(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(rowId)) {
+        newSet.delete(rowId);
+      } else {
+        newSet.add(rowId);
+      }
+      return newSet;
+    });
+  };
+
+  // Extract base document ID (without extension)
+  const getBaseDocumentId = (documentId) => {
+    if (!documentId) return '';
+    // Remove the extension part (e.g., "PUBL-DOCU-2025-271a20-0001" -> "PUBL-DOCU-2025-271a20")
+    const parts = documentId.split('-');
+    if (parts.length >= 5) {
+      return parts.slice(0, 4).join('-');
+    }
+    return documentId;
+  };
+
+  // Extract extension from document ID
+  const getDocumentExtension = (documentId) => {
+    if (!documentId) return '';
+    const parts = documentId.split('-');
+    return parts.length >= 5 ? parts[parts.length - 1] : '';
+  };
+
+  // Get transfer properties for a specific document (based on document ID)
+  const getTransferProperties = (documentId, properties) => {
+    const baseId = getBaseDocumentId(documentId);
+    const transfers = [];
+    
+    properties.forEach(prop => {
+      const propBaseId = getBaseDocumentId(prop.documentNo);
+      const extension = getDocumentExtension(prop.documentNo);
+      
+      // If same base document ID but has extension (transferred asset)
+      if (propBaseId === baseId && extension && extension !== '0000' && prop.documentNo !== documentId) {
+        transfers.push(prop);
+      }
+    });
+    
+    // Sort transfers by extension
+    transfers.sort((a, b) => {
+      const extA = getDocumentExtension(a.documentNo);
+      const extB = getDocumentExtension(b.documentNo);
+      return extA.localeCompare(extB);
+    });
+    
+    return transfers;
+  };
+
   // Filter data based on date filter and search keyword with defensive checks
   const filteredData = allData.filter(item => {
     const matchesDate = dateAcquiredFilter ? item.dateAcquired === dateAcquiredFilter : true;
@@ -114,6 +192,42 @@ export default function AssetProperty() {
       value => value && value.toString().toLowerCase().includes(searchKeyword.toLowerCase())
     );
   });
+
+  // Pagination logic - similar to PublicDocument.jsx
+  const motherDocuments = filteredData.filter(item => {
+    const extension = getDocumentExtension(item.documentNo);
+    return !extension || extension === '0000';
+  });
+
+  const totalPages = Math.max(1, Math.ceil(motherDocuments.length / itemsPerPage));
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedMotherDocuments = motherDocuments.slice(startIndex, endIndex);
+
+  // Reset to page 1 when search or date filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+    setExpandedRows(new Set());
+  }, [searchKeyword, dateAcquiredFilter]);
+
+  // Pagination handlers
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+      setExpandedRows(new Set()); // Clear expanded rows when changing pages
+    }
+  };
+
+  const getPageNumbers = () => {
+    const pages = [];
+    for (let i = 1; i <= 10; i++) {
+      pages.push({
+        pageNum: i,
+        isDisabled: i > totalPages
+      });
+    }
+    return pages;
+  };
 
   // Handler for adding a property
   const handleAddProperty = async (newProperty) => {
@@ -407,6 +521,7 @@ export default function AssetProperty() {
           <table className="AssetProperty-Table">
             <thead>
               <tr>
+                <th style={{ width: '40px', textAlign: 'center' }}></th>
                 <th>Property No.</th>
                 <th>Document ID </th>
                 <th>PAR No.</th>
@@ -444,45 +559,145 @@ export default function AssetProperty() {
               </tr>
             </thead>
             <tbody>
-              {filteredData.length === 0 ? (
+              {paginatedMotherDocuments.length === 0 ? (
                 <tr>
-                  <td colSpan={11} style={{ textAlign: 'center', color: '#888' }}>
+                  <td colSpan={12} style={{ textAlign: 'center', color: '#888' }}>
                     No records found.
                   </td>
                 </tr>
               ) : (
-                filteredData.map((row, index) => (
-                  <tr
-                    key={index}
-                    onClick={() => {
-                      console.log('Selected row with propertyNo:', row.propertyNo);
-                      closeAll();
-                      setSelectedRow(row);
-                      setShowEditConfirm(true);
-                    }}
-                    style={{ cursor: 'pointer' }}
-                  >
-                    <td>{row.propertyNo}</td>
-                    <td>{row.documentNo}</td>
-                    <td>{row.parNo}</td>
-                    <td className="description-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.description, 5)}</td>
-                    <td className="serial-no-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.serialNo, 7)}</td>
-                    <td>{row.dateAcquired}</td>
-                    <td>{row.unitCost}</td>
-                    <td>{row.endUser}</td>
-                    <td>{row.estimatedLife}</td>
-                    <td>
-                      <span
-                        className={`AssetProperty-Status ${
-                          row.status ? row.status.toLowerCase().replace(/\s+/g, '') : 'unknown'
-                        }`}
-                      >
-                        {row.status || 'Unknown'}
-                      </span>
-                    </td>
-                    <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks, 10)}</td>
-                  </tr>
-                ))
+                paginatedMotherDocuments.flatMap((row, index) => {
+                  const transfers = getTransferProperties(row.documentNo, filteredData);
+                  const isExpanded = expandedRows.has(row.documentNo);
+                  
+                  const rows = [
+                    // Main property row
+                    <tr
+                      key={index}
+                      onClick={() => {
+                        console.log('Selected row with propertyNo:', row.propertyNo);
+                        closeAll();
+                        setSelectedRow(row);
+                        setShowEditConfirm(true);
+                      }}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <td style={{ width: '40px', textAlign: 'center', padding: '8px' }}>
+                        <button
+                          onClick={(e) => toggleRowExpansion(row.documentNo, e)}
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: '4px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            borderRadius: '3px',
+                            transition: 'background-color 0.2s',
+                            opacity: transfers.length > 0 ? 1 : 0.3
+                          }}
+                          onMouseEnter={(e) => e.target.style.backgroundColor = '#f0f0f0'}
+                          onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
+                          title={transfers.length > 0 ? `View ${transfers.length} asset transfer(s)` : 'No asset transfers'}
+                          disabled={transfers.length === 0}
+                        >
+                          <svg
+                            width="12"
+                            height="12"
+                            viewBox="0 0 12 12"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                            style={{
+                              transform: isExpanded ? 'rotate(90deg)' : 'rotate(0deg)',
+                              transition: 'transform 0.2s ease'
+                            }}
+                          >
+                            <path
+                              d="M4 2L8 6L4 10"
+                              stroke={transfers.length > 0 ? "#666" : "#ccc"}
+                              strokeWidth="1.5"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        </button>
+                      </td>
+                      <td>{row.propertyNo}</td>
+                      <td>{row.documentNo}</td>
+                      <td>{row.parNo}</td>
+                      <td className="description-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.description, 5)}</td>
+                      <td className="serial-no-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.serialNo, 7)}</td>
+                      <td>{row.dateAcquired}</td>
+                      <td>{row.unitCost}</td>
+                      <td>{row.endUser}</td>
+                      <td>{row.estimatedLife}</td>
+                      <td>
+                        <span
+                          className={`AssetProperty-Status ${
+                            row.status ? row.status.toLowerCase().replace(/\s+/g, '') : 'unknown'
+                          }`}
+                        >
+                          {row.status || 'Unknown'}
+                        </span>
+                      </td>
+                      <td className="remarks-cell" style={{ textAlign: 'justify' }}>{insertNewlines(row.remarks, 10)}</td>
+                    </tr>
+                  ];
+                  
+                  // Add transfer property rows if expanded
+                  if (isExpanded && transfers.length > 0) {
+                    transfers.forEach((transfer, transferIndex) => {
+                      rows.push(
+                        <tr
+                          key={`${row.documentNo}-transfer-${transferIndex}`}
+                          style={{ backgroundColor: '#f8f9fa' }}
+                          onClick={() => {
+                            console.log('Selected transfer with propertyNo:', transfer.propertyNo);
+                            closeAll();
+                            setSelectedRow(transfer);
+                            setShowEditConfirm(true);
+                          }}
+                        >
+                          <td style={{ width: '40px', textAlign: 'center', padding: '8px' }}>
+                            <div style={{
+                              width: '6px',
+                              height: '6px',
+                              backgroundColor: '#666',
+                              borderRadius: '50%',
+                              margin: '0 auto',
+                              position: 'relative'
+                            }}></div>
+                          </td>
+                          <td style={{ paddingLeft: '20px', fontStyle: 'italic', color: '#666' }}>
+                            {transfer.propertyNo}
+                          </td>
+                          <td style={{ color: '#666' }}>{transfer.documentNo}</td>
+                          <td style={{ color: '#666' }}>{transfer.parNo}</td>
+                          <td className="description-cell" style={{ textAlign: 'justify', color: '#666' }}>{insertNewlines(transfer.description, 5)}</td>
+                          <td className="serial-no-cell" style={{ textAlign: 'justify', color: '#666' }}>{insertNewlines(transfer.serialNo, 7)}</td>
+                          <td style={{ color: '#666' }}>{transfer.dateAcquired}</td>
+                          <td style={{ color: '#666' }}>{transfer.unitCost}</td>
+                          <td style={{ color: '#666' }}>{transfer.endUser}</td>
+                          <td style={{ color: '#666' }}>{transfer.estimatedLife}</td>
+                          <td>
+                            <span
+                              className={`AssetProperty-Status ${
+                                transfer.status ? transfer.status.toLowerCase().replace(/\s+/g, '') : 'unknown'
+                              }`}
+                              style={{ color: '#666' }}
+                            >
+                              {transfer.status || 'Unknown'}
+                            </span>
+                          </td>
+                          <td className="remarks-cell" style={{ textAlign: 'justify', color: '#666' }}>{insertNewlines(transfer.remarks, 10)}</td>
+                        </tr>
+                      );
+                    });
+                  }
+                  
+                  return rows;
+                })
               )}
             </tbody>
           </table>
@@ -583,6 +798,78 @@ export default function AssetProperty() {
         row={selectedRow}
         onUpdate={handleUpdateProperty}
       />
+      
+      {/* Add Property Modal */}
+      <AddPropertyModal
+        open={addModalOpen}
+        onClose={() => setAddModalOpen(false)}
+        onAdd={handleAddProperty}
+        existingDocumentNos={allData.map(item => item.documentNo?.toLowerCase()).filter(Boolean)}
+      />
+      
+      {/* Add Property Button */}
+      <div className="AssetProperty-AddBtnContainer">
+        <button
+          className="AssetProperty-AddBtn"
+          onClick={() => {
+            closeAll();
+            setAddModalOpen(true);
+          }}
+        >
+          ADD PROPERTY
+        </button>
+      </div>
+      
+      {/* Custom Pagination */}
+      {(
+        <div className="AssetProperty-PaginationContainer">
+          <div className="AssetProperty-PaginationWrapper">
+            {/* Horizontal pagination row: Back → Pages 1-10 → Next */}
+            <div className="AssetProperty-PaginationRow">
+              {/* Back Button */}
+              <button
+                className="AssetProperty-PaginationBackBtn"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="15,18 9,12 15,6"></polyline>
+                </svg>
+                Back
+              </button>
+              
+              {/* Page Numbers 1-10 */}
+              {getPageNumbers().map(({ pageNum, isDisabled }) => (
+                <button
+                  key={pageNum}
+                  className={`AssetProperty-PaginationNumBtn ${currentPage === pageNum ? 'active' : ''}`}
+                  onClick={() => !isDisabled && handlePageChange(pageNum)}
+                  disabled={isDisabled}
+                >
+                  {pageNum}
+                </button>
+              ))}
+              
+              {/* Next Button */}
+              <button
+                className="AssetProperty-PaginationNextBtn"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <polyline points="9,18 15,12 9,6"></polyline>
+                </svg>
+              </button>
+            </div>
+            
+            {/* Page info below pagination */}
+            <div className="AssetProperty-PaginationInfo">
+              Showing page {currentPage} of {totalPages} ({motherDocuments.length} total properties)
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

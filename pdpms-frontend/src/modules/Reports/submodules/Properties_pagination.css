@@ -1,0 +1,119 @@
+/* Custom Pagination Container */
+.Properties-PaginationContainer {
+  position: sticky;
+  bottom: 0;
+  background-color: white;
+  padding: 10px 0;
+  margin-top: -23px;
+  z-index: 100;
+}
+
+.Properties-PaginationWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  gap: 10px;
+}
+
+.Properties-PaginationRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Pagination Back Button */
+.Properties-PaginationBackBtn {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  background-color: white;
+  color: #374151;
+}
+
+.Properties-PaginationBackBtn:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.Properties-PaginationBackBtn:not(:disabled):hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* Pagination Number Button */
+.Properties-PaginationNumBtn {
+  padding: 4px 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  min-width: 28px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  background-color: white;
+  color: #374151;
+}
+
+.Properties-PaginationNumBtn:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.Properties-PaginationNumBtn.active {
+  background-color: #4C6085;
+  color: white;
+}
+
+.Properties-PaginationNumBtn:not(:disabled):not(.active):hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* Pagination Next Button */
+.Properties-PaginationNextBtn {
+  padding: 6px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  background-color: white;
+  color: #374151;
+}
+
+.Properties-PaginationNextBtn:disabled {
+  background-color: #f9fafb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.Properties-PaginationNextBtn:not(:disabled):hover {
+  background-color: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* Pagination Info Text */
+.Properties-PaginationInfo {
+  color: #666;
+  font-size: 12px;
+  font-weight: 500;
+  text-align: center;
+}

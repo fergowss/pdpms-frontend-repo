@@ -224,7 +224,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
         const data = Array.isArray(res.data) ? res.data : [];
         const propertyRecords = data.filter(doc => doc.document_type === 'Property Records');
         
-        // Filter to only show main document IDs (no increment suffixes)
+        // Filter to only show main document IDs (no increment suffixes) and remove duplicates
         const mainDocIds = propertyRecords
           .filter(doc => doc.document_id && doc.document_id.toLowerCase().includes(term))
           .map(doc => doc.document_id)
@@ -238,7 +238,19 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
               return !/^\d+$/.test(lastPart);
             }
             return true;
-          });
+          })
+          // Remove duplicates by converting to Set and back to array
+          // Remove duplicates (case-insensitive)
+          .reduce((acc, id) => {
+            const lower = id.toLowerCase();
+            if (!acc.seen.has(lower)) {
+              acc.seen.add(lower);
+              acc.unique.push(id);
+            }
+            return acc;
+          }, { seen: new Set(), unique: [] }).unique
+          // Filter out already used document IDs
+          .filter(id => !existingDocIds.some(existingId => existingId.toLowerCase() === id.toLowerCase()));
 
         setDocSearchResults(mainDocIds);
         setShowDocDropdown(mainDocIds.length > 0);
@@ -248,7 +260,7 @@ export default function AddPropertyModal({ open, onClose, onAdd, existingDocIds 
         setIsDocDuplicate(isDuplicate);
         if (isDuplicate) {
           setDocValidationStatus('invalid');
-          setDocValidationMessage('The Document ID has been used');
+          setDocValidationMessage('This Document ID has been added');
         } else if (mainDocIds.some(id => id.toLowerCase() === term)) {
           setDocValidationStatus('valid');
           setDocValidationMessage('');
