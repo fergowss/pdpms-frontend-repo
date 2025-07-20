@@ -2,7 +2,36 @@ import React, { useState, useEffect, useRef } from 'react';
 import './AssetProperty.css';
 import axios from 'axios';
 
-export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
+// Utility function to generate a unique log ID
+function generateLogId() {
+  const year = new Date().getFullYear();
+  const random = Math.random().toString(36).substr(2, 6).toUpperCase();
+  return `LOG-ASSET-${year}-${random}`;
+}
+
+// Utility function to log activity
+async function logActivity(username, action, propertyNo) {
+  if (!username) {
+    console.warn('Unable to log activity: No username available');
+    return;
+  }
+  const logId = generateLogId();
+  const timestamp = new Date().toISOString();
+  try {
+    await axios.post('http://127.0.0.1:8000/pdpms/manila-city-hall/activity-logs/', {
+      log_id: logId,
+      username,
+      action_log: 'Edited an Asset Property',
+      timestamp,
+    });
+    console.log(`Activity logged: ${action} by ${username} for Property No: ${propertyNo}`);
+  } catch (error) {
+    console.error('Failed to log activity:', error.response?.data || error.message);
+    throw new Error(error.response?.data?.detail || 'Failed to log activity. Please try again.');
+  }
+}
+
+export default function EditPropertyModal({ open, onClose, row, onUpdate, username }) {
   const [formData, setFormData] = useState({
     propertyNo: '',
     documentNo: '',
@@ -297,7 +326,7 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (employeeValidationStatus !== 'valid' && formData.endUser !== initialData?.endUser) {
       setEmployeeValidationStatus('invalid');
@@ -317,7 +346,16 @@ export default function EditPropertyModal({ open, onClose, row, onUpdate }) {
         status: formData.status,
         remarks: formData.remarks
       };
-      onUpdate(updatedData);
+
+      try {
+        await onUpdate(updatedData);
+
+        // Log activity
+        await logActivity(username, 'Updated an Asset Property', formData.propertyNo);
+        if (onClose) onClose();
+      } catch (error) {
+        console.error('Failed to update property:', error);
+      }
   }
 };
 
