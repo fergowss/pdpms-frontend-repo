@@ -26,7 +26,7 @@ const insertNewlines = (text, wordsPerLine = 10) => {
   return lines.join('\n');
 };
 
-export default function AssetProperty() {
+export default function AssetProperty({ username }) {
   const [transferNotif, setTransferNotif] = useState({ open: false, endUser: '' });
   const [showAddNotif, setShowAddNotif] = useState(false);
   const [showUpdateNotif, setShowUpdateNotif] = useState(false);
@@ -722,6 +722,7 @@ export default function AssetProperty() {
         onAdd={handleAddProperty} 
         existingDocIds={allData.map(item => item.documentNo?.toLowerCase()).filter(Boolean)}
         existingParNos={allData.map(item => item.parNo?.toLowerCase()).filter(Boolean)}
+        username={username}
       />
       
       {showEditConfirm && selectedRow && (
@@ -789,6 +790,7 @@ export default function AssetProperty() {
           existingParNos={allData.map(item => item.parNo?.toLowerCase()).filter(Boolean)}
           row={selectedRow}
           onTransfer={handleTransferProperty}
+          username={username}
         />
       )}
 
@@ -797,6 +799,7 @@ export default function AssetProperty() {
         onClose={closeAll}
         row={selectedRow}
         onUpdate={handleUpdateProperty}
+        username={username}
       />
       
       {/* Add Property Modal */}
@@ -805,6 +808,7 @@ export default function AssetProperty() {
         onClose={() => setAddModalOpen(false)}
         onAdd={handleAddProperty}
         existingDocumentNos={allData.map(item => item.documentNo?.toLowerCase()).filter(Boolean)}
+        username={username}
       />
       
       {/* Add Property Button */}
